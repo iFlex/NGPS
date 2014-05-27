@@ -1,0 +1,7 @@
+This system will aid page reloading by traking the current
+position
+time
+event state
+
+and when the page reloads ( especially in case of some failure) 
+it will resume the presentation from that position

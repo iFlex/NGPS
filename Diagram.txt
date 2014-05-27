@@ -1,0 +1,44 @@
+Container (DIV)
+{
+	//properties
+	UID: unique string id
+	x:   x position
+	y:   y position
+	width
+	height
+	style: css style string
+	children: list of children
+	
+	//functions
+	attach(): attaches this child to a parent
+	getChildren(): get list of children
+	show(): shows container and all children
+	hide(): hides container and all children
+	delete(): deletes container and all children
+	move(dx,dy): moves this object by dx and dy
+	scale(amount): resizes this object by amount
+	rotate(dang): rotates this object by dangle
+	setAngle(angle): sets object's angle
+}
+
+Interaction System
+{
+	//supports both mobile and desktop
+}
+
+Camera
+{
+	//uses external interaction system to trigger actuator functions
+
+	//bounding box properties
+	x:	camera top left x position
+	y:	camera top left y position
+	width: camera interaction area width
+	height:	camera interaction area height
+
+	//actuator functions
+	move(dx,dy)				:moves camera position
+	zoom(cx,cy,amount)		:zooms camera perspective
+	rotate(cx,cy,amount)	:rotates camera perspective
+	setAngle(cx,cy,angle)	:sets camera perspective angle
+}
