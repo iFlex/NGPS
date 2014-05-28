@@ -20,11 +20,14 @@ this.container = function(properties)
 	this.child = 0;
 
 	//INTERACTION
+	//What to do with interaction events( In some cases it's necessary to pass them to the parent )
+	this.propagation = "leaf";
+	//event internals
 	this.allowMove = false;
 	this.lx = 0;
 	this.ly = 0;
-	ownthis = this;
-	//DOM manipulatioj
+
+	//DOM manipulation
 	this.load = function(parent)
 	{
 
@@ -51,6 +54,9 @@ this.container = function(properties)
 		this.DOMreference.style.borderWidth = (this.properties['border_size'] || "0")+"px";
 		this.DOMreference.style.borderColor = (this.properties['border_color'] || "0x000000");
 		this.DOMreference.style.borderStyle = (this.properties['border_type'] || "solid");
+		//add reference of the current object in the DOM object
+		this.DOMreference.parent = this;
+
 		var borders = this.properties["border_radius"];
 
 		for( var i=0; i < 4; ++i )
@@ -183,31 +189,32 @@ this.container = function(properties)
 		this.setAngle(this.angle + dangle);	
 	}
 
-	//event listeners
+	//INTERACTION
 	this.onMouseDown = function(e)
 	{
-		this.lx = e.clientX;
-		this.ly = e.clientY;
-		this.allowMove = true;
-		console.log("Mouse Down("+oldthis.UID+")"+this+" / "+oldthis);
+		e.stopPropagation();
+		this.parent.lx = e.clientX;
+		this.parent.ly = e.clientY;
+		this.parent.allowMove = true;
+		console.log("MMouse Down("+this.parent.UID+")"+this+" / "+this.parent);
 	}
 	
 	this.onMouseMove = function(e)
 	{
-		if(this.allowMove)
+		if(this.parent.allowMove)
 		{
 			//alert(this);
-			console.log("Mouse Move("+oldthis.UID+")");
-			this.move(this.lx - e.clientX, this.ly - e.clientY);
-			this.lx = e.clientX;
-			this.ly = e.clientY;
+			console.log("Mouse Move("+this.parent.UID+")");
+			this.parent.move(e.clientX - this.parent.lx , e.clientY - this.parent.ly );
+			this.parent.lx = e.clientX;
+			this.parent.ly = e.clientY;
 		}
 	}
 
 	this.onMouseUp = function(e)
 	{
-		console.log("Mouse Up("+this.UID+")");
-		this.allowMove = false;
+		console.log("Mouse Up("+this.parent.UID+")");
+		this.parent.allowMove = false;
 	}
 
 	this.draggable = function( d )
