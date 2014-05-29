@@ -28,10 +28,10 @@ function test_move()
 	div2.addPrimitive({type:'iframe',content:{src:"http://www.youtube.com/embed/XGSy3_Czz8k",width:"420",height:"345"},})
 
 	var kid = new container({width:50,height:50,x:0,y:0,background:"red",border_size:1,border_style:"solid",border_color:"0x000000"});
-	kid.load(div.DOMreference);
+	kid.load(div);
 
 	var kid2 = new container({width:20,height:20,x:25,y:25,background:"orange",border_size:1,border_style:"solid",border_color:"0x000000"});
-	success = kid2.load(kid.DOMreference);
+	success = kid2.load(kid);
 	
 	var count = 1000;
 	var interval  = 10;
@@ -46,7 +46,7 @@ function test_move()
 		
 		if(count > 100 && !changed)
 		{
-			kid.changeParent(div2.DOMreference);
+			kid.changeParent(div2);
 			changed = true;
 		}
 
@@ -105,15 +105,19 @@ function test_event_listeners()
 	div2.addPrimitive({type:'iframe',content:{src:"http://www.youtube.com/embed/XGSy3_Czz8k",width:"420",height:"345"},})
 
 	var kid = new container({width:50,height:50,x:0,y:0,background:"red",border_size:0,border_style:"solid",border_color:"0x000000"});
-	kid.load(div.DOMreference);
+	kid.load(div);
 
 	var kid2 = new container({width:20,height:20,x:25,y:25,background:"orange",border_size:0,border_style:"solid",border_color:"0x000000"});
-	success = kid2.load(kid.DOMreference);
+	success = kid2.load(kid);
 
-	div.draggable(true);
-	div2.draggable(true);
-	kid.draggable(true);
-	kid2.draggable(true);
+	kid2.propagation = 0;
+	kid.propagation = 2;
+	kid2.onTrigger = function(e){alert("Bitch Please:"+e.UID+" :: "+e.triggerCount);}
+
+	div.interaction(true);
+	div2.interaction(true);
+	kid.interaction(true);
+	kid2.interaction(true);
 }
 
 //setTimeout(test_add_and_remove,1000);

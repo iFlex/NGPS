@@ -6,38 +6,46 @@
 *	GSAP library:
 *		TweenLite Module
 */
-this.containerIndex = 0;
+this.containerData = {};
+containerData.containerIndex = 0;
 this.container = function(properties)
 {
 	this.UID = 0;
 	this.DOMreference = 0;
-	this.DOMparent = 0;
+	this.parent = 0;
+	//display properties
 	this.angle = 0;
 	this.scaleX = 1;
 	this.scaleY = 1;
 	this.properties = properties || {};
+	//content properties
 	this.isLeaf = false;
 	this.child = 0;
 
 	//INTERACTION
 	//What to do with interaction events( In some cases it's necessary to pass them to the parent )
-	this.propagation = "leaf";
-	//event internals
-	this.allowMove = false;
+	this.propagation = 0; 
+	// 0 no propagation; 
+	// 1 Native propagation to parent ( Native Browser Propagation ); 
+	// 2 Manual propagation to parent ( Strict )
+
+	//INTERACTION Rights
+	this.allowMove = true;
+	this.allowTrigger = true;
+	//interaction internals
+	this.hasMD = false;
 	this.lx = 0;
 	this.ly = 0;
-
+	this.dragDist = 0;
+	this.triggerCount = 0;
 	//DOM manipulation
 	this.load = function(parent)
 	{
 
-		if(this.DOMparent)
+		if(this.parent)
 			return false;
 
-		if(!parent)
-			parent = document.body;
-
-		this.UID = this.containerIndex++;
+		this.UID = containerData.containerIndex++;
 		this.DOMreference = document.createElement("div");
 		this.DOMreference.setAttribute('id',this.UID);
 
@@ -55,7 +63,7 @@ this.container = function(properties)
 		this.DOMreference.style.borderColor = (this.properties['border_color'] || "0x000000");
 		this.DOMreference.style.borderStyle = (this.properties['border_type'] || "solid");
 		//add reference of the current object in the DOM object
-		this.DOMreference.parent = this;
+		this.DOMreference.context = this;
 
 		var borders = this.properties["border_radius"];
 
@@ -70,35 +78,37 @@ this.container = function(properties)
 			}
 		}
 
-		//append
-		this.DOMparent = parent;
-		this.DOMparent.appendChild(this.DOMreference);
+		if(parent)
+		{
+			//append
+			this.parent = parent;
+			parent.DOMreference.appendChild(this.DOMreference);
+		}
+		else //this is the master object ( root )
+			document.body.appendChild(this.DOMreference);
+		
 		return true;
 	}
 
 	this.discard = function(bitch)
 	{
-		alert(this.DOMparent);
+
+		if(this.parent)
+			this.parent.DOMreference.removeChild(this.DOMreference);
 		
-		console.log("Removing from:"+this.DOMparent);
-		if(this.DOMparent)
-			this.DOMparent.removeChild(this.DOMreference);
-		
-		this.DOMparent = null;
+		this.parent = null;
 		delete this.DOMreference;
 		delete this;
 	}
 
 	this.changeParent = function(parent)
 	{
-		if(!parent)
-			parent = document.body;
-
-		if( this.DOMparent && this.DOMreference)
+	
+		if( parent && this.parent && this.parent.DOMreference && this.DOMreference)
 		{
-			this.DOMparent.removeChild(this.DOMreference);
-			this.DOMparent = parent;
-			this.DOMparent.appendChild(this.DOMreference);
+			this.parent.DOMreference.removeChild(this.DOMreference);
+			this.parent = parent;
+			this.parent.DOMreference.appendChild(this.DOMreference);
 			return true;
 		}
 		return false;
@@ -135,6 +145,11 @@ this.container = function(properties)
 	}
 
 	//getters
+	this.getPos   = function()
+	{	
+		return { x:this.DOMreference.offsetLeft , y:this.DOMreference.offsetTop };
+	}
+
 	this.getWidth = function(w)
 	{
 		return this.DOMreference.clientWidth;
@@ -190,41 +205,139 @@ this.container = function(properties)
 	}
 
 	//INTERACTION
-	this.onMouseDown = function(e)
+	this.onMouseDown = function( e , ctx )
 	{
+		if(!ctx)
+			ctx = this.context;
+		
+		if( ctx.propagation == 1 )
+			return true;
+
 		e.stopPropagation();
-		this.parent.lx = e.clientX;
-		this.parent.ly = e.clientY;
-		this.parent.allowMove = true;
-		console.log("MMouse Down("+this.parent.UID+")"+this+" / "+this.parent);
-	}
-	
-	this.onMouseMove = function(e)
-	{
-		if(this.parent.allowMove)
+		if( ctx.propagation == 0 )
 		{
-			//alert(this);
-			console.log("Mouse Move("+this.parent.UID+")");
-			this.parent.move(e.clientX - this.parent.lx , e.clientY - this.parent.ly );
-			this.parent.lx = e.clientX;
-			this.parent.ly = e.clientY;
+			ctx.lx = e.clientX;
+			ctx.ly = e.clientY;
+			ctx.hasMD = true;
+			ctx.dragDist = 0;
+			console.log("Mouse Down("+ctx.UID+")");
+		}
+		else
+		{
+			console.log("Propagating:"+e.type +" to:"+ ctx.parent.UID)
+			ctx.parent.onMouseDown( e , ctx.parent );
 		}
 	}
-
-	this.onMouseUp = function(e)
+	
+	this.onMouseMove = function(e, ctx)
 	{
-		console.log("Mouse Up("+this.parent.UID+")");
-		this.parent.allowMove = false;
+		if(!ctx)
+			ctx = this.context;
+
+		if( ctx.propagation == 1 )
+			return true;
+
+		if( ctx.propagation == 0)
+		{
+			if(ctx.hasMD)
+			{
+				//console.log("Mouse Move("+ctx.UID+")");
+				var dx = e.clientX - ctx.lx;
+				var dy = e.clientY - ctx.ly
+				if(ctx.allowMove)
+					ctx.move( dx , dy );
+				
+				ctx.dragDist += Math.sqrt(dx*dx+dy*dy);
+				ctx.lx = e.clientX;
+				ctx.ly = e.clientY;
+			}
+		}
+		else
+		{
+			//console.log("Propagating:"+e.type +" to:"+ ctx.parent.UID)
+			ctx.parent.onMouseMove( e , ctx.parent );
+		}
 	}
-
-	this.draggable = function( d )
+	this.onMouseUp = function( e , ctx )
 	{
-		this.DOMreference.setAttribute('draggable', d);
-		this.DOMreference.addEventListener('dragstart', this.onMouseDown, false);
-  		this.DOMreference.addEventListener('dragenter', this.onMouseDown, false);
-  		this.DOMreference.addEventListener('dragover',  this.onMouseMove, false);
-  		this.DOMreference.addEventListener('dragleave', this.onMouseUp,   false);
-  		this.DOMreference.addEventListener('dragend',   this.onMouseUp,   false);
-  		this.DOMreference.addEventListener('drop',      this.onMouseUp,   false);
+
+		if(!ctx)
+			ctx = this.context;
+
+		if( ctx.propagation == 1 )
+			return true;
+
+		if(ctx.propagation == 0)
+		{
+			if(ctx.hasMD)
+			{
+				console.log("Mouse Up("+ctx.UID+")"+"<"+e.type+">");
+				// if triggered then call handler
+				if( ctx.dragDist < 7 && ctx.allowTrigger ) // this is considered a tap / click
+					if(	ctx.onTrigger ) // minimal handler call ( no event object generated yet )
+					{
+						ctx.onTrigger( ctx );
+						ctx.triggerCount++;
+					}
+			}
+			ctx.hasMD = false;
+		}
+		else
+		{
+			ctx.hasMD = false;
+			console.log("Propagating:"+e.type +" to:"+ ctx.parent.UID)
+			ctx.parent.onMouseUp( e , ctx.parent );
+		}
+	}
+	this.onMouseOut = function( e , ctx )
+	{
+		if(!ctx)
+			ctx = this.context;
+
+		if( ctx.propagation == 1 ) 
+			return true;
+		
+		//determine if point is within boundaries ( if yes ignore )
+		var pos = ctx.getPos();
+		var w = ctx.getWidth();
+		var h = ctx.getHeight();
+		//console.log(" px:"+e.clientX+" py:"+e.clientY+" dx:"+pos.x+" dy:"+pos.y+" w:"+w+" h:"+h);
+		if( e.clientX >= pos.x && e.clientX < pos.x + w )
+			if( e.clientY >= pos.y && e.clientY < pos.y + h )
+				return false;
+		
+		e.type = "mouseup";
+		ctx.onMouseUp( e , ctx );
+	} 
+
+	//INTERACTION CONTROLLERS
+	this.interaction = function( d )
+	{
+		if( d ) 
+		{
+			if(	!this.isDraggable )
+			{
+				this.isDraggable = true;
+		  		//engage listeners
+		  		this.DOMreference.addEventListener('mousedown',this.onMouseDown, false);
+		  		this.DOMreference.addEventListener('mousemove',this.onMouseMove, false);
+		  		this.DOMreference.addEventListener('mouseover',this.onMouseMove, false);
+		  		this.DOMreference.addEventListener('mouseup',this.onMouseUp, false);
+		  		this.DOMreference.addEventListener('mouseout',this.onMouseOut, false);
+		  	}
+	  	}
+	  	else
+	  	{
+	  		if( this.isDraggable )
+	  		{
+		  		this.isDraggable = false;
+		  		//disengage listeners
+		  		this.DOMreference.removeEventListener('mousedown',this.onMouseDown, false);
+			  	this.DOMreference.removeEventListener('mousemove',this.onMouseMove, false);
+			  	this.DOMreference.removeEventListener('mouseover',this.onMouseMove, false);
+			  	this.DOMreference.removeEventListener('mouseup',this.onMouseUp, false);
+			  	this.DOMreference.removeEventListener('mouseout',this.onMouseOut, false);
+			}
+	  	}
 	}
 }
