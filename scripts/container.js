@@ -1,7 +1,7 @@
 /**
 *	NGPS Container Class
 *   Author: Milorad Liviu Felix
-*	10 May 2014 01:57 GMT
+*	10 May 01:57 GMT
 *	Dependencies:
 *	GSAP library:
 *		TweenLite Module
@@ -11,7 +11,6 @@ containerData.containerIndex = 0;
 this.container = function(properties)
 {
 	this.UID = 0;
-	this.name = "noname";
 	this.DOMreference = 0;
 	this.parent = 0;
 	//display properties
