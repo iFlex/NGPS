@@ -324,7 +324,8 @@ this.container = function(properties)
 				if( ctx.dragDist < 7 && ctx.allowTrigger ) // this is considered a tap / click
 					if(	ctx.onTrigger ) // minimal handler call ( no event object generated yet )
 					{
-						ctx.onTrigger( ctx );
+						alert("event:"+e);
+						//ctx.onTrigger( ctx , e );
 						ctx.triggerCount++;
 					}
 			}

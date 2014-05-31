@@ -1,3 +1,28 @@
+//folder structure
+root:
+	index.html
+	scripts:
+		dreivers.js
+		TweenMax.js
+		container.js
+		containerTemplates.js
+		camera.js
+		factory.js
+	
+	themes: ( AMS ) //each of this files scripts a certain template and imposes a certain style on the containers
+		default.js
+	
+	style:	( contains css files that style containers )
+		default.css
+
+	regional: ( containes a regional loader script and folders with default messages translated for the folder's country )
+		regional.js
+		english:
+			messages.js
+		french:
+			messages.js
+
+
 Container (DIV)
 {
 	//properties

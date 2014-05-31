@@ -192,16 +192,20 @@ this.container = function(properties)
 	{	
 		return { x:this.DOMreference.offsetLeft , y:this.DOMreference.offsetTop };
 	}
-
-	this.getWidth = function(w)
+	this.getWidth = function()
 	{
-		return this.DOMreference.clientWidth;
+		return this.DOMreference.clientWidth * this.scaleX;
 	} 
 
-	this.getHeight = function(h)
+	this.getHeight = function()
 	{
-		return this.DOMreference.clientHeight;
-	} 
+		return this.DOMreference.clientHeight * this.scaleY;
+	}
+
+	this.getCenter = function()
+	{
+		return { x: this.DOMreference.offsetLeft + this.getWidth()/2 , y: this.DOMreference.offsetTop + this.getHeight()/2 };
+	}
 
 	//setters
 	this.setWidth = function(w)
@@ -224,6 +228,17 @@ this.container = function(properties)
 			rotation:angle,
 		});
 	}
+	this.putAt = function(	x, y, refX , refY )
+	{
+		if(!refX)
+			refX = 0;
+		
+		if(!refY)
+			refY = 0;
+
+		this.DOMreference.style.left = x - refX * this.getWidth() + "px";
+		this.DOMreference.style.top  = y - refY * this.getHeight() + "px";
+	}
 
 	//actuators
 	this.move = function(dx,dy)
@@ -234,11 +249,11 @@ this.container = function(properties)
 
 	this.scale = function(amount)
 	{
-		this.scaleX = amount;
-		this.scaleY = amount;
+		this.scaleX *= amount;
+		this.scaleY *= amount;
 		TweenMax.to(this.DOMreference,0,{
-			scaleX:amount,
-			scaleY:amount,
+			scaleX:this.scaleX,
+			scaleY:this.scaleY,
 		});
 	}
 
@@ -323,7 +338,7 @@ this.container = function(properties)
 				if( ctx.dragDist < 7 && ctx.allowTrigger ) // this is considered a tap / click
 					if(	ctx.onTrigger ) // minimal handler call ( no event object generated yet )
 					{
-						ctx.onTrigger( ctx );
+						ctx.onTrigger( ctx , e);
 						ctx.triggerCount++;
 					}
 			}
