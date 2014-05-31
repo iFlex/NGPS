@@ -22,6 +22,7 @@ Camera.cheight = 0;
 //operations flags
 Camera.callow = true;
 Camera.cops = {};
+
 Camera.cstart = function(interval)
 {
 	if(!this.cinterval)
@@ -36,26 +37,29 @@ Camera.cstart = function(interval)
 	this.onMoved = this.cmove;
 	this.callow = true;
 }
-
+//TODO: TEST
 Camera.ccancel = function()
 {
 	for( k in this.cops)
 		clearInterval(this.cops);
 }
-
+//TODO: TEST
 Camera.cstop = function()
 {
 	this.ccancel();
 	this.callow = false;
 	delete this.onMoved;
 }
-
+//TODO: calculate boundaries and add boundary limit enforcing
 Camera.cmove = function(dx,dy)
 {
 	for( k in this.children )
 		this.children[k].move(dx,dy);
 }
 
+//TODO  investigate positioning imperfections
+//		Calculate boundaries and enforce zoom limits
+//		exclude objects that have been zoomed out to far in order not to loose accurate positioning
 Camera.czoom = function(amount,cx,cy)
 {
 	this.czoomLevel *= amount;
@@ -85,7 +89,7 @@ Camera.czoom = function(amount,cx,cy)
 		this.children[k].scale( amount );	
 	}
 }
-
+//TODO investigate aligning imperfections
 Camera.crotate = function(amount,cx,cy)
 {
 	this.cangle += amount;
@@ -119,6 +123,14 @@ Camera.crotate = function(amount,cx,cy)
 	}
 }
 
+//TODO 3D like camera pan
+Camera.cpan = function(panx,pany)
+{
+
+}
+
+//TODO perfect focus exit conditin and add parameters for selective exclusion of tweening
+// eg. don't zoom to level, don't turn to level, don't pan camera 
 Camera.cfocusOn = function(target)
 {
 	if(!this.callow)
@@ -152,3 +164,5 @@ Camera.cfocusOn = function(target)
 
 	this.cops['focusOn'] = setInterval( focusOn, this.cinterval );
 }
+
+//TODO: add tween function for camera properties ( pos, zoom, rot, pan )

@@ -2,26 +2,34 @@
 root:
 	index.html
 	scripts:
-		dreivers.js
-		TweenMax.js
-		container.js
-		containerTemplates.js
-		camera.js
-		factory.js
+		drivers.js				// 1. platform detection and specific functions 2. general functions
+		TweenMax.js				// Div manipulation (transform)
+		container.js			// Container Class 
+		containerTemplates.js	// Container Descriptors
+		camera.js				// Camera functions to extend Container to Camera
+		factory.js				// 1. Generic container and camera creation 2. AMS runner
+		edit.js					// Container Interface Builder and Manager
+		plugins:
+			...					// Plugin scripts that can live inside containers ( js apps )
+								// eg.	TextEditor, Charts, Physics Engine, Canvas Drawer, et
 	
 	themes: ( AMS ) //each of this files scripts a certain template and imposes a certain style on the containers
-		default.js
+		default.js	
 	
 	style:	( contains css files that style containers )
 		default.css
 
-	regional: ( containes a regional loader script and folders with default messages translated for the folder's country )
-		regional.js
+	regional:
+		regional.js				// Loader for language specific messages
 		english:
-			messages.js
+			messages.js			// Language specific messages
 		french:
-			messages.js
-
+			messages.js	
+	eresources:
+		...						// Images and resources used by editor
+	resources:
+		...						// Images and resources used in presentation ( this is copied to the presentation's resources forlder and then deleted form this one )
+	
 
 Container (DIV)
 {

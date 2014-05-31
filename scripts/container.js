@@ -41,6 +41,7 @@ this.container = function(properties)
 	this.triggerCount = 0;
 
 	//DOM manipulation
+	//TODO: Add possibility to  style with CSS
 	this.load = function(parent)
 	{
 
@@ -156,7 +157,7 @@ this.container = function(properties)
 		}
 		return false;
 	}
-
+	//TODO: check
 	this.addPrimitive = function(descriptor)
 	{
 		if(!descriptor['type'])
@@ -188,6 +189,7 @@ this.container = function(properties)
 	}
 
 	//getters
+	//TODO: Fix bad actual size reporting problem
 	this.getPos   = function()
 	{	
 		return { x:this.DOMreference.offsetLeft , y:this.DOMreference.offsetTop };
@@ -373,6 +375,11 @@ this.container = function(properties)
 	} 
 
 	//INTERACTION CONTROLLERS
+	//TODO: Integrate mobile events
+	//		Integrate touch gestures: pinch enlarge, touch rotate
+	//			for camera
+	//		Integrate Mac scrolling
+	//		Integrate mouse wheel scrolling
 	this.interactive = function( d )
 	{
 		if( d ) 
