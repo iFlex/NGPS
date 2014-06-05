@@ -3,17 +3,23 @@
 *   Author: Milorad Liviu Felix
 *	10 May 2014 07:34 GMT
 */
-
+var x = 0;
+var y = 0;
+var size = 400;
 function test_init()
 {
 	factory.init();
-
-	var div =  factory.newContainer({width:200,height:200,x:100,y:0},"rounded_rect",factory.root);
-	var r1  =  factory.newContainer({width:100,height:50,x:10,y:0},"simple_rect",div);	
-	var r2  =  factory.newContainer({width:30,height:30,x:10,y:0},"rounded_rect",r1);
-	
-	factory.newContainer({width:200,height:200,x:400,y:0},"simple_rect");
-	test_addNremove();
+	//initiate all tests
+	for( key in tests )
+		tests[key]();
+}
+function nextSector(){
+	x++;
+	if(x > 10)
+	{
+		x=0;
+		y++;
+	}
 }
 
 function test_addNremove()
@@ -25,4 +31,23 @@ function test_addNremove()
 	factory.root.onTrigger = makeContainer;
 }
 
+var tests = {
+test_img:function()
+{
+	var o = factory.newContainer({width:200,height:200,x:x*size,y:y*size},"rounded_rect");
+	o.addPrimitive({type:'img',content:{src:"http://www.dumpaday.com/wp-content/uploads/2011/12/funny-meme-pictures.jpg"},})
+	nextSector();
+},
+test_vid: function()
+{
+	var o = factory.newContainer({width:420,height:350,x:x*size,y:y*size},"rounded_rect");
+	o.addPrimitive({type:'iframe',content:{src:"http://www.youtube.com/embed/XGSy3_Czz8k",width:"420",height:"345"},})
+	nextSector();
+},
+test_relative_pos:function(){
+	var o = factory.newContainer({width:200,height:200,x:x*size,y:y*size},"rounded_rect");
+	factory.newContainer({width:50,height:50,x:"50%",y:"50%"},"rounded_rect",o);
+	nextSector();
+},
+}
 setTimeout(test_init,500);

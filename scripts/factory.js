@@ -29,7 +29,8 @@ factory.init = factory.init || function(mode) // editor init
 	//make a full screen camera object
 	var root = new container(descriptor);
 	root.load();
-	root.extend(Camera);	
+	root.extend(Interactive);
+	root.extend(Camera);
 	root.interactive(true);
 	root.cstart(30);
 
@@ -68,6 +69,8 @@ factory.newContainer = function(possize,tag,parent)
 		descriptor.height = possize.height;
 	
 	var obj = parent.addChild(descriptor);
+	obj.extend(Interactive); //make object interactive
+
 	if(obj)
 	{
 		obj.load();
@@ -91,4 +94,9 @@ factory.newCamera = function (possize,tag,parent,interval)
 		obj.cstart(interval);
 	}
 	return obj;
+}
+//TODO: simplify method of adding content through a few modes
+factory.addContent = function( obj , content , mode )
+{
+
 }

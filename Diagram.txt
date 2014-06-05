@@ -25,8 +25,10 @@ root:
 			messages.js			// Language specific messages
 		french:
 			messages.js	
+
 	eresources:
 		...						// Images and resources used by editor
+	
 	resources:
 		...						// Images and resources used in presentation ( this is copied to the presentation's resources forlder and then deleted form this one )
 	

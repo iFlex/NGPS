@@ -11,8 +11,6 @@ factory.AMS = {
 	minWidth : 100,
 	minHeight : 100,
 	direction : -50,
-	a:"http://youtu.be/OglS3Q0Zxik",
-	b:"http://assets3.parliament.uk/iv/main-large//ImageVault/Images/id_7382/scope_0/ImageVaultHandler.aspx.jpg",
 	init: function( set, store){
 		factory.settings.background = "red";	
 	},
