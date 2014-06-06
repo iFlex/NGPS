@@ -25,6 +25,21 @@ root:
 			messages.js			// Language specific messages
 		french:
 			messages.js	
+	
+	plugins:	//each folder contains code for a plugin
+		Text
+		Video
+		...	
+		//plugin structure
+		main.js >> will be included in the code if that plugin is included
+					this can use require.js to include any other components	
+		required functions:
+			init()			//do initiation if necessary
+			load(target)	//load the plugin on a container ( which will read the container's contents and load it into it's interface )
+			store(target)	//store the edited or added text in the container
+			hide()			//for efficiency
+			show()
+			! the container hosting the content will have to have data tags that tell the system what plugin to edit the content with
 
 	eresources:
 		...						// Images and resources used by editor

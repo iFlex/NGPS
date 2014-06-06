@@ -17,6 +17,18 @@ utils.merge = function(a,b,option){
 }
 
 this.platform = {};
+platform.os = "unknown";
+platform.isMobile = "false";
+
 platform.getScreenSize = function(){
 	return { height:window.screen.availHeight, width:window.screen.availWidth }
 }
+
+platform.detectOS = function(){
+	str = "";
+	for(k in navigator.appVersion)
+		str +=	navigator.appVersion[k];
+	alert(str);
+}
+
+platform.detectOS();

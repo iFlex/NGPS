@@ -131,29 +131,8 @@ Interactive.onMouseOut = function( e , ctx )
 } 
 
 //Mobile interaction
-Interactive.touch_points = {};
-Interactive.nr_touch_points = 0;
 Interactive.mLastDistance = 0;
 Interactive.mLastAngle = 0;
-
-Interactive.enableMobile = function ( obj )
-{
-	//one finger events
-	obj.addEventListener('touchmove', this.touchmoved, false);
-	obj.addEventListener('touchend', this.touchend, false);
-	obj.addEventListener('touchcancel', this.touchend, false);
-	obj.addEventListener('touchleave', this.touchend, false);
-
-}
-
-Interactive.disableMobile = function (obj)
-{
-	//one finger events
-	obj.removeEventListener('touchmove', this.touchmoved, false);
-	obj.removeEventListener('touchend', this.touchend, false);
-	obj.removeEventListener('touchcancel', this.touchend, false);
-	obj.removeEventListener('touchleave', this.touchend, false);
-}
 
 Interactive.touchstart = function( e , ctx)
 {
@@ -165,6 +144,7 @@ Interactive.touchstart = function( e , ctx)
 
 	//NOT NEEDED AT THE MOMENT
 }
+//TODO: sort out propagation for this
 Interactive.touchmoved = function( e , ctx)
 {
 	if( e.touches.length > 1 )
@@ -174,6 +154,8 @@ Interactive.touchmoved = function( e , ctx)
 	
 		if( ctx.propagation == 1 )
 			return true;
+
+		e.stopPropagation();
 
 		var p1 = e.touches[0];
 		var p2 = e.touches[1];
@@ -221,7 +203,24 @@ Interactive.touchend = function( e, ctx){
 	ctx.mLastAngle = 0;
 }
 
+Interactive.enableMobile = function ( obj )
+{
+	//one finger events
+	obj.addEventListener('touchmove', this.touchmoved, false);
+	obj.addEventListener('touchend', this.touchend, false);
+	obj.addEventListener('touchcancel', this.touchend, false);
+	obj.addEventListener('touchleave', this.touchend, false);
 
+}
+
+Interactive.disableMobile = function (obj)
+{
+	//one finger events
+	obj.removeEventListener('touchmove', this.touchmoved, false);
+	obj.removeEventListener('touchend', this.touchend, false);
+	obj.removeEventListener('touchcancel', this.touchend, false);
+	obj.removeEventListener('touchleave', this.touchend, false);
+}
 
 //INTERACTION CONTROLLERS
 //TODO: Integrate mobile events
@@ -256,7 +255,7 @@ Interactive.interactive = function( d )
 		  	this.DOMreference.removeEventListener('mouseover',this.onMouseMove, false);
 		  	this.DOMreference.removeEventListener('mouseup'  ,this.onMouseUp,   false);
 		  	this.DOMreference.removeEventListener('mouseout' ,this.onMouseOut,  false);
-		  	this.disableMobile( this.DOMreference )
+		  	this.disableMobile( this.DOMreference );
 		}
   	}
 }

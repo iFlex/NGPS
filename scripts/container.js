@@ -82,7 +82,7 @@ this.container = function(properties)
 		if(!this.DOMreference.style.borderColor)
 			this.DOMreference.style.borderColor = (this.properties['border_color'] || "0x000000");
 		if(!this.DOMreference.style.borderStyle)
-			this.DOMreference.style.borderStyle = (this.properties['border_type'] || "solid");
+			this.DOMreference.style.borderStyle = (this.properties['border_type'] || this.properties['border_style'] || "solid");
 		//add reference of the current object in the DOM object
 		this.DOMreference.context = this;
 
@@ -112,7 +112,6 @@ this.container = function(properties)
 		
 		return true;
 	}
-	
 	//EXTENTION Posibilities ( Turn Object into Camera )
 	this.extend = function( extensions )
 	{
@@ -208,6 +207,10 @@ this.container = function(properties)
 	{
 		this.DOMreference.style.display = "none";
 	}
+	this.redraw = function (){
+		this.hide();
+		this.show();
+	}
 
 	//getters
 	//TODO: Fix bad actual size reporting problem
@@ -236,6 +239,7 @@ this.container = function(properties)
 		TweenMax.to(this.DOMreference,0,{
 			width:w,
 		});
+		//this.redraw();
 	} 
 
 	this.setHeight = function(h)
@@ -243,6 +247,7 @@ this.container = function(properties)
 		TweenMax.to(this.DOMreference,0,{
 			height:h,
 		});
+		//this.redraw();
 	}
 	this.setAngle = function(angle)
 	{
