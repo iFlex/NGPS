@@ -7,6 +7,7 @@
 *		Must be applied to an existing Container Object
 */
 
+//TODO: if container is leaf: bind it's properties to it's child's properties: so that when you change the container size the content size changes
 this.Camera = {};
 //now adding camera specific functions
 //camera focus
@@ -38,10 +39,15 @@ Camera.cstart = function(interval)
 	this.callow = true;
 }
 //TODO: TEST
-Camera.ccancel = function()
+Camera.ccancel = function(what)
 {
-	for( k in this.cops)
-		clearInterval(this.cops);
+	if(!what)
+	{
+		for( k in this.cops )
+			clearInterval( this.cops );
+	}
+	else if( this.cops[what] )
+		clearInterval(this.cops[what]);
 }
 //TODO: TEST
 Camera.cstop = function()
@@ -131,29 +137,63 @@ Camera.cpan = function(panx,pany)
 
 //TODO perfect focus exit conditin and add parameters for selective exclusion of tweening
 // eg. don't zoom to level, don't turn to level, don't pan camera 
-Camera.cfocusOn = function(target)
+//TODO focus on correct parent object when focusing on nested object
+Camera.cfocusOn = function(target,options)
 {
 	if(!this.callow)
 		return;
 
 	if(this.cops['focusOn'])
 		clearInterval(this.cops['focusOn']);
-
+	
 	var camera = this;
+	var realTarget = null;
+	var globalPos = {x:0,y:0};
+	var beginning = true;
+	var realTarget = target;
+	//find correct parent to focus on ( in case target is nested )
+	function getCorrectFocusTarget(t){
+		if( t.parent && t.parent == camera )
+		{	
+			realTarget = t;
+			return false;
+		}
+		else
+		{
+			if(beginning)
+				globalPos = t.getPos();
+			else
+			{
+				var lepos = t.getPos();
+				globalPos.x += lepos.x;
+				globalPos.y += lepos.y;
+				console.log("found Pos:"+globalPos.x+" "+globalPos.y);
+			}
+			beginning = false;
+		}
+		return getCorrectFocusTarget(t.parent);
+	}
+	var fail = getCorrectFocusTarget(target);
+	if(fail)
+		return;
+
 	function focusOn()
 	{
 		
-		var targetPos = target.getCenter();
+		var targetPos = realTarget.getPos();
+		targetPos.x += globalPos.x + target.getWidth()/2;
+		targetPos.y += globalPos.y + target.getHeight()/2;
+
 		var camPos    = camera.getCenter();
 	
-		if( Math.abs( targetPos.x - camPos.x) > 5 || Math.abs( targetPos.y - camPos.y) > 5 || Math.abs(target.angle) > 0 )
+		if( Math.abs( targetPos.x - camPos.x) > 5 || Math.abs( targetPos.y - camPos.y) > 5) //|| Math.abs(target.angle) > 0 )
 		{
 			var dx = ( camPos.x - targetPos.x ) / 10;
 			var dy = ( camPos.y - targetPos.y ) / 10;
 			var da = -target.angle /10;
 			//do zoom adaptation as well ( and consider fit screen )
 			camera.cmove(dx,dy);
-			camera.crotate(da);
+			//camera.crotate(da);
 		}
 		else
 		{
@@ -164,5 +204,7 @@ Camera.cfocusOn = function(target)
 
 	this.cops['focusOn'] = setInterval( focusOn, this.cinterval );
 }
-
+//TODO: Camera relationships
 //TODO: add tween function for camera properties ( pos, zoom, rot, pan )
+//TODO: Camera Scripts
+

@@ -1,0 +1,37 @@
+NGPS application standards
+
+Types of applications:
+1. Lightweight continuous apps
+2. Heavyweight apps
+
+1. Are apps that run continuously inside a div.
+They are used for functions requiring a mild amount of rendering and computation
+2. Are apps that can be as complex as a website.
+These are carefully loaded / unloaded and ran only when on screen and requested by the user
+
+Problem: Input
+Input will be hard to divert to the app and from the app back to NGPS
+*Solution:
+	When user is not interacting with the app:
+		container will have an configurable div (default = invisible) covering it: 
+			that div facilitates: moving,resizing,rotating, etc
+			if div is clicked then it becomes hidden and the app gains control of the events
+	When user is interacting with the app:
+		any click outside the container will quit the interaction mode causing the app to suspend
+		there will be a small configurable icon ( div ) on the screen that will let the container
+		regain control of the events by shoing the above mentioned div again
+
+Standard For 1. Apps:
+*	Are mainly JS & CSS based
+*	Must be structured as a class in order to have multiple instances and be bond to containers
+*	Must have a constructor with the same name as the plugin that creates the objects
+*	Must have methods:
+		init
+		load
+		store
+		show
+		hide
+
+*	May handle events:
+		onFocus
+		onLoseFocus

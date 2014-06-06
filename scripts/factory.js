@@ -25,7 +25,7 @@ factory.init = factory.init || function(mode) // editor init
 	factory.settings.mode = mode || "editor";
 	//
 	var descriptor = platform.getScreenSize();
-	descriptor = utils.merge({x:0,y:0,background:"black",border_size:1,border_style:"solid",border_color:"0x000000",border_radius:["15px"]},descriptor);
+	descriptor = utils.merge({x:0,y:0,background:"#ff9900",border_size:1,border_style:"solid",border_color:"0x000000",border_radius:["15px"]},descriptor);
 	//make a full screen camera object
 	var root = new container(descriptor);
 	root.load();
@@ -39,7 +39,7 @@ factory.init = factory.init || function(mode) // editor init
 	if(factory.AMS && factory.AMS.init)
 		factory.AMS.init( factory.settings.container, factory.AMS);
 }
-factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"blue",border_size:2,border_style:"solid",border_color:"0xFFFFDD",border_radius:["15px"]}
+factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"transparent",border_size:5,border_style:"dashed",border_color:"0xFFFFDD",border_radius:["15px"]}
 
 //FACTORY functions
 factory.newContainer = function(possize,tag,parent)
@@ -82,7 +82,19 @@ factory.newContainer = function(possize,tag,parent)
 
 	return obj;
 }
-
+factory.createContainer = function(descriptor,parent)
+{
+	if(!parent)
+		parent = factory.root;
+	var obj = parent.addChild(descriptor);
+	if(obj)
+	{
+		obj.load();
+		obj.extend(Interactive);
+		obj.interactive(true);
+	}
+	return obj;
+}
 factory.newCamera = function (possize,tag,parent,interval)
 {
 	possize.isCamera = true;

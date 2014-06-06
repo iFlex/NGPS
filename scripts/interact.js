@@ -36,6 +36,10 @@ Interactive.onMouseDown = function( e , ctx )
 		ctx.ly = e.clientY;
 		ctx.hasMD = true;
 		ctx.dragDist = 0;
+
+		var center = ctx.getCenter();
+		ctx.natAngle = Math.atan2(center.y - e.clientY,center.x - e.clientX);
+
 		console.log("Mouse Down("+ctx.UID+")");
 	}
 	else
@@ -63,11 +67,29 @@ Interactive.onMouseMove = function(e, ctx)
 			if(ctx.allowMove)
 			{
 				if( ctx.onMoved )
-					ctx.onMoved(dx,dy)
+					ctx.onMoved(dx,dy,ctx)
 				else
 					ctx.move( dx , dy );
 			}
 			ctx.dragDist += Math.sqrt(dx*dx+dy*dy);
+
+			//check if Natural movement is on
+			//EXPERIMENTAL
+			if(ctx.allowNaturalMove)
+			{
+				var hWindow = ctx.getHeight()*0.5;
+				var wWindow = ctx.getWidth() *0.5;
+				if( e.clientX > (ctx.getWidth() - wWindow) ||  e.clientX < wWindow )
+					if( e.clientY < hWindow || e.clientY > (ctx.getHeight() - hWindow) )
+					{
+						var forceDir = Math.atan2(dy,dx);
+						var center = ctx.getCenter();
+						var angle = Math.atan2(center.y - e.clientY,center.x - e.clientX);
+						var amount = forceDir - angle / 10;
+						ctx.rotate(amount);
+						console.log("fd:"+forceDir+" a:"+angle+" am:"+amount);
+					}
+			}
 			ctx.lx = e.clientX;
 			ctx.ly = e.clientY;
 		}
@@ -101,6 +123,7 @@ Interactive.onMouseUp = function( e , ctx )
 				}
 		}
 		ctx.hasMD = false;
+		delete ctx.natAngle;
 	}
 	else
 	{

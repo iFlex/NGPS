@@ -11,15 +11,15 @@ factory.AMS = {
 	minWidth : 100,
 	minHeight : 100,
 	direction : -50,
+	index:0,
+	palette: ["#AB9EAD","#AA84AC","#A102A8","#6C577A","#CCA2E0"],
 	init: function( set, store){
-		factory.settings.background = "red";	
+		factory.settings.background = store.palette[0];	
 	},
 	tick: function( data, set, store){
 		
-		if(data.background == "red")
-			set.background = "blue";
-		else
-			set.background = "red";
+		store.index++;
+		set.background = store.palette[store.index%store.palette.length];
 		
 		set.width += store.direction;
 		set.height += store.direction;

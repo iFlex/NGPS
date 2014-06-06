@@ -21,6 +21,7 @@ this.container = function(properties)
 	//content properties
 	this.isLeaf = false;
 	this.child = 0;
+	this.app = 0;
 	this.children = {};
 	
 	//INTERACTION Rights
@@ -67,12 +68,23 @@ this.container = function(properties)
 			this.DOMreference.style.position 	= 'absolute';
 			this.DOMreference.style.left 		= this.properties['x'];
 		}
+
 		if(this.properties['y'])
 		{
 			this.DOMreference.style.position 	= 'absolute';
 			this.DOMreference.style.top 		= this.properties['y'];
 		}
 
+		if(this.properties['bottom'])
+			this.DOMreference.style.bottom = this.properties['bottom'];
+
+		if(this.properties['right'])
+			this.DOMreference.style.right = this.properties['right'];
+
+		if(this.properties['left'])
+			this.DOMreference.style.left = this.properties['left'];
+
+		
 		if(!this.DOMreference.style.background)
 			this.DOMreference.style.background 	= this.properties['background'] || "transparent";
 		
@@ -192,10 +204,26 @@ this.container = function(properties)
 		if(descriptor['style'])
 			for( k in descriptor['style'] )
 				this.child.style.k = descriptor['style'][k];
+		
+		if(descriptor['width'])
+			this.setWidth(descriptor['width'])
+		else
+			this.child.style.width = this.getWidth();
+		if(descriptor['height'])
+			this.setHeight(descriptor['height'])
+		else
+			this.child.style.height = this.getHeight();
 
 		//this.child.pointerEvents = "none";
 		this.child.ondragstart = function() { return false; };
 		this.DOMreference.appendChild(this.child);
+	}
+
+	this.addApp = function(app,options)
+	{
+		this.isLeaf = true;
+		this.app = new app();
+		this.app.init(this);
 	}
 
 	this.show = function()
@@ -302,4 +330,7 @@ this.container = function(properties)
 	{
 		this.setAngle(this.angle + dangle);	
 	}
+
+	//CONTENT CONTROLLERS
+
 }
