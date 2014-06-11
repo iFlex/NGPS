@@ -103,6 +103,10 @@ factory.newCamera = function (possize,tag,parent,interval)
 	{
 		//possibly fetch camera tag for camera configurations
 		obj.extend(Camera);
+		
+		if(!interval)
+			interval = 30;
+		
 		obj.cstart(interval);
 	}
 	return obj;
@@ -111,4 +115,14 @@ factory.newCamera = function (possize,tag,parent,interval)
 factory.addContent = function( obj , content , mode )
 {
 
+}
+//TODO: make factory locate app, load it's files and load up the main.js
+factory.loadApp = function(app,host)
+{
+	if(host)
+	{
+		host.extend(AppCtl);
+		host.ainit(app);
+		console.log("App bound at:"+utils.whois(host));
+	}
 }

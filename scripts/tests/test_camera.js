@@ -31,5 +31,29 @@ function init(){
 		//obj.discard;
 	}
 	factory.root.onTrigger = makeContainer;
+
+	for(k in tests)
+		tests[k]();
+}
+tests = {
+	relations: function()
+	{
+		var cam = factory.newCamera({x:25,y:250,width:500,height:350},"rounded_rect",null,32);
+		//this creates a cross referrence between the two cameras ( should be ok ) antiCrossReff system is in place
+		//allowing only one instance of actuator function to be called per object in one tick
+		cam.addRelated(factory.root,{x:0.2,y:0.2,zoom:0.1});
+		factory.root.addRelated(cam,{x:0.2,y:0.2,zoom:0.1});
+
+		function makeContainer( ctx , e )
+		{
+			var obj = factory.newContainer( { x : e.clientX, y : e.clientY },"rounded_rect",cam);
+			obj.onTrigger = function(ctx)
+			{
+				factory.root.cfocusOn(ctx);
+			}
+		}
+		cam.onTrigger = makeContainer;
+	}
+
 }
 setTimeout(init,500);

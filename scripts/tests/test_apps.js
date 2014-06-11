@@ -23,14 +23,21 @@ function init(){
 	//factory.root.onTrigger = function(){ editor.hide();}
 	for(k in tests)
 		tests[k]();
+	factory.root.onTrigger = tests.build;
 }
 
 tests = {
-	build: function(){
-		var o = factory.newContainer({width:200,height:200,x:x*size,y:y*size},"rounded_rect");
-		o.addApp(text);
+	build: function(ctx,e){
+		var px = x*size;
+		var py = y*size;
+		if(e && e.clientX)
+		{
+			px = e.clientX;
+			py = e.clientY;
+		}
+		var o = factory.newContainer({width:200,height:200,x:px,y:py},"rounded_rect");
+		factory.loadApp(text,o);
 		nextSector();
-
 	},
 }
 

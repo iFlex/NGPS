@@ -6,6 +6,8 @@
 *	GSAP library:
 *		TweenLite Module
 */
+
+//TODO: if container is leaf: bind it's properties to it's child's properties: so that when you change the container size the content size changes
 this.containerData = {};
 containerData.containerIndex = 0;
 this.container = function(properties)
@@ -21,14 +23,14 @@ this.container = function(properties)
 	//content properties
 	this.isLeaf = false;
 	this.child = 0;
-	this.app = 0;
 	this.children = {};
 	
 	//INTERACTION Rights
 	this.allowMove = true;
 	this.allowTrigger = true;
 	this.onMoved = 0; //this overrides the default container move function ( for camera use )
-
+	this.onMouseDown = 0;
+	this.onMouseUp  = 0;
 	//DOM manipulation
 	//TODO: Add possibility to  style with CSS
 	//TODO:	Add possibility of relative positioning ( grid system no coodinates)
@@ -196,7 +198,7 @@ this.container = function(properties)
 
 		this.isLeaf = true;
 		this.child = document.createElement(descriptor['type']);
-		
+
 		if(descriptor['content'])
 			for( k in descriptor['content'] )
 				this.child.setAttribute(k, descriptor['content'][k]);
@@ -218,14 +220,7 @@ this.container = function(properties)
 		this.child.ondragstart = function() { return false; };
 		this.DOMreference.appendChild(this.child);
 	}
-
-	this.addApp = function(app,options)
-	{
-		this.isLeaf = true;
-		this.app = new app();
-		this.app.init(this);
-	}
-
+	
 	this.show = function()
 	{
 		this.DOMreference.style.display = "block";
@@ -267,6 +262,8 @@ this.container = function(properties)
 		TweenMax.to(this.DOMreference,0,{
 			width:w,
 		});
+		if(this.isLeaf)
+			this.child.width = w;
 		//this.redraw();
 	} 
 
@@ -275,6 +272,8 @@ this.container = function(properties)
 		TweenMax.to(this.DOMreference,0,{
 			height:h,
 		});
+		if(this.isLeaf)
+			this.child.height = h;
 		//this.redraw();
 	}
 	this.setAngle = function(angle)

@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<!--
+Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+For licensing, see LICENSE.md or http://ckeditor.com/license
+-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Inline Editing by Code &mdash; CKEditor Sample</title>
+	<script src="ckeditor.js"></script>
+	<link href="sample.css" rel="stylesheet">
+	<style>
+
+		#editable
+		{
+			padding: 10px;
+			float: left;
+		}
+
+	</style>
+</head>
+<body>
+	<div id="editable" contenteditable="true">
+		<p> Click to edit text </p>
+	</div>
+
+	<script>
+		// We need to turn off the automatic editor creation first.
+		CKEDITOR.disableAutoInline = true;
+
+		var editor = CKEDITOR.inline( 'editable' );
+	</script>
+</body>
+</html>

@@ -15,7 +15,28 @@ utils.merge = function(a,b,option){
 	}
 	return a;
 }
+utils.debug = function(elem)
+{
+	var str = "{"
+	for( k in elem )
+	{	
+		str += k+":";
+		//if(typeof(elem[k]) != "object" )
+			str += elem[k]+"\n";
+		//else
+		//	str += utils.debug(elem[k])+" ";
+	}
+	str += "}"
+	return str;
+}
+utils.whois = function(elem)
+{
+	if(!elem)
+		return "Unknown";
+	return elem.UID;
+}
 
+console.log(utils.debug({x:0,y:0,c:{caca:1,pipi:2,leba:{kur:10}}}));
 this.platform = {};
 platform.os = "unknown";
 platform.isMobile = "false";

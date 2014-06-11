@@ -1,13 +1,9 @@
 NGPS application standards
 
 Types of applications:
-1. Lightweight continuous apps
-2. Heavyweight apps
-
-1. Are apps that run continuously inside a div.
-They are used for functions requiring a mild amount of rendering and computation
-2. Are apps that can be as complex as a website.
-These are carefully loaded / unloaded and ran only when on screen and requested by the user
+1. Global apps ( included once = only one copy of the code )
+2. Lightweight continuous apps ( apps that run inside the container exclusively for that container )
+3. Heavyweight apps ( apps that run inside a container and need to be paused and unloaded when leaving the container )
 
 Problem: Input
 Input will be hard to divert to the app and from the app back to NGPS
@@ -22,7 +18,20 @@ Input will be hard to divert to the app and from the app back to NGPS
 		regain control of the events by shoing the above mentioned div again
 
 Standard For 1. Apps:
-*	Are mainly JS & CSS based
+* 	Code is loaded once
+*	App only stores input method , output result and state information in container
+
+Standard For 2. Apps:
+* 	Code is loaded when bound with container ( and keeps running even if container is out of sight )
+
+Standard For 3. Apps:
+*	Code is loaded when iFrame container is loaded
+* 	Code can be unloaded easily by unloading iFrame content
+* 	App must have a splash screen image to show when app is not triggered
+*	App may have a loading routing to show wile it loads
+*	App must store state in an invisible div so that it can resume if necessary
+
+App Loaders ( main.js )
 *	Must be structured as a class in order to have multiple instances and be bond to containers
 *	Must have a constructor with the same name as the plugin that creates the objects
 *	Must have methods:

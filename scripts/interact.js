@@ -28,8 +28,10 @@ Interactive.onMouseDown = function( e , ctx )
 	
 	if( ctx.propagation == 1 )
 		return true;
-
-	e.stopPropagation();
+	
+	if(e.stopPropagation)
+		e.stopPropagation();
+	
 	if( ctx.propagation == 0 )
 	{
 		ctx.lx = e.clientX;
@@ -40,12 +42,14 @@ Interactive.onMouseDown = function( e , ctx )
 		var center = ctx.getCenter();
 		ctx.natAngle = Math.atan2(center.y - e.clientY,center.x - e.clientX);
 
+		if(ctx.onMouseDown)
+			ctx.onMouseDown(ctx,e);
 		console.log("Mouse Down("+ctx.UID+")");
 	}
 	else
 	{
-		console.log("Propagating:"+e.type +" to:"+ ctx.parent.UID)
-		ctx.parent.onMouseDown( e , ctx.parent );
+		if(ctx.parent)
+			ctx.parent.onMouseDown( e , ctx.parent );
 	}
 }
 
@@ -56,7 +60,7 @@ Interactive.onMouseMove = function(e, ctx)
 
 	if( ctx.propagation == 1 )
 		return true;
-
+	
 	if( ctx.propagation == 0)
 	{
 		if(ctx.hasMD)
@@ -97,7 +101,8 @@ Interactive.onMouseMove = function(e, ctx)
 	else
 	{
 		//console.log("Propagating:"+e.type +" to:"+ ctx.parent.UID)
-		ctx.parent.onMouseMove( e , ctx.parent );
+		if(ctx.parent)
+			ctx.parent.onMouseMove( e , ctx.parent );
 	}
 }
 Interactive.onMouseUp = function( e , ctx )
@@ -114,6 +119,7 @@ Interactive.onMouseUp = function( e , ctx )
 		if(ctx.hasMD)
 		{
 			console.log("Mouse Up("+ctx.UID+")"+"<"+e.type+">");
+			console.log("Trigger on:"+utils.whois(ctx));
 			// if triggered then call handler
 			if( ctx.dragDist < 7 && ctx.allowTrigger ) // this is considered a tap / click
 				if(	ctx.onTrigger ) // minimal handler call ( no event object generated yet )
@@ -124,12 +130,15 @@ Interactive.onMouseUp = function( e , ctx )
 		}
 		ctx.hasMD = false;
 		delete ctx.natAngle;
+		
+		if(ctx.onMouseUp)
+			ctx.onMouseUp(ctx,e);
 	}
 	else
 	{
 		ctx.hasMD = false;
-		console.log("Propagating:"+e.type +" to:"+ ctx.parent.UID)
-		ctx.parent.onMouseUp( e , ctx.parent );
+		if(ctx.parent)
+			ctx.parent.onMouseUp( e , ctx.parent );
 	}
 }
 Interactive.onMouseOut = function( e , ctx )
@@ -178,7 +187,8 @@ Interactive.touchmoved = function( e , ctx)
 		if( ctx.propagation == 1 )
 			return true;
 
-		e.stopPropagation();
+		if(e.stopPropagation)
+			e.stopPropagation();
 
 		var p1 = e.touches[0];
 		var p2 = e.touches[1];
