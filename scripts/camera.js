@@ -6,7 +6,19 @@
 *	Requirements:
 *		Must be applied to an existing Container Object
 */
+// relations are defined in terms of a coefficient applied to the a property
+// example: x => 0.5
 
+// boundaries are limits defined for a property which include a High and Low limit
+// the limit is a coefficient applied to the corresponding property of the camera
+
+// example: HIx => 0.5
+//			LOx => 0.1
+
+//			HIrotate => 25
+//			LOrotate => 0   	//allows the camera to rotate between 0 and 25 degrees
+
+//TODO: maintain x,y,w,h of camera content
 this.Camera = {};
 Camera.cstart = function(interval)
 {
@@ -105,14 +117,36 @@ Camera.antiCrossReff = function(funcName,action)
 //TODO: calculate boundaries and add boundary limit enforcing
 Camera.cmove = function(dx,dy)
 {
+	//check boundaries
+	//check x axis
+	var w = this.getWidth();
+	var nextX = this.cx + dx;
+	if( this.boundaries['LOx'] && nextX < this.boundaries['LOx']*w)
+		return;
+	if( this.boundaries['HIx'] && nextX > this.boundaries['HIx']*w)
+		return;
+
+	//check y axis
+	var h = this.getHeight();
+	var nextY = this.cy + dy;
+	if( this.boundaries['LOy'] && nextY < this.boundaries['LOy']*h)
+		return;
+	if(	this.boundaries['HIy'] && netxY > this.boundaries['HIy']*h)
+		return;
+
+	//check cross refference 
 	if(this.antiCrossReff("cmove",1))
 		return;
 
+	this.cx = nextX;
+	this.cy = nextY;
+	//inertia buildup
 	if(this.c_allowInertia && this.allowInertia)
 	{
 		this.xInertia += dx;
 		this.yInertia += dy;
 	}
+	//move children
 	for( k in this.children )
 		this.children[k].move(dx,dy);
 
@@ -193,10 +227,17 @@ Camera.onMoveEnd = function(ctx,e)
 //		exclude objects that have been zoomed out to far in order not to loose accurate positioning
 Camera.czoom = function(amount,cx,cy)
 {
+	//check boundaries
+	var next = this.czoomLevel * amount;
+	if( this.boundaries["HIzoom"] && next > this.boundaries['HIzoom'])
+		return;
+	if( this.boundaries["LOzoom"] && next < this.boundaries['LOzoom'])
+		return;
+	//check cross referencing
 	if(this.antiCrossReff("czoom",1))
 		return;
 
-	this.czoomLevel *= amount;
+	this.czoomLevel = next;
 	console.log("Camera Zoom Level:"+this.czoomLevel);
 
 	if(!cx && !cy)
@@ -232,10 +273,17 @@ Camera.czoom = function(amount,cx,cy)
 //TODO investigate aligning imperfections
 Camera.crotate = function(amount,cx,cy)
 {
+	//check boundaries
+	var next = this.cangle+amount;
+	if( this.boundaries['HIrotate'] && next > this.boundaries['HIrotate'] )
+		return;
+	if( this.boundaries['LOrotate'] && next < this.boundaries['LOrotate'] )
+		return;	 
+	//check cross referencing
 	if(this.antiCrossReff("crotate",1))
 		return;
 
-	this.cangle += amount;
+	this.cangle = next;
 	console.log("Camera Angle:"+this.cangle);
 
 	//JS precision issues
@@ -393,5 +441,15 @@ Camera.unsetBoundaries = function(boundaries)
 }
 
 //TODO: add tween function for camera properties ( pos, zoom, rot, pan )
-//TODO: Camera Scripts
 
+//TODO: Camera Scripts
+//this will offer support for WoL engine arranger scripts
+//events must be made available for this code 
+Camera.addScript = function(script)
+{
+
+}
+Camera.removeScript = function()
+{
+
+}

@@ -137,6 +137,12 @@ this.container = function(properties)
 			this[k] = extensions[k];
 		}
 	}
+	this.strip = function( extensions )
+	{
+		for( k in extensions )
+			if( this.hasOwnProperty(k) )
+				delete this[k];
+	}
 
 	this.addChild = function(properties)
 	{
