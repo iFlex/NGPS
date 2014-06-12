@@ -197,6 +197,8 @@ this.container = function(properties)
 		return false;
 	}
 	//TODO: add styling and event enabling and disablig for child
+	//		resize container to child size or child to container size
+	//		bind size of container to size of content
 	this.addPrimitive = function(descriptor)
 	{
 		if(!descriptor['type'])

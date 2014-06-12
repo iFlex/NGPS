@@ -292,25 +292,26 @@ Camera.crotate = function(amount,cx,cy)
 		var pos = this.getCenter();
 		cx = pos.x;
 		cy = pos.y;
+		console.log("Camera center:"+cx+" "+cy);
 	}
 	for( k in this.children )
 	{
-		var center = this.children[k].getCenter();
+		var object = this.children[k].getCenter();
 		
-		var dx = center.x - cx; 
-		var dy = center.y - cy;
+		var dx = object.x - cx; 
+		var dy = object.y - cy;
 		
 		var angle = Math.atan2(dy,dx);
 		var radius = Math.sqrt( dx*dx + dy*dy );
 		
-		//rotate container
-		//this.children[k].rotate((180.0*amount)/Math.PI);
 		//relocate container
 		angle += amount;
 		dx = cx + radius * Math.cos( angle );
 		dy = cy + radius * Math.sin( angle );
 		
 		this.children[k].putAt( dx, dy, 0.5, 0.5);
+		//rotate container
+		this.children[k].rotate((180.0*amount)/Math.PI);
 	}
 
 	//relations support

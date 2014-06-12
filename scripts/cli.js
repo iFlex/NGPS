@@ -150,8 +150,11 @@ cli.execute = function(str)
 		{
 			result = cli.owner[cli.tocall](cli.params[0],cli.params[1],cli.params[2],cli.params[3],cli.params[4],cli.params[5]);
 			//process result
-			if(result && result.UID)
-				cli.UIout.innerHTML += "<br>#"+result.UID;
+			if(result)
+			{
+				//	cli.UIout.innerHTML += "<br>#"+result.UID;
+				cli.UIout.innerHTML += "<br>"+result+":"+utils.debug(result);
+			}
 		} 
 		catch ( err )
 		{
