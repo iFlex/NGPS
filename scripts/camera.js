@@ -442,15 +442,32 @@ Camera.unsetBoundaries = function(boundaries)
 }
 
 //TODO: add tween function for camera properties ( pos, zoom, rot, pan )
-
-//TODO: Camera Scripts
-//this will offer support for WoL engine arranger scripts
-//events must be made available for this code 
-Camera.addScript = function(script)
+Camera.tween = function(data)
 {
+	var interval = 1;
+	if(data['interval'])
+		interval = data['interval'];
 
+}
+//TODO: events must be made available for this code 
+Camera.addScript = function(script,fire)
+{	
+	if(this.cscript)
+		this.removeScript;
+
+	this.cscript = script;
+	this.cscript.owner = this;
+	if(this.cscript.start)
+		this.cscript.start();
+}
+Camera.pauseScript = function()
+{
+	if(this.cscript && this.cscript.pause)
+		this.cscript.pause();
 }
 Camera.removeScript = function()
 {
-
+	if(this.cscript && this.cscript.stop)
+		this.cscript.stop();
+	delete this.cscript;
 }

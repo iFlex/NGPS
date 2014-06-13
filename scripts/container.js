@@ -6,8 +6,9 @@
 *	GSAP library:
 *		TweenLite Module
 */
-
-//TODO: if container is leaf: bind it's properties to it's child's properties: so that when you change the container size the content size changes
+//include dependencies
+requirejs(['TweenMax.min',"interact","app","camera"]);
+//
 this.containerData = {};
 containerData.containerIndex = 0;
 this.container = function(properties)
@@ -33,7 +34,6 @@ this.container = function(properties)
 	this.onMouseUp  = 0;
 	//DOM manipulation
 	//TODO: Add possibility to  style with CSS
-	//TODO:	Add possibility of relative positioning ( grid system no coodinates)
 	this.load = function(parent)
 	{
 
@@ -50,6 +50,7 @@ this.container = function(properties)
 			if( typeof this.properties[key]  == "number" )
 				this.properties[key] += "px";	
 		}
+
 		//Custom Styling
 		if(this.properties['class']) //custom CSS styling
 			this.DOMreference.setAttribute('class',this.properties['class']);
@@ -161,7 +162,7 @@ this.container = function(properties)
 	this.discard = function(bitch)
 	{
 
-		if(this.parent)
+		if(this.parent) 
 		{
 			this.parent.DOMreference.removeChild(this.DOMreference);
 			this.parent.removeChild( this.UID ); //remove from child reference of the parent
@@ -197,12 +198,14 @@ this.container = function(properties)
 		return false;
 	}
 	//TODO: add styling and event enabling and disablig for child
-	//		resize container to child size or child to container size
-	//		bind size of container to size of content
+	//		add event dispatching for apps that run inside in case that is needed
 	this.addPrimitive = function(descriptor)
 	{
 		if(!descriptor['type'])
 			return false;
+		
+		if(this.isLeaf)
+			this.removePrimitive();
 
 		this.isLeaf = true;
 		this.child = document.createElement(descriptor['type']);
@@ -214,21 +217,48 @@ this.container = function(properties)
 		if(descriptor['style'])
 			for( k in descriptor['style'] )
 				this.child.style.k = descriptor['style'][k];
-		
-		if(descriptor['width'])
-			this.setWidth(descriptor['width'])
+
+		//size the container to the image
+		if(descriptor['adapt_size'])
+		{
+			console.log("Adapting container to content")
+			var container = this;
+			var child = this.child;
+			this.child.onload = function()
+			{
+				console.log("Setting parent container size:"+child.clientWidth+" x "+child.clientHeith );
+				container.setWidth( child.clientWidth );
+				container.setHeight( child.clientHeight	);
+			}
+		}
 		else
-			this.child.style.width = this.getWidth();
-		if(descriptor['height'])
-			this.setHeight(descriptor['height'])
-		else
-			this.child.style.height = this.getHeight();
+		{
+			if(descriptor['width'])
+				this.setWidth(descriptor['width'])
+			else
+				this.child.width = this.getWidth();
+
+			if(descriptor['height'])
+				this.setHeight(descriptor['height'])
+			else
+				this.child.height = this.getHeight();
+		}
 
 		//this.child.pointerEvents = "none";
 		this.child.ondragstart = function() { return false; };
 		this.DOMreference.appendChild(this.child);
 	}
 	
+	this.removePrimitive = function()
+	{
+		if(this.isLeaf)
+		{
+			this.isLeaf = false;
+			this.DOMreference.removeChild(this.child);
+			delete this.child;
+		}
+	}
+
 	this.show = function()
 	{
 		this.DOMreference.style.display = "block";
@@ -270,7 +300,7 @@ this.container = function(properties)
 		TweenMax.to(this.DOMreference,0,{
 			width:w,
 		});
-		if(this.isLeaf)
+		if(this.isLeaf == true )
 			this.child.width = w;
 		//this.redraw();
 	} 
@@ -280,7 +310,7 @@ this.container = function(properties)
 		TweenMax.to(this.DOMreference,0,{
 			height:h,
 		});
-		if(this.isLeaf)
+		if(this.isLeaf == true )
 			this.child.height = h;
 		//this.redraw();
 	}

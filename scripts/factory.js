@@ -12,6 +12,7 @@
 *			This functionality enables themes ( a theme will therefore be an AMS combined with certain features )
 *		It also can decide what functions to link to the trigger events of containers depending on what mode it is initiated in ( Viewer or Editor )
 */
+requirejs(['container',"containerTemplates"]);
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
 //initiation script comes here
@@ -25,7 +26,7 @@ factory.init = factory.init || function(mode) // editor init
 	factory.settings.mode = mode || "editor";
 	//
 	var descriptor = platform.getScreenSize();
-	descriptor = utils.merge({x:0,y:0,background:"#ff9900",border_size:1,border_style:"solid",border_color:"0x000000",border_radius:["15px"]},descriptor);
+	descriptor = utils.merge({x:0,y:0,background:"#fAfAfA",border_size:1,border_style:"solid",border_color:"0x000000",border_radius:["15px"]},descriptor);
 	//make a full screen camera object
 	var root = new container(descriptor);
 	root.load();

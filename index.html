@@ -3,30 +3,29 @@
     <head id="head">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
         <!-- Boot Strap -->
-
-        <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
-        
+        <!-- Global styles -->
+        <link rel="stylesheet" href="css/containers.css">
+        <script src="scripts/require.js"></script>
+        <script type="text/javascript">
+            requirejs.config({
+                baseUrl: 'scripts',
+            });
+        </script>
+
         <script src="scripts/drivers.js"></script>
-		<script src="scripts/TweenMax.min.js"></script>
-        <script src="scripts/interact.js"></script>
-        <script src="scripts/app.js"></script>
-        <script src="scripts/container.js"></script>
-        <script src="scripts/camera.js"></script>
-        <script src="scripts/containerTemplates.js"></script>
-        <script src="scripts/factory.js"></script>
+		<script src="scripts/factory.js"></script>
+        
+        <!-- Object Edit Interface -->
         <script src="scripts/edit.js"></script>
+        
         <!-- Load Theme -->
         <script src="themes/default.js"></script>
         <!-- Load plugins -->
         <script src="plugins/text/main.js"></script>
-		<!--Include testing -->
+
+        <!--Include testing -->
 		<script src="scripts/cli.js"></script>
-        <!-- <script src="scripts/tests/test_container.js"></script> -->
-        <!-- <script src="scripts/tests/test_factory.js"></script> -->
-         <script src="scripts/tests/test_camera.js"></script> 
-        <!-- <script src="scripts/tests/test_edit.js"></script> -->
-        <!-- <script src="scripts/tests/test_apps.js"></script> -->
     </head>
     <body id="body">
     </body>

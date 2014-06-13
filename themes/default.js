@@ -5,6 +5,8 @@
 //		a reference to state storage space   store ( which points to your AMS object therefore don't override keywords: tick and init )
 
 this.factory = this.factory || {};
+//keep default factory init
+//have custom AMS
 factory.AMS = {
 	maxWidth : 500,
 	maxHeight : 500,

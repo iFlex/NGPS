@@ -5,7 +5,7 @@
 */
 
 //TODO: implement a way to refer to other objects when on a certain object
-
+var gthis = this;
 this.cli = {};
 cli.status = 0;
 //call system
@@ -36,12 +36,13 @@ cli.show = function()
 		cli.UI = document.createElement("div");
 		cli.UI.style.width = "400px";
 		cli.UI.style.height = "500px";
+		cli.UI.style.position = "fixed"
 		cli.UI.style.top = "0px";
-		cli.UI.style.left = "0px";
+		cli.UI.style.right = "0px";
 		cli.UI.style.background = "black";
 		cli.UI.style.color = "white";
 		cli.UI.style.opacity = "0.8";
-		cli.UI.style.zIndex = 1000;
+		cli.UI.style.zIndex = "1000";
 		//define in out channels
 		//out
 		cli.UIout = document.createElement('div');
@@ -81,6 +82,7 @@ cli.show = function()
 	else
 		document.body.appendChild(cli.UI);
 }
+
 cli.hide = function()
 {
 	console.log("CLI:: call to cli.hide(); CLI status:"+cli.status);
@@ -90,11 +92,13 @@ cli.hide = function()
 		cli.status = 2;
 	}
 }
+
 cli.keysHandler = function(e)
 {
 	if(e.keyCode == 13)
 		cli.onExec();
 }
+
 //TODO: limit history to a number of records
 //		limit cli text entries to a number of lines
 cli.onExec  = function()
@@ -103,9 +107,10 @@ cli.onExec  = function()
 	cli.execute(cli.UIin.value);
 	cli.showPrompt();
 	cli.UIin.value = "";
-	cli.show();
+	//cli.show();
 	cli.UIout.scrollTop = cli.UIout.scrollHeight;
 }
+
 cli.fetchParameters = function(breakdown)
 {
 	delete cli.owner;
@@ -135,11 +140,34 @@ cli.fetchParameters = function(breakdown)
 		console.log("CLI:: parameter"+(i-2)+"="+cli.params[i-2]+" type "+typeof(cli.params[i-2]));
 	}
 }
+
 cli.execute = function(str)
 {
 	console.log("CLI:: call to cli.execute(); command:"+str);
 	cli.history[cli.history.length] = str;
 	var breakdown = str.split(" ");
+	
+	if(breakdown[0] == "help" || breakdown[0] == "?" )
+	{
+		cli.help();
+		return;
+	}
+
+	if(breakdown[0] == "sh") //show value of property
+	{
+		var property = eval(breakdown[1]);
+		cli.UIout.innerHTML += "<br>"+property+"="+utils.debug(property);
+		return;
+	}
+	
+	if(breakdown[0] == "set") //set value of property
+	{
+		var property = eval(breakdown[1]);
+		var value = eval(breakdown[2]);
+		property = value;
+		return;
+	}
+
 	//get params
 	cli.fetchParameters(breakdown);
 	//call
@@ -170,6 +198,35 @@ cli.execute = function(str)
 	}
 }
 
+cli.shobjects = function (obj)
+{
+	if(!obj)
+		obj = gthis;
+	cli.UIout.innerHTML += "<br> Available objects:";
+	for( k in obj )
+		cli.UIout.innerHTML += "<br>"+k;
+		
+}
+
+cli.help = function()
+{
+	cli.UIout.innerHTML += "<br>*** NGPS CLI help";
+	cli.UIout.innerHTML += "<br> This interface works upon objects loaded into the JS engine";
+	cli.UIout.innerHTML += "<br> To see a propety of an element use the 'sh' command.<br> sh cli.UI.style.width";
+	cli.UIout.innerHTML += "<br> To set a propety of an element use the 'set' command.<br> set cli.UI.width 100";
+	cli.UIout.innerHTML += "<br> To call a function you need to specify the owning object of the function, then the function name and then the parameters ( all separated by white spaces)";
+	cli.UIout.innerHTML += "<br> example: cli.node setWidth 100";
+	cli.UIout.innerHTML += "<br> To see available objects:<br> cli shobjects";
+	cli.UIout.innerHTML += "<br> To see available members of an object:<br> cli shobjects <object_name> example: cli shobjects cli (shows the members of the cli object)";
+	cli.UIout.innerHTML += "<br> The NGPS presentation is a tree of objects:";
+	cli.UIout.innerHTML += "<br 	cli rst (resets the cli to the root node of the presentation)";
+	cli.UIout.innerHTML += "<br> 	cli shtree ( shows the complete presentation tree)";
+	cli.UIout.innerHTML += "<br> 	cli cn <node number> ( changes the cli to the specified node )";
+	cli.UIout.innerHTML += "<br> 	cli sh ( shows the nodes related to the current node )";
+	cli.UIout.innerHTML += "<br> 	To operate on the current node use cli.node <function_name> <parameters>";
+	cli.UIout.innerHTML += "<br> 		cli.node move 10 0 (moves the node by 10 pixels to the right)";
+}
+
 cli.shtree = function()
 {
 	function show( node, tabsize )
@@ -192,17 +249,40 @@ cli.sh = function( )
 		cli.UIout.innerHTML += " #"+cli.node.children[k].UID;
 }
 
-cli.cn = function ( id )
+cli.cn = function ( id , node )
 {
-	for( k in cli.node.children )
-		if( cli.node.children[k].UID == id )
-		{
-			cli.node = cli.node.children[k];
-			return;
-		}	
+	var noNode = false;
+	if(!node)
+	{
+		node = cli.node;
+		noNode = true;
+	}
 
-	if(cli.node.parent && cli.node.parent.UID)
-		cli.node = cli.node.parent;
+	if(node.UID == id)
+		return true;
+
+	if(node.parent && node.parent.UID == id )
+	{
+		cli.node = node.parent;
+		return true;
+	}
+
+	var result = false;
+	for( k in node.children )
+	{
+		if( node.children[k].UID == id )
+		{
+			cli.node = node.children[k];
+			return true;
+		}
+		else
+			result |= cli.cn( id, node.children[k]);
+	}
+
+	if( noNode && !result )
+		return cli.cn( id , factory.root );
+	
+	return result;
 }
 
 cli.rst = function ( )
@@ -210,8 +290,18 @@ cli.rst = function ( )
 	cli.node = factory.root;
 }
 
+cli.ldtest = function ( test )
+{
+	return requirejs(['tests/'+test]);
+}
+
+cli.require = function ( scripts )
+{
+	return requirejs([scripts]);
+}
+
 function init()
 {
 	cli.show();
 }
-setTimeout(init,1000);
+setTimeout(init,300);
