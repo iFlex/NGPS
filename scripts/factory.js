@@ -117,13 +117,3 @@ factory.addContent = function( obj , content , mode )
 {
 
 }
-//TODO: make factory locate app, load it's files and load up the main.js
-factory.loadApp = function(app,host)
-{
-	if(host)
-	{
-		host.extend(AppCtl);
-		host.ainit(app);
-		console.log("App bound at:"+utils.whois(host));
-	}
-}

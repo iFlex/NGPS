@@ -36,7 +36,7 @@ tests = {
 			py = e.clientY;
 		}
 		var o = factory.newContainer({width:200,height:200,x:px,y:py},"rounded_rect");
-		factory.loadApp(text,o);
+		o.loadApp("text");
 		nextSector();
 	},
 }

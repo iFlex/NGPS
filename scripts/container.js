@@ -204,8 +204,8 @@ this.container = function(properties)
 		if(!descriptor['type'])
 			return false;
 		
-		if(this.isLeaf)
-			this.removePrimitive();
+		//if(this.isLeaf == true)
+	//		this.removePrimitive();
 
 		this.isLeaf = true;
 		this.child = document.createElement(descriptor['type']);
@@ -368,6 +368,27 @@ this.container = function(properties)
 		this.setAngle(this.angle + dangle);	
 	}
 
-	//CONTENT CONTROLLERS
+	//App support
+	//TODO: read app descriptor and load accordingly
+	this.loadApp = function(app)
+	{
+		//REQUIRES: AppMgr to be defined by the time this function is called
+		var host = this;
+		if(! AppMgr.loadedApps[app] )
+		{
+			//lookup app
+			requirejs(['plugins/'+app+"/main.js"]);
+			AppMgr.loadedApps[app] = eval(app);
+			ldApp(AppMgr.loadedApps[app]);
+		}
+		else
+			ldApp(AppMgr.loadedApps[app]);
 
+		function ldApp(app)
+		{
+			host.extend(AppCtl);
+			host.ainit(app);
+			console.log("App bound at:"+utils.whois(host));
+		}
+	}
 }

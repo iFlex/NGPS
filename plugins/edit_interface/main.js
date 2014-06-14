@@ -1,3 +1,8 @@
+/**
+*	NGPS Edit Interface for containers
+*	Author: Milorad Liviu Felix
+*	14 Jun 2014  01:03 GMT
+*/
 this.text = function(data)
 {
 	this.parent = data['parent'];
@@ -5,7 +10,7 @@ this.text = function(data)
 	this.stopWorker = data['stopWorker'];
 	this.init = function() //called only one when bound with container
 	{
-		this.parent.addPrimitive({type:'iframe',content:{src:"plugins/text/index.html",border:"0px"}});
+
 	}
 	this.run = function()	//called whenever the container is triggered
 	{

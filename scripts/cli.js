@@ -225,6 +225,11 @@ cli.help = function()
 	cli.UIout.innerHTML += "<br> 	cli sh ( shows the nodes related to the current node )";
 	cli.UIout.innerHTML += "<br> 	To operate on the current node use cli.node <function_name> <parameters>";
 	cli.UIout.innerHTML += "<br> 		cli.node move 10 0 (moves the node by 10 pixels to the right)";
+	cli.UIout.innerHTML += "<br> To include a unit test: cli ldtest 'test_name' ";
+	cli.UIout.innerHTML += "<br> To include a script: cli require 'script_name'";
+	cli.UIout.innerHTML += "<br> The factory object is the one controlling object creation:";
+	cli.UIout.innerHTML += "<br> eg: factory newContainer {x:0,y:0,width:100,height:100}";
+	cli.UIout.innerHTML += "<br> Before inputing any execute: factory init";	
 }
 
 cli.shtree = function()
