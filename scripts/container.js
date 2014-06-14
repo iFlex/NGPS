@@ -201,13 +201,13 @@ this.container = function(properties)
 	//		add event dispatching for apps that run inside in case that is needed
 	this.addPrimitive = function(descriptor)
 	{
+		console.log("AddPrimitive called on "+this.UID+" isLeaf:"+this.isLeaf)
 		if(!descriptor['type'])
 			return false;
 		
-		//if(this.isLeaf == true)
-	//		this.removePrimitive();
+		if(this.isLeaf == true)
+			this.removePrimitive();
 
-		this.isLeaf = true;
 		this.child = document.createElement(descriptor['type']);
 
 		if(descriptor['content'])
@@ -247,6 +247,7 @@ this.container = function(properties)
 		//this.child.pointerEvents = "none";
 		this.child.ondragstart = function() { return false; };
 		this.DOMreference.appendChild(this.child);
+		this.isLeaf = true;
 	}
 	
 	this.removePrimitive = function()
@@ -254,8 +255,12 @@ this.container = function(properties)
 		if(this.isLeaf)
 		{
 			this.isLeaf = false;
-			this.DOMreference.removeChild(this.child);
-			delete this.child;
+			if(this.child)
+			{
+				this.DOMreference.removeChild(this.child);
+				delete this.child;
+			}
+			console.log(" remove primitive called ");
 		}
 	}
 

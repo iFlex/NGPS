@@ -22,7 +22,6 @@ AppMgr.loadedApps = {}
 
 AppCtl.ainit = function(app)
 {
-	this.isLeaf = true;
 	this.app = new app({parent:this,startWorker:this.startWorker,stopWorker:this.stopWorker});
 	this.aworkers = 0;
 	//
@@ -101,12 +100,14 @@ AppCtl.arun = function(ctx)
 	if( AppMgr.running_app_parent && AppMgr.running_app_parent != this )
 		AppMgr.running_app_parent.asuspend();
 
-	host = ctx.parent
+	var host = this;
+	if(ctx)
+		host = ctx.parent
 	host.cover.hide();
 	host.exit.show();
 	//app
 	host.app.run();
-	AppMgr.running_app_parent = this;
+	AppMgr.running_app_parent = host;
 	AppMgr.status = "running";
 }
 AppCtl.asuspend = function(ctx)
@@ -116,15 +117,17 @@ AppCtl.asuspend = function(ctx)
 		AppMgr.running_app_parent = 0;
 		AppMgr.status = "idle";
 	} 
-
-	host = ctx.parent;
+	var host = this;
+	if(ctx)
+		host = ctx.parent;
 	host.cover.show();
 	host.exit.hide();
 	//app
 	host.app.suspend();
 }
 
-//TODO optimize worker requester so that it takes account of CPU usage & mem
+//TODO test
+//	   optimize worker requester so that it takes account of CPU usage & mem
 AppCtl.requestWorker = function( worker, interval )
 {
 	if(!worker)
@@ -167,6 +170,7 @@ AppCtl.stopWorker = function( id )
 			if( !id || AppMgr.workers[thsi.UID][i]['id'] == id )
 			{
 				clearInterval( AppMgr.workers[thsi.UID][i]['ctl'] )
+				AppMgr.workers[this.UID].splice(i,1);
 				if(id)
 					return true;
 			}

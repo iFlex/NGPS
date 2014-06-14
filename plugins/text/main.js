@@ -5,7 +5,7 @@ this.text = function(data)
 	this.stopWorker = data['stopWorker'];
 	this.init = function() //called only one when bound with container
 	{
-		this.parent.addPrimitive({type:'iframe',content:{src:"plugins/text/index.html",border:"0px"}});
+		this.parent.addPrimitive({type:'iframe',content:{src:"plugins/text/index.html",border:"0px",frameborder:"0px"}});
 	}
 	this.run = function()	//called whenever the container is triggered
 	{

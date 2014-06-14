@@ -254,40 +254,19 @@ cli.sh = function( )
 		cli.UIout.innerHTML += " #"+cli.node.children[k].UID;
 }
 
-cli.cn = function ( id , node )
+cli.cn = function ( id )
 {
-	var noNode = false;
-	if(!node)
+	function find( node, id )
 	{
-		node = cli.node;
-		noNode = true;
-	}
-
-	if(node.UID == id)
-		return true;
-
-	if(node.parent && node.parent.UID == id )
-	{
-		cli.node = node.parent;
-		return true;
-	}
-
-	var result = false;
-	for( k in node.children )
-	{
-		if( node.children[k].UID == id )
+		if(node.UID == id )
 		{
-			cli.node = node.children[k];
-			return true;
+			cli.node = node;
+			return;
 		}
-		else
-			result |= cli.cn( id, node.children[k]);
+		for( k in node.children )
+			find( node.children[k], id);	
 	}
-
-	if( noNode && !result )
-		return cli.cn( id , factory.root );
-	
-	return result;
+	find(factory.root,id);
 }
 
 cli.rst = function ( )
