@@ -22,6 +22,7 @@ AppMgr.loadedApps = {}
 
 AppCtl.ainit = function(app)
 {
+	this.isApp = true;
 	this.app = new app({parent:this,startWorker:this.startWorker,stopWorker:this.stopWorker});
 	this.aworkers = 0;
 	//

@@ -35,8 +35,9 @@ tests = {
 			px = e.clientX;
 			py = e.clientY;
 		}
-		var o = factory.newContainer({width:200,height:200,x:px,y:py},"rounded_rect");
-		o.loadApp("text");
+		var u = factory.newContainer({width:200,height:200,x:px,y:py},"simple_rect");
+		var o = factory.newContainer({width:200,height:200,x:px,y:py, background:"transparent", border_size:"0px",border_radius:["0px"]},"simple_rect");
+		o.loadApp("charts");
 		nextSector();
 	},
 }

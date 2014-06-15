@@ -26,14 +26,14 @@ factory.init = factory.init || function(mode) // editor init
 	factory.settings.mode = mode || "editor";
 	//
 	var descriptor = platform.getScreenSize();
-	descriptor = utils.merge({x:0,y:0,background:"#fAfAfA",border_size:1,border_style:"solid",border_color:"0x000000",border_radius:["15px"]},descriptor);
+	descriptor = utils.merge({x:0,y:0,background:"#fAfAfA",border_size:1,border_style:"solid"},descriptor);
 	//make a full screen camera object
 	var root = new container(descriptor);
 	root.load();
 	root.extend(Interactive);
 	root.extend(Camera);
 	root.interactive(true);
-	root.cstart(30);
+	root.cstart(1);
 
 	factory.root = root;
 
@@ -49,27 +49,15 @@ factory.newContainer = function(possize,tag,parent)
 		parent = factory.root;
 	
 	//fetch descriptor
-	var descriptor = descriptors.containers[tag];
+	var descriptor = Descriptors.containers[tag];
 	if(!descriptor){
 		descriptor = factory.defaultDescriptor;
 		console.error("Coule not load desired container descriptor:" + tag);
 	}
 
 	descriptor = utils.merge(descriptor,factory.settings.container,"override");
-	//set position and size
-	if(possize.x)
-		descriptor.x = possize.x;
 	
-	if(possize.y)
-		descriptor.y = possize.y;
-	
-	if(possize.width)
-		descriptor.width = possize.width;
-	
-	if(possize.height)
-		descriptor.height = possize.height;
-	
-	var obj = parent.addChild(descriptor);
+	var obj = parent.addChild( utils.merge(descriptor,possize,true) );
 	obj.extend(Interactive); //make object interactive
 
 	if(obj)

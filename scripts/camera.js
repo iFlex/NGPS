@@ -117,6 +117,7 @@ Camera.antiCrossReff = function(funcName,action)
 //TODO: calculate boundaries and add boundary limit enforcing
 Camera.cmove = function(dx,dy)
 {
+	
 	//check boundaries
 	//check x axis
 	var w = this.getWidth();
@@ -147,8 +148,21 @@ Camera.cmove = function(dx,dy)
 		this.yInertia += dy;
 	}
 	//move children
-	for( k in this.children )
-		this.children[k].move(dx,dy);
+	FPS.tickStart();
+	/*for( k in this.children )
+	{
+		//if(this.children[k]);
+		var c = this.children[k];
+		var pos = c.getPos();
+		TweenLite.to(c.DOMreference, 0, {css:{x:pos.x+dx,y:pos.y+dy},
+										ease:Cubic.easeIn,
+										overwrite:"none"});
+	}
+		//this.children[k].move(dx,dy,true);
+	*/
+	this.DOMreference.scrollTop -= dy;
+	this.DOMreference.scrollLeft-= dx;	
+	FPS.tick();
 
 	//relations support
 	for( k in this.crelations )
@@ -262,7 +276,8 @@ Camera.czoom = function(amount,cx,cy)
 		
 		this.children[k].putAt( dx, dy, 0.5, 0.5);
 		this.children[k].scale( amount );
-
+		//this.children[k].setWidth( this.children[k].getWidth() * amount);
+		//this.children[k].setHeight( this.children[k].getHeight() * amount);
 		//relations support
 		for( k in this.crelations )
 			this.crelations[k]['root'].czoom( amount*this.crelations[k]['zoom'])

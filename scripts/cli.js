@@ -3,9 +3,9 @@
 *	Author: Milorad Liviu Felix
 *	12 Jun 2014  00:11 GMT
 */
-
 //TODO: implement a way to refer to other objects when on a certain object
 var gthis = this;
+this.FPS = 0;
 this.cli = {};
 cli.status = 0;
 //call system
@@ -21,9 +21,12 @@ cli.node = {};
 cli.node.UID = "-1";
 cli.globalContext = this;
 
-cli.showPrompt = function()
+cli.showPrompt = function(message)
 {
 	cli.UIout.innerHTML += "<br>NGPS#"+cli.node.UID+":";
+	if(message)
+		cli.UIout.innerHTML += message;
+	cli.UIout.scrollTop = cli.UIout.scrollHeight;
 }
 
 cli.show = function()
@@ -33,6 +36,7 @@ cli.show = function()
 	{
 		//build the cli
 		cli.status = 1;
+		cli.UIfps = document.createElement("div");
 		cli.UI = document.createElement("div");
 		cli.UI.style.width = "400px";
 		cli.UI.style.height = "500px";
@@ -68,10 +72,13 @@ cli.show = function()
 		//add them to the parend UI
 		cli.UI.appendChild(cli.UIout);
 		cli.UI.appendChild(cli.UIin);
+		cli.UI.appendChild(cli.UIfps)
 		//cli.UI.appendChild(cli.UIdo);
 		
 		cli.UIout.innerHTML = "NGPS command line interface";
 		cli.showPrompt();
+		FPS = new FPSMeter(cli.UIfps);
+		FPS.showDuration();
 		console.log("CLI:: completed building the CLI UI");
 	}
 	if(cli.status == 2)
@@ -236,7 +243,17 @@ cli.shtree = function()
 {
 	function show( node, tabsize )
 	{
-		cli.UIout.innerHTML += "<br>"+tabsize+"#"+node.UID;
+		var type = " [ ";
+			
+		if( node.isLeaf == true )
+			type += ".";
+		if( node.isLink == true )
+			type += "L"
+		if( node.isApp == true )
+			type += "A";
+		type+="]";
+
+		cli.UIout.innerHTML += "<br>"+tabsize+"#"+node.UID+type;
 		for( k in node.children )
 			show( node.children[k], (tabsize+"_"));	
 	}
@@ -286,6 +303,6 @@ cli.require = function ( scripts )
 
 function init()
 {
-	cli.show();
+	requirejs(['fps'],cli.show);
 }
 setTimeout(init,300);

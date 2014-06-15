@@ -8,7 +8,7 @@ utils.merge = function(a,b,option){
 	for( k in b )
 	{
 		if(a.hasOwnProperty(k))
-			if( option && option != "override" )
+			if( !option )
 				continue;
 		
 		a[k] = b[k];
@@ -17,12 +17,20 @@ utils.merge = function(a,b,option){
 }
 utils.debug = function(elem)
 {
-	var str = "{"
+	if(typeof(elem) == "string")
+		return "";
+	
+	var str = "{\n"
 	for( k in elem )
 	{	
 		str += k+":";
-		//if(typeof(elem[k]) != "object" )
-			str += elem[k]+"\n";
+		if(typeof(elem[k]) != "function" )
+		{
+			str += elem[k]
+			if(elem[k].UID)
+				str += "("+elem[k].UID+")";
+			str += "\n";
+		}
 		//else
 		//	str += utils.debug(elem[k])+" ";
 	}
@@ -36,7 +44,6 @@ utils.whois = function(elem)
 	return elem.UID;
 }
 
-console.log(utils.debug({x:0,y:0,c:{caca:1,pipi:2,leba:{kur:10}}}));
 this.platform = {};
 platform.os = "unknown";
 platform.isMobile = "false";

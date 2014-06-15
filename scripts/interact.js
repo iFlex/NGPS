@@ -122,11 +122,14 @@ Interactive.onMouseUp = function( e , ctx )
 			console.log("Trigger on:"+utils.whois(ctx));
 			// if triggered then call handler
 			if( ctx.dragDist < 7 && ctx.allowTrigger ) // this is considered a tap / click
-				if(	ctx.onTrigger ) // minimal handler call ( no event object generated yet )
-				{
+			{
+				if(	ctx.onTrigger ) 
 					ctx.onTrigger( ctx , e);
-					ctx.triggerCount++;
-				}
+				
+				if( ctx.events['triggered'] )
+					GEM.fireEvent({event:"triggered",target:ctx,nativeEvent:e})
+				ctx.triggerCount++;
+			}
 		}
 		ctx.hasMD = false;
 		delete ctx.natAngle;
