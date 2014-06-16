@@ -18,7 +18,7 @@
 //			HIrotate => 25
 //			LOrotate => 0   	//allows the camera to rotate between 0 and 25 degrees
 
-//TODO: maintain x,y,w,h of camera content
+//TODO: Add Camera mock objects ( to be able to enforce boundaries and control the scrollable content area )
 this.Camera = {};
 Camera.cstart = function(interval)
 {
@@ -117,7 +117,7 @@ Camera.antiCrossReff = function(funcName,action)
 //TODO: calculate boundaries and add boundary limit enforcing
 Camera.cmove = function(dx,dy)
 {
-	
+/* No need for manual boundaries when using native div scroll	
 	//check boundaries
 	//check x axis
 	var w = this.getWidth();
@@ -134,13 +134,13 @@ Camera.cmove = function(dx,dy)
 		return;
 	if(	this.boundaries['HIy'] && netxY > this.boundaries['HIy']*h)
 		return;
-
+*/
 	//check cross refference 
 	if(this.antiCrossReff("cmove",1))
 		return;
 
-	this.cx = nextX;
-	this.cy = nextY;
+//	this.cx = nextX;
+//	this.cy = nextY;
 	//inertia buildup
 	if(this.c_allowInertia && this.allowInertia)
 	{
@@ -236,13 +236,12 @@ Camera.onMoveEnd = function(ctx,e)
 		}
 	}
 }
-//TODO  investigate positioning imperfections
+//TODO  add camera mock containers to manipulate scroll area
 //		Calculate boundaries and enforce zoom limits
-//		exclude objects that have been zoomed out to far in order not to loose accurate positioning
 Camera.czoom = function(amount,cx,cy)
 {
+	next = this.czoomLevel * amount
 	//check boundaries
-	var next = this.czoomLevel * amount;
 	if( this.boundaries["HIzoom"] && next > this.boundaries['HIzoom'])
 		return;
 	if( this.boundaries["LOzoom"] && next < this.boundaries['LOzoom'])
@@ -250,9 +249,11 @@ Camera.czoom = function(amount,cx,cy)
 	//check cross referencing
 	if(this.antiCrossReff("czoom",1))
 		return;
-
+	
 	this.czoomLevel = next;
-	console.log("Camera Zoom Level:"+this.czoomLevel);
+	this.DOMreference.style.zoom = this.czoomLevel;
+	this.setWidth(this.properties['width']*(1/this.czoomLevel));
+	this.setHeight(this.properties['height']*(1/this.czoomLevel));
 
 	if(!cx && !cy)
 	{
@@ -260,33 +261,18 @@ Camera.czoom = function(amount,cx,cy)
 		cx = pos.x;
 		cy = pos.y;
 	}
-
-	for( k in this.children )
+	else
 	{
-		var center = this.children[k].getCenter();
-		
-		var dx = center.x - cx; 
-		var dy = center.y - cy;
-		
-		var angle = Math.atan2(dy,dx);
-		var radius = Math.sqrt( dx*dx + dy*dy ) * amount;
-		
-		dx = cx + radius * Math.cos( angle );
-		dy = cy + radius * Math.sin( angle );
-		
-		this.children[k].putAt( dx, dy, 0.5, 0.5);
-		this.children[k].scale( amount );
-		//this.children[k].setWidth( this.children[k].getWidth() * amount);
-		//this.children[k].setHeight( this.children[k].getHeight() * amount);
-		//relations support
-		for( k in this.crelations )
-			this.crelations[k]['root'].czoom( amount*this.crelations[k]['zoom'])
-
-		this.antiCrossReff("czoom",0);
+		var pos = this.getPos(cx,cy);
+		cx = pos.x;
+		cy = pos.y;
 	}
+
+	//this.cmove( -cx * (1/amount), -cy * (1/amount) );
+	this.antiCrossReff("czoom",0)
 }
 //TODO investigate aligning imperfections
-Camera.crotate = function(amount,cx,cy)
+Camera.crotate = function(amount,cx,cy) //SLOW & POSITIONING IMPERFECTIONS
 {
 	//check boundaries
 	var next = this.cangle+amount;
@@ -309,6 +295,7 @@ Camera.crotate = function(amount,cx,cy)
 		cy = pos.y;
 		console.log("Camera center:"+cx+" "+cy);
 	}
+	FPS.tickStart()
 	for( k in this.children )
 	{
 		var object = this.children[k].getCenter();
@@ -328,7 +315,7 @@ Camera.crotate = function(amount,cx,cy)
 		//rotate container
 		this.children[k].rotate((180.0*amount)/Math.PI);
 	}
-
+	FPS.tick();
 	//relations support
 	for( k in this.crelations )
 		this.crelations[k]['root'].crotate(amount*this.crelations[k]['angle'])
@@ -344,7 +331,7 @@ Camera.cpan = function(panx,pany)
 
 //TODO perfect focus exit conditin and add parameters for selective exclusion of tweening
 // eg. don't zoom to level, don't turn to level, don't pan camera 
-//TODO focus on correct parent object when focusing on nested object
+//TODO adapt to new move & zoom system
 Camera.cfocusOn = function(target,options)
 {
 	if(!this.callow)
@@ -431,11 +418,6 @@ Camera.addRelated = function(cam,descriptor)
 
 	this.crelations[cam.UID] = descriptor;
 	this.crelations[cam.UID]['root'] = cam;
-	//check for cross reference
-	if(cam.crelations[this.UID]) // there is a cross reference
-	{
-		//deal with the cross reference
-	}
 
 }
 Camera.removeRelated = function(camera)
@@ -463,26 +445,4 @@ Camera.tween = function(data)
 	if(data['interval'])
 		interval = data['interval'];
 
-}
-//TODO: events must be made available for this code 
-Camera.addScript = function(script,fire)
-{	
-	if(this.cscript)
-		this.removeScript;
-
-	this.cscript = script;
-	this.cscript.owner = this;
-	if(this.cscript.start)
-		this.cscript.start();
-}
-Camera.pauseScript = function()
-{
-	if(this.cscript && this.cscript.pause)
-		this.cscript.pause();
-}
-Camera.removeScript = function()
-{
-	if(this.cscript && this.cscript.stop)
-		this.cscript.stop();
-	delete this.cscript;
 }

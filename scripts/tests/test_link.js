@@ -25,7 +25,7 @@ function init()
 				right_link_xreff:0,
 			}
 		};
-		//a.link(c,dsc);
+		a.link(c,dsc);
 	}
 	for( k in tests )
 		tests[k]();
@@ -53,7 +53,7 @@ tests = {
 		};
 		a.link(b,dsc);
 	}
-	
+
 }
 
 setTimeout(init,300);

@@ -7,7 +7,8 @@
 *		Must be applied to an existing Container Object
 */
 this.Interactive = {}
-
+this.Interaction = {}
+Interaction.origin = 0;
 //What to do with interaction events( In some cases it's necessary to pass them to the parent )
 Interactive.propagation = 0; 
 // 0 no propagation; 
@@ -45,6 +46,7 @@ Interactive.onMouseDown = function( e , ctx )
 		if(ctx.onMouseDown)
 			ctx.onMouseDown(ctx,e);
 		console.log("Mouse Down("+ctx.UID+")");
+		Interaction.origin = ctx;
 	}
 	else
 	{
@@ -57,6 +59,18 @@ Interactive.onMouseMove = function(e, ctx)
 {
 	if(!ctx)
 		ctx = this.context;
+
+	console.log(" Mouse moved on "+ctx.UID+ " o:"+Interaction.origin);
+	//smooth interaction
+	if( Interaction.origin && ctx.UID != Interaction.origin.UID && ctx.UID == factory.root.UID )
+	{
+		console.log("c:"+ctx.UID+" o:"+Interaction.origin.UID )
+		if(	Interaction.origin.hasMD )
+			Interaction.origin.onMouseMove( e , Interaction.origin )
+		else
+			Interaction.origin.onMouseDown( e , Interaction.origin )
+		return;
+	}
 
 	if( ctx.propagation == 1 )
 		return true;
@@ -118,6 +132,7 @@ Interactive.onMouseUp = function( e , ctx )
 	{
 		if(ctx.hasMD)
 		{
+			Interaction.origin = 0;
 			console.log("Mouse Up("+ctx.UID+")"+"<"+e.type+">");
 			console.log("Trigger on:"+utils.whois(ctx));
 			// if triggered then call handler
@@ -143,6 +158,9 @@ Interactive.onMouseUp = function( e , ctx )
 		if(ctx.parent)
 			ctx.parent.onMouseUp( e , ctx.parent );
 	}
+	//smooth interaction
+	if( Interaction.origin && ctx.UID != Interaction.origin.UID )
+		Interaction.origin.onMouseUp( e , Interaction.origin )
 }
 Interactive.onMouseOut = function( e , ctx )
 {
@@ -276,7 +294,7 @@ Interactive.interactive = function( d )
 	  		this.DOMreference.addEventListener('mousemove',this.onMouseMove, false);
 	  		this.DOMreference.addEventListener('mouseover',this.onMouseMove, false);
 	  		this.DOMreference.addEventListener('mouseup'  ,this.onMouseUp,   false);
-	  		this.DOMreference.addEventListener('mouseout' ,this.onMouseOut,  false);
+	  		//this.DOMreference.addEventListener('mouseout' ,this.onMouseOut,  false);
 	  		this.enableMobile ( this.DOMreference );
 	  	}
   	}
@@ -290,7 +308,7 @@ Interactive.interactive = function( d )
 		  	this.DOMreference.removeEventListener('mousemove',this.onMouseMove, false);
 		  	this.DOMreference.removeEventListener('mouseover',this.onMouseMove, false);
 		  	this.DOMreference.removeEventListener('mouseup'  ,this.onMouseUp,   false);
-		  	this.DOMreference.removeEventListener('mouseout' ,this.onMouseOut,  false);
+		  	//this.DOMreference.removeEventListener('mouseout' ,this.onMouseOut,  false);
 		  	this.disableMobile( this.DOMreference );
 		}
   	}

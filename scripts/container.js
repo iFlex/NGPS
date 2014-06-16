@@ -131,6 +131,8 @@ this.container = function(properties)
 		else //this is the master object ( root )
 			document.body.appendChild(this.DOMreference);
 		
+		this.properties['width'] = this.getWidth();
+		this.properties['height']= this.getHeight();
 		return true;
 	}
 	//EXTENTION Posibilities ( Turn Object into Camera )

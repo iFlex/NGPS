@@ -34,3 +34,30 @@ benchmark.scroll = function(i)
 	}
 	move();
 }
+
+benchmark.rotate = function(i)
+{
+	if(!i)
+		i=30;
+	function rot(){
+		factory.root.crotate(Math.PI/180)
+		setTimeout(rot,i)
+	}
+	rot();	
+}
+
+benchmark.zoom = function(i)
+{
+	if(!i)
+		i=30;
+	var zc = 1.1;
+	function zm(){
+		factory.root.czoom(zc);
+		if(factory.root.czoomLevel < 0.05)
+			zc = 1.01;
+		if(factory.root.czoomLevel > 10)
+			zc = 0.99;
+		setTimeout(zm,i)
+	}
+	zm();
+}
