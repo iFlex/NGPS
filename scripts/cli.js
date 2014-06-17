@@ -77,8 +77,8 @@ cli.show = function()
 		
 		cli.UIout.innerHTML = "NGPS command line interface";
 		cli.showPrompt();
-		FPS = new FPSMeter(cli.UIfps);
-		FPS.showDuration();
+		/*FPS = new FPSMeter(cli.UIfps);
+		FPS.showDuration();*/
 		console.log("CLI:: completed building the CLI UI");
 	}
 	if(cli.status == 2)
@@ -110,9 +110,8 @@ cli.keysHandler = function(e)
 //		limit cli text entries to a number of lines
 cli.onExec  = function()
 {
-	cli.UIout.innerHTML += cli.UIin.value;
+	cli.showPrompt(cli.UIin.value);
 	cli.execute(cli.UIin.value);
-	cli.showPrompt();
 	cli.UIin.value = "";
 	//cli.show();
 	cli.UIout.scrollTop = cli.UIout.scrollHeight;
@@ -169,9 +168,7 @@ cli.execute = function(str)
 	
 	if(breakdown[0] == "set") //set value of property
 	{
-		var property = eval(breakdown[1]);
-		var value = eval(breakdown[2]);
-		property = value;
+		eval(breakdown[1]+" = "+breakdown[2]);
 		return;
 	}
 
@@ -188,7 +185,8 @@ cli.execute = function(str)
 			if(result)
 			{
 				//	cli.UIout.innerHTML += "<br>#"+result.UID;
-				cli.UIout.innerHTML += "<br>"+result+":"+utils.debug(result);
+				if(typeof(result) != "function")
+				 cli.UIout.innerHTML += "<br>"+result+":"+utils.debug(result);
 			}
 		} 
 		catch ( err )
@@ -301,8 +299,15 @@ cli.require = function ( scripts )
 	return requirejs([scripts]);
 }
 
+cli.debugConfig = function()
+{
+	cli.execute("factory init");
+	cli.execute("cli ldtest 'benchmark'");
+	cli.execute('factory newGlobalApp "fps"');
+}
 function init()
 {
-	requirejs(['fps'],cli.show);
+	//requirejs(['fps'],cli.show);
+	cli.show();
 }
 setTimeout(init,300);

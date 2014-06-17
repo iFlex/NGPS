@@ -141,8 +141,9 @@ Interactive.onMouseUp = function( e , ctx )
 				if(	ctx.onTrigger ) 
 					ctx.onTrigger( ctx , e);
 				
-				//if( ctx.events['triggered'] )
+				if( ctx.events['triggered'] || ( GEM.events['triggered'] && GEM.events['triggered']['_global'] ) )
 					GEM.fireEvent({event:"triggered",target:ctx,nativeEvent:e})
+				
 				ctx.triggerCount++;
 			}
 		}

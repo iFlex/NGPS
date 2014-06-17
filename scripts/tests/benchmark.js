@@ -5,13 +5,13 @@
 */
 
 var x = 0;
-var y = 0;
+var y = 1;
 var size = 120;
 function nextSector(){
 	y++;
 	if(y > 6)
 	{
-		y=0;
+		y=1;
 		x++;
 	}
 }
@@ -24,23 +24,27 @@ benchmark.grid = function(nr)
 		nextSector();
 	}
 }
-benchmark.scroll = function(i)
+benchmark.scroll = function(i,am)
 {
 	if(!i)
 		i=30;
+	if(!am)
+		am = -1;
 	function move(){
-		factory.root.cmove(-1,0)
+		factory.root.cmove(am,0)
 		setTimeout(move,i)
 	}
 	move();
 }
 
-benchmark.rotate = function(i)
+benchmark.rotate = function(i,am)
 {
 	if(!i)
 		i=30;
+	if(!am)
+		am = 1;
 	function rot(){
-		factory.root.crotate(Math.PI/180)
+		factory.root.crotate(am*Math.PI/180)
 		setTimeout(rot,i)
 	}
 	rot();	

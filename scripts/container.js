@@ -547,7 +547,7 @@ this.container = function(properties)
 		{
 			//lookup app
 			requirejs(['plugins/'+app+"/main.js"],function(){
-				AppMgr.loadedApps[app] = eval(app);
+				//AppMgr.loadedApps[app] = eval(app);
 				ldApp(AppMgr.loadedApps[app]);
 			});
 		}

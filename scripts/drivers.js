@@ -21,18 +21,23 @@ utils.debug = function(elem)
 		return "";
 	
 	var str = "{\n"
-	for( k in elem )
-	{	
-		str += k+":";
-		if(typeof(elem[k]) != "function" )
-		{
-			str += elem[k]
-			if(elem[k].UID)
-				str += "("+elem[k].UID+")";
-			str += "\n";
+	if(typeof(elem) == "object" && elem.UID)
+		str+= " NGPS Container #"+elem.UID+" \n}";
+	else
+	{
+		for( k in elem )
+		{	
+			str += k+":";
+			if(typeof(elem[k]) != "function" )
+			{
+				str += elem[k]
+				if(elem[k].UID)
+					str += "("+elem[k].UID+")";
+				str += "\n";
+			}
+			//else
+			//	str += utils.debug(elem[k])+" ";
 		}
-		//else
-		//	str += utils.debug(elem[k])+" ";
 	}
 	str += "}"
 	return str;

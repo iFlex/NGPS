@@ -148,7 +148,7 @@ Camera.cmove = function(dx,dy)
 		this.yInertia += dy;
 	}
 	//move children
-	FPS.tickStart();
+	//FPS.tickStart();
 	/*for( k in this.children )
 	{
 		//if(this.children[k]);
@@ -162,7 +162,7 @@ Camera.cmove = function(dx,dy)
 	*/
 	this.DOMreference.scrollTop -= dy;
 	this.DOMreference.scrollLeft-= dx;	
-	FPS.tick();
+	//FPS.tick();
 
 	//relations support
 	for( k in this.crelations )
@@ -295,7 +295,7 @@ Camera.crotate = function(amount,cx,cy) //SLOW & POSITIONING IMPERFECTIONS
 		cy = pos.y;
 		console.log("Camera center:"+cx+" "+cy);
 	}
-	FPS.tickStart()
+	//FPS.tickStart()
 	for( k in this.children )
 	{
 		var object = this.children[k].getCenter();
@@ -315,7 +315,7 @@ Camera.crotate = function(amount,cx,cy) //SLOW & POSITIONING IMPERFECTIONS
 		//rotate container
 		this.children[k].rotate((180.0*amount)/Math.PI);
 	}
-	FPS.tick();
+	//FPS.tick();
 	//relations support
 	for( k in this.crelations )
 		this.crelations[k]['root'].crotate(amount*this.crelations[k]['angle'])

@@ -15,36 +15,45 @@
 requirejs(['container',"containerTemplates","themes/default"]);
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
+this.factory.initialised = false;
 //initiation script comes here
 factory.init = factory.init || function(mode) // editor init
 {
-	//settings
-	factory.settings = factory.settings || {};
-	factory.settings.container = {}
-	factory.settings.container.width = 250;
-	factory.settings.container.height = 250;
-	factory.settings.mode = mode || "editor";
-	//
-	var descriptor = platform.getScreenSize();
-	descriptor = utils.merge({x:0,y:0,background:"#fAfAfA",border_size:1,border_style:"solid"},descriptor);
-	//make a full screen camera object
-	var root = new container(descriptor);
-	root.load();
-	root.extend(Interactive);
-	root.extend(Camera);
-	root.interactive(true);
-	root.cstart(1);
+	if(!factory.initialised)
+	{
+		//settings
+		factory.settings = factory.settings || {};
+		factory.settings.container = {}
+		factory.settings.container.width = 250;
+		factory.settings.container.height = 250;
+		factory.settings.mode = mode || "editor";
+		//
+		var descriptor = platform.getScreenSize();
+		descriptor = utils.merge({x:0,y:0,background:"#fAfAfA",border_size:1,border_style:"solid"},descriptor);
+		//make a full screen camera object
+		var root = new container(descriptor);
+		root.load();
+		root.extend(Interactive);
+		root.extend(Camera);
+		root.interactive(true);
+		root.cstart(1);
 
-	factory.root = root;
+		factory.root = root;
 
-	if(factory.AMS && factory.AMS.init)
-		factory.AMS.init( factory.settings.container, factory.AMS);
+		if(factory.AMS && factory.AMS.init)
+			factory.AMS.init( factory.settings.container, factory.AMS);
+		
+		factory.initialised = true;
+	}
 }
 factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"transparent",border_size:5,border_style:"dashed",border_color:"0xFFFFDD",border_radius:["15px"]}
 
 //FACTORY functions
 factory.newContainer = function(possize,tag,parent)
 {
+	if(!factory.initialised)
+		factory.init();
+
 	if(!parent)
 		parent = factory.root;
 	
@@ -73,6 +82,9 @@ factory.newContainer = function(possize,tag,parent)
 }
 factory.createContainer = function(descriptor,parent)
 {
+	if(!factory.initialised)
+		factory.init();
+	
 	if(!parent)
 		parent = factory.root;
 	var obj = parent.addChild(descriptor);
@@ -86,6 +98,9 @@ factory.createContainer = function(descriptor,parent)
 }
 factory.newCamera = function (possize,tag,parent,interval)
 {
+	if(!factory.initialised)
+		factory.init();
+
 	possize.isCamera = true;
 	var obj = factory.newContainer(possize,tag,parent)
 	if(obj)
@@ -99,6 +114,17 @@ factory.newCamera = function (possize,tag,parent,interval)
 		obj.cstart(interval);
 	}
 	return obj;
+}
+factory.newGlobalApp = function ( app )
+{
+	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"simple_rect");
+	host.loadApp(app);
+	return host;
+}
+//TODO: 
+factory.newLink = function( a , b , type)
+{
+
 }
 //TODO: simplify method of adding content through a few modes
 factory.addContent = function( obj , content , mode )

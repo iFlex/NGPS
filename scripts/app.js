@@ -4,7 +4,8 @@
 *	7 June 2014 	12:20 GMT
 *	
 *	Conventions:
-*		App constructor function will get a object {} with parent: startWorker: and stopWorker properties
+*		App must all the loadAppCode function with it's name as the first argument and it's code as the second ( function as class )
+*		App constructor function will get a object {} with parent: startWorker: and stopWorker properties and other initial required information
 *		startWorker returns the id of the worker or -1 in case the worker was not started
 */
 
@@ -12,18 +13,22 @@ this.AppCtl = {};
 this.AppMgr = {};
 AppMgr.status = "idle";
 AppMgr.maxAppWorkers = 10;
-AppMgr.maxWorkers = 1000;
 AppMgr.running_app_parent = 0;
 AppMgr.workers = {};
-AppMgr.loadedApps = {}
+AppMgr.loadedApps = {};
 //only one app can be running at one time
 //apps can have backbround tasks running even though they are suspended
 //those processes will be stopped when the app is unloaded
+//TODO make sure the function loadAppCode is available before any app is loaded
+function loadAppCode(name,app)
+{
+	AppMgr.loadedApps[name] = app;
+}
 
 AppCtl.ainit = function(app)
 {
 	this.isApp = true;
-	this.app = new app({parent:this,startWorker:this.startWorker,stopWorker:this.stopWorker});
+	this.app = new app({parent:this,startWorker:this.requestWorker,stopWorker:this.stopWorker});
 	this.aworkers = 0;
 	//
 	this.cover = 0;
