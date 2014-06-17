@@ -7,8 +7,6 @@
 *		Must be applied to an existing Container Object
 */
 this.Interactive = {}
-this.Interaction = {}
-Interaction.origin = 0;
 //What to do with interaction events( In some cases it's necessary to pass them to the parent )
 Interactive.propagation = 0; 
 // 0 no propagation; 
@@ -21,6 +19,9 @@ Interactive.lx = 0;
 Interactive.ly = 0;
 Interactive.dragDist = 0;
 Interactive.triggerCount = 0;
+//smooth continuous interaction
+this.Interaction = {}
+Interaction.origin = 0;
 
 Interactive.onMouseDown = function( e , ctx )
 {
@@ -46,6 +47,7 @@ Interactive.onMouseDown = function( e , ctx )
 		if(ctx.onMouseDown)
 			ctx.onMouseDown(ctx,e);
 		console.log("Mouse Down("+ctx.UID+")");
+		//smooth continuous interaction
 		Interaction.origin = ctx;
 	}
 	else
@@ -60,11 +62,9 @@ Interactive.onMouseMove = function(e, ctx)
 	if(!ctx)
 		ctx = this.context;
 
-	console.log(" Mouse moved on "+ctx.UID+ " o:"+Interaction.origin);
-	//smooth interaction
+	//smooth continuous interaction
 	if( Interaction.origin && ctx.UID != Interaction.origin.UID && ctx.UID == factory.root.UID )
 	{
-		console.log("c:"+ctx.UID+" o:"+Interaction.origin.UID )
 		if(	Interaction.origin.hasMD )
 			Interaction.origin.onMouseMove( e , Interaction.origin )
 		else
@@ -141,7 +141,7 @@ Interactive.onMouseUp = function( e , ctx )
 				if(	ctx.onTrigger ) 
 					ctx.onTrigger( ctx , e);
 				
-				if( ctx.events['triggered'] )
+				//if( ctx.events['triggered'] )
 					GEM.fireEvent({event:"triggered",target:ctx,nativeEvent:e})
 				ctx.triggerCount++;
 			}
@@ -158,7 +158,7 @@ Interactive.onMouseUp = function( e , ctx )
 		if(ctx.parent)
 			ctx.parent.onMouseUp( e , ctx.parent );
 	}
-	//smooth interaction
+	//smooth continuous interaction
 	if( Interaction.origin && ctx.UID != Interaction.origin.UID )
 		Interaction.origin.onMouseUp( e , Interaction.origin )
 }

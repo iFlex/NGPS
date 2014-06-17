@@ -12,7 +12,7 @@
 *			This functionality enables themes ( a theme will therefore be an AMS combined with certain features )
 *		It also can decide what functions to link to the trigger events of containers depending on what mode it is initiated in ( Viewer or Editor )
 */
-requirejs(['container',"containerTemplates"]);
+requirejs(['container',"containerTemplates","themes/default"]);
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
 //initiation script comes here

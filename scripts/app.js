@@ -29,46 +29,48 @@ AppCtl.ainit = function(app)
 	this.cover = 0;
 	this.exit = 0;
 	/////////////////////
-	data = {};
-	if(data && data['cover'])
-		this.cover = this.addChild(data['cover'])
-	else
-		this.cover = this.addChild({x:"0%",y:"0%",width:this.getWidth(),height:this.getHeight(),background:"transparent"});
-	
-	if(data && data['exit'])
-		this.exit = this.addChild(data['exit'])
-	else
+	data = this.app.config;
+	if(data['interface'] != "none")
 	{
-		var d = this.getWidth()*0.1;
-		var h = this.getHeight()*0.1;
-		if(d>h)
-			d=h;
-		if( d > 64 )
-			d = 64;
-		this.exit = this.addChild({x:"0%",y:"0%",width:d,height:d,background:"red",border_radius:["15px"]})
+		if(data && data['cover'])
+			this.cover = this.addChild(data['cover'])
+		else
+			this.cover = this.addChild({x:"0%",y:"0%",width:this.getWidth(),height:this.getHeight(),background:"transparent"});
+		
+		if(data && data['exit'])
+			this.exit = this.addChild(data['exit'])
+		else
+		{
+			var d = this.getWidth()*0.1;
+			var h = this.getHeight()*0.1;
+			if(d>h)
+				d=h;
+			if( d > 64 )
+				d = 64;
+			this.exit = this.addChild({x:"0%",y:"0%",width:d,height:d,background:"red",border_radius:["15px"]})
+		}
+		//configure for interaction
+		this.cover.extend(Interactive);
+		this.cover.interactive(true);
+
+		this.exit.extend(Interactive);
+		this.exit.interactive(true);
+		
+		this.cover.DOMreference.style.zIndex = 1;
+		this.exit.DOMreference.style.zIndex = 2;
+
+		this.exit.addPrimitive({type:"div"});
+		this.exit.child.innerHTML = '<center><span class="glyphicon glyphicon-ok"></span></center>'
+		
+		//Configure triggers and propagation
+		this.cover.onMoved = function(dx,dy,ctx){ctx.parent.move(dx,dy);}
+		this.cover.onTrigger = this.arun;
+		this.exit.onTrigger = this.asuspend;
+		
+		//prepare for run
+		this.cover.show();
+		this.exit.hide();
 	}
-	//configure for interaction
-	this.cover.extend(Interactive);
-	this.cover.interactive(true);
-
-	this.exit.extend(Interactive);
-	this.exit.interactive(true);
-	
-	this.cover.DOMreference.style.zIndex = 1;
-	this.exit.DOMreference.style.zIndex = 2;
-
-	this.exit.addPrimitive({type:"div"});
-	this.exit.child.innerHTML = '<center><span class="glyphicon glyphicon-ok"></span></center>'
-	
-	//Configure triggers and propagation
-	this.cover.onMoved = function(dx,dy,ctx){ctx.parent.move(dx,dy);}
-	this.cover.onTrigger = this.arun;
-	this.exit.onTrigger = this.asuspend;
-	
-	//prepare for run
-	this.cover.show();
-	this.exit.hide();
-
 	//initialise app
 	this.app.init();
 }

@@ -172,6 +172,9 @@ this.container = function(properties)
 		//unload app
 		if(this.adestroy)
 			this.adestroy();
+		
+		//discard all links related to this container
+		this.unlinkAll();
 
 		if(this.parent) 
 		{
@@ -438,10 +441,14 @@ this.container = function(properties)
 		leLink.linkData = descriptor['anchors'];
 		this.maintainLink(target);
 		//add listeners
-		this.addEventListener("moved",maintainLinks);
-		this.addEventListener("resized",maintainLinks);
-		target.addEventListener("moved",maintainLinks);
-		target.addEventListener("resized",maintainLinks);
+		this.onMoved = function(dx,dy){
+			this.move(dx,dy);
+			this.maintainLinks();
+		};
+		target.onMoved = function(dx,dy){
+			target.move(dx,dy);
+			target.maintainLinks();	
+		}
 	}
 	this.unlink = function (target)
 	{
@@ -454,11 +461,16 @@ this.container = function(properties)
 			this.outgoing[target.UID]['link'].discard();
 			delete this.outgoing[target.UID];
 		}
-		//remove listeners
-		this.removeEventListener("moved",maintainLinks);
-		this.removeEventListener("resized",maintainLinks);
-		target.removeEventListener("moved",maintainLinks);
-		target.removeEventListener("resized",maintainLinks);
+	}
+	this.unlinkAll = function(){
+		for( k in this.outgoing )
+			this.unlink( this.outgoing[k]['target'] )
+			
+		for( t in this.incoming )
+		{
+			var trg = this.incoming[t]['target'];
+			trg.unlink( this );
+		}
 	}
 	this.changeLinkTarget = function(oldTarget,newTarget)
 	{
@@ -499,6 +511,17 @@ this.container = function(properties)
 			//	leLink.linkData['left_link_xreff'],leLink.linkData['left_link_yreff']);
 		}
 	}
+	this.maintainLinks = function()
+	{
+		for( k in this.outgoing )
+			this.maintainLink( this.outgoing[k]['target'] )
+			
+		for( t in this.incoming )
+		{
+			var trg = this.incoming[t]['target'];
+			trg.maintainLink( this );
+		}
+	}
 	//EVENTs support
 	this.addEventListener = function( event , handler )
 	{
@@ -536,12 +559,14 @@ this.container = function(properties)
 			host.extend(AppCtl);
 			host.ainit(app);
 			
-			if(this.events["appLoaded"])
-				GEM.fireEvent({event:"appLoaded",target:this});
+			if(host.events["appLoaded"])
+				GEM.fireEvent({event:"appLoaded",target:host});
 			
 		}
 	}
 }
+/*
+BAD IDEA, global function event handler is a bottleneck
 function maintainLinks(data)
 {
 	var ctx = data['target'];
@@ -554,3 +579,4 @@ function maintainLinks(data)
 		trg.maintainLink( ctx );
 	}
 }
+*/
