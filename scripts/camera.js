@@ -18,6 +18,7 @@
 //			HIrotate => 25
 //			LOrotate => 0   	//allows the camera to rotate between 0 and 25 degrees
 
+//NODE: Camera pos is defined by center x + scrollLeft and center y + scrollTop
 //TODO: Add Camera mock objects ( to be able to enforce boundaries and control the scrollable content area )
 this.Camera = {};
 Camera.cstart = function(interval)
@@ -334,6 +335,7 @@ Camera.cpan = function(panx,pany)
 //TODO adapt to new move & zoom system
 Camera.cfocusOn = function(target,options)
 {
+	console.log("Camera focusing on:"+target+" "+target.UID);
 	if(!this.callow)
 		return;
 
@@ -382,8 +384,8 @@ Camera.cfocusOn = function(target,options)
 	
 		if( Math.abs( targetPos.x - camPos.x) > 5 || Math.abs( targetPos.y - camPos.y) > 5) //|| Math.abs(target.angle) > 0 )
 		{
-			var dx = ( camPos.x - targetPos.x ) / 10;
-			var dy = ( camPos.y - targetPos.y ) / 10;
+			var dx = ( ( camPos.x + camera.DOMreference.scrollLeft )- targetPos.x ) / 20;
+			var dy = ( ( camPos.y + camera.DOMreference.scrollTop ) - targetPos.y ) / 20;
 			var da = -target.angle /10;
 			//do zoom adaptation as well ( and consider fit screen )
 			camera.cmove(dx,dy);

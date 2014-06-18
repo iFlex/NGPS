@@ -6,7 +6,6 @@
 var x = 0;
 var y = 0;
 var size = 400;
-var editor = new Editor();
 function nextSector(){
 	x++;
 	if(x > 10)
@@ -19,27 +18,25 @@ function nextSector(){
 
 function init(){
 	factory.init();
-	//editor.init();
-	//factory.root.onTrigger = function(){ editor.hide();}
 	for(k in tests)
 		tests[k]();
 	factory.root.onTrigger = tests.build;
 }
 
 tests = {
-	build: function(ctx,e){
-		var px = x*size;
-		var py = y*size;
-		if(e && e.clientX)
-		{
-			px = e.clientX;
-			py = e.clientY;
+	
+	test_overwritting: function(){
+		var o  = factory.newContainer({width:200,height:200,x:100,y:100},"simple_rect");
+		
+		function onld(data){
+			var t = data['target'];
+			t.removeEventListener("appLoaded",onld);
+			t.loadApp("fps");
 		}
-		var u = factory.newContainer({width:200,height:200,x:px,y:py},"simple_rect");
-		var o = factory.newContainer({width:200,height:200,x:px,y:py, background:"transparent", border_size:"0px",border_radius:["0px"]},"simple_rect");
-		o.loadApp("charts");
-		nextSector();
-	},
+
+		o.addEventListener("appLoaded",onld);
+		o.loadApp("simple_connector");
+	}
 }
 
 setTimeout(init,500);

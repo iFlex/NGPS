@@ -169,6 +169,10 @@ this.container = function(properties)
 
 	this.discard = function(bitch)
 	{
+		//discard all children
+		for( k in this.children )
+			this.children[k].discard();
+		
 		//unload app
 		if(this.adestroy)
 			this.adestroy();

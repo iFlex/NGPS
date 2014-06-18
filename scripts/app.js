@@ -29,6 +29,7 @@ AppCtl.ainit = function(app)
 {
 	this.isApp = true;
 	this.app = new app({parent:this,startWorker:this.requestWorker,stopWorker:this.stopWorker});
+	//unique identifiers for workers
 	this.aworkers = 0;
 	//
 	this.cover = 0;
@@ -88,7 +89,7 @@ AppCtl.adestroy = function() // completely remove app from container
 	}
 
 	if( this.app.shutdown )
-		this.app.shutdow();
+		this.app.shutdown();
 	//stop all of the apps workers
 	this.stopWorker();
 }
@@ -171,13 +172,14 @@ AppCtl.requestWorker = function( worker, interval )
 
 AppCtl.stopWorker = function( id )
 {
-	if( AppMgr.worker[this.UID] )
+	console.log("this:"+this+" "+this.UID);
+	if( AppMgr.workers[this.UID] )
 	{
 		var len = AppMgr.workers[this.UID].length;
 		for( var i=0; i < len; ++i )
-			if( !id || AppMgr.workers[thsi.UID][i]['id'] == id )
+			if( !id || AppMgr.workers[this.UID][i]['id'] == id )
 			{
-				clearInterval( AppMgr.workers[thsi.UID][i]['ctl'] )
+				clearInterval( AppMgr.workers[this.UID][i]['ctl'] )
 				AppMgr.workers[this.UID].splice(i,1);
 				if(id)
 					return true;

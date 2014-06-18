@@ -65,3 +65,13 @@ benchmark.zoom = function(i)
 	}
 	zm();
 }
+
+benchmark.focusTest = function()
+{
+	for(var i =0;i<500;++i)
+	{
+		var o = factory.newContainer({x:x*size,y:y*size,width:100,height:100},"rounded_rect")
+		o.onTrigger = function(ctx){ factory.root.cfocusOn(ctx);}
+		nextSector();
+	}
+}

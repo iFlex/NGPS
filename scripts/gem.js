@@ -4,6 +4,7 @@
 *	15 Jun 2014  10:43 GMT
 */
 //TODO: investigate strange additional null handlers appearing after loaiding "simple_connector" app on factory.root
+//		problems with identifying anonymous handlers
 this.GEM = {};
 GEM.events = {};
 GEM.debug = true;
@@ -52,7 +53,10 @@ GEM.removeEventListener = function(event,ctx,handler)
 
 	if( GEM.events[event] && GEM.events[event][ctx] )
 	{
+		//handler = JSON.stringify(handler);
 		for( h in GEM.events[event][ctx] )
+		{
+			console.log(GEM.events[event][ctx][h] + " == " + handler )
 			if( GEM.events[event][ctx][h] == handler )
 			{
 				if(GEM.debug)
@@ -61,12 +65,15 @@ GEM.removeEventListener = function(event,ctx,handler)
 				GEM.events[event][ctx].splice(h,1);
 				return true;
 			}
+		}
+		if(GEM.events[event][ctx].length == 0)
+			delete GEM.events[event][ctx];
 	}
 	return false;
 }
 GEM.list = function(verbose)
 {
-	str = "NGPS_GEM:";
+	str = "NGPS_GEM:[";
 	for( i in GEM.events )
 	{
 		str += "<br>-"+i+":";
@@ -83,6 +90,7 @@ GEM.list = function(verbose)
 			str += "<br>--has "+nrev+" handlers";
 		}
 	}
+	str += "<br>]";
 	return str;
 }
 GEM.cancelAll = function()

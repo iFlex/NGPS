@@ -12,39 +12,42 @@
 *			This functionality enables themes ( a theme will therefore be an AMS combined with certain features )
 *		It also can decide what functions to link to the trigger events of containers depending on what mode it is initiated in ( Viewer or Editor )
 */
-requirejs(['container',"containerTemplates","themes/default"]);
+requirejs(['container',"descriptors/containers","themes/default"]);
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
 this.factory.initialised = false;
 //initiation script comes here
 factory.init = factory.init || function(mode) // editor init
 {
-	if(!factory.initialised)
+	if(factory.initialised)
 	{
-		//settings
-		factory.settings = factory.settings || {};
-		factory.settings.container = {}
-		factory.settings.container.width = 250;
-		factory.settings.container.height = 250;
-		factory.settings.mode = mode || "editor";
-		//
-		var descriptor = platform.getScreenSize();
-		descriptor = utils.merge({x:0,y:0,background:"#fAfAfA",border_size:1,border_style:"solid"},descriptor);
-		//make a full screen camera object
-		var root = new container(descriptor);
-		root.load();
-		root.extend(Interactive);
-		root.extend(Camera);
-		root.interactive(true);
-		root.cstart(1);
-
-		factory.root = root;
-
-		if(factory.AMS && factory.AMS.init)
-			factory.AMS.init( factory.settings.container, factory.AMS);
-		
-		factory.initialised = true;
+		//resetting the factory
+		factory.initialised = false;
+		factory.root.discard();
 	}
+	//settings
+	factory.settings = factory.settings || {};
+	factory.settings.container = {}
+	factory.settings.container.width = 250;
+	factory.settings.container.height = 250;
+	factory.settings.mode = mode || "editor";
+	//
+	var descriptor = platform.getScreenSize();
+	descriptor = utils.merge({x:0,y:0,background:"#fAfAfA",border_size:1,border_style:"solid"},descriptor);
+	//make a full screen camera object
+	var root = new container(descriptor);
+	root.load();
+	root.extend(Interactive);
+	root.extend(Camera);
+	root.interactive(true);
+	root.cstart(1);
+
+	factory.root = root;
+
+	if(factory.AMS && factory.AMS.init)
+		factory.AMS.init( factory.settings.container, factory.AMS);
+	
+	factory.initialised = true;
 }
 factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"transparent",border_size:5,border_style:"dashed",border_color:"0xFFFFDD",border_radius:["15px"]}
 
