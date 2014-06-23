@@ -18,12 +18,42 @@
 //			HIrotate => 25
 //			LOrotate => 0   	//allows the camera to rotate between 0 and 25 degrees
 
-//NODE: Camera pos is defined by center x + scrollLeft and center y + scrollTop
-//TODO: Add Camera mock objects ( to be able to enforce boundaries and control the scrollable content area )
+//TODO: Add camera display object & adapt all actuators + adapt addChild
+//		Inspect camera move boundaries when scaled
 this.Camera = {};
+Camera.addChild = function(descriptor,addToFrame)
+{
+	var reff = 0;
+	if(!addToFrame)
+	{
+		if(this.display)
+		{
+			this.display.children[ containerData.containerIndex ] = new container( descriptor );
+			reff = this.display.children[ containerData.containerIndex ] 
+			reff.load( this.display );
+			
+			//EVENT
+			if( this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
+				GEM.fireEvent({event:"addChild",target:this,child:reff})
+
+			return reff;
+		}
+	}
+	
+	this.children[ containerData.containerIndex ] = new container( descriptor );
+	reff = this.children[ containerData.containerIndex ] 
+	reff.load( this );
+
+	//EVENT
+	if( !addToFrame && this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
+		GEM.fireEvent({event:"addChild",target:this,child:reff})
+
+	return reff;
+}
 Camera.cstart = function(interval)
 {
 	//now adding camera specific functions
+	this.display = 0; // this is the display area used for move, zoom, rotate
 	//camera focus
 	this.conTick = 0;
 	this.cfocusTarget = 0;
@@ -41,7 +71,8 @@ Camera.cstart = function(interval)
 	//operations flags
 	this.callow = true;
 	this.cops = {};
-
+	this.cmockLeft = 0;
+	this.cmockRight = 0;
 	if(!this.cinterval)
 	{
 		//used for time based animations and corrections
@@ -58,20 +89,52 @@ Camera.cstart = function(interval)
 	this.crelations = {};
 	this.wasCalled = {};
 	//
-	this.boundaries = {};
-
+	this.boundaries = {};	
+	// Built in Fast Callbacks
 	this.onMoved = this.cmove;
-	//inertia enabled by default
 	this.onMouseDown = this.onMoveStart;
 	this.onMouseUp   = this.onMoveEnd;
+
+	//add the display
+	this.display = this.addChild({x:0,y:0,width:this.getWidth(),height:this.getHeight(),background:"yellow"},true);
+	this.display.DOMreference.style.overflow = "";
+	
+	//this.display.extend(Interactive);
+	//this.display.interactive(true);
+	this.addEventListener("addChild","maintainBoundaries");
 }
-Camera.showAnimations = function(){
+//TODO: treat case when content is added outside the reference point of the camera div
+Camera.maintainBoundaries = function(data)
+{
+	var target = data['child'];
+	var pos = target.getPos(1,1);
+	var hpos = target.getPos(0,0);
+	var tpos = this.display.getPos();
+	//far right
+	if( pos.x > this.display.getPureWidth())
+		this.display.setWidth(pos.x);
+
+	if( pos.y > this.display.getPureHeight())
+		this.display.setHeight(pos.y);
+
+	//far left
+	/*if( hpos.x < tpos.x)
+		this.display.setWidth(pos.x);
+
+	if( pos.y < tpos.y)
+		this.display.setHeight(pos.y);
+	*/
+}
+
+Camera.showAnimations = function()
+{
 	str = "Camera_animations:[";
 	for(k in this.cops)
 		str += k+";";
 	str+="]";
 	return str;
 }
+
 Camera.ccancel = function(what)
 {
 	if(!what)
@@ -118,52 +181,41 @@ Camera.antiCrossReff = function(funcName,action)
 //TODO: calculate boundaries and add boundary limit enforcing
 Camera.cmove = function(dx,dy)
 {
-/* No need for manual boundaries when using native div scroll	
 	//check boundaries
 	//check x axis
-	var w = this.getWidth();
-	var nextX = this.cx + dx;
-	if( this.boundaries['LOx'] && nextX < this.boundaries['LOx']*w)
+	var sw = this.getPureWidth();
+	var sh = this.getPureHeight();
+	var w = this.display.getPureWidth();
+	var h = this.display.getPureHeight();
+	//TODO: not working!
+	var originX = (this.display.getWidth() - w) / 2;
+	var originY = (this.display.getHeight() - h ) / 2;
+	var pos = this.display.getPos();
+	pos.x += dx;
+	pos.y += dy;
+	
+	if( this.boundaries['LOx'] && pos.x - originX> this.boundaries['LOx'] * sw)
 		return;
-	if( this.boundaries['HIx'] && nextX > this.boundaries['HIx']*w)
+	if( this.boundaries['HIx'] && pos.x + w - originX< this.boundaries['HIx'] * sw)
 		return;
 
-	//check y axis
-	var h = this.getHeight();
-	var nextY = this.cy + dy;
-	if( this.boundaries['LOy'] && nextY < this.boundaries['LOy']*h)
+	if( this.boundaries['LOy'] && pos.y - originY > this.boundaries['LOy'] * sh)
 		return;
-	if(	this.boundaries['HIy'] && netxY > this.boundaries['HIy']*h)
+	if(	this.boundaries['HIy'] && pos.y + h - originY < this.boundaries['HIy'] * sh)
 		return;
-*/
+
 	//check cross refference 
 	if(this.antiCrossReff("cmove",1))
 		return;
 
-//	this.cx = nextX;
-//	this.cy = nextY;
 	//inertia buildup
 	if(this.c_allowInertia && this.allowInertia)
 	{
 		this.xInertia += dx;
 		this.yInertia += dy;
 	}
-	//move children
-	//FPS.tickStart();
-	/*for( k in this.children )
-	{
-		//if(this.children[k]);
-		var c = this.children[k];
-		var pos = c.getPos();
-		TweenLite.to(c.DOMreference, 0, {css:{x:pos.x+dx,y:pos.y+dy},
-										ease:Cubic.easeIn,
-										overwrite:"none"});
-	}
-		//this.children[k].move(dx,dy,true);
-	*/
-	this.DOMreference.scrollTop -= dy;
-	this.DOMreference.scrollLeft-= dx;	
-	//FPS.tick();
+	this.display.move(dx,dy);
+	//TODO: investigate if moving a scaled camera needs any kind of adaptation: * (1/this.czoomLevel) , *(1/this.czoomLevel) 
 
 	//relations support
 	for( k in this.crelations )
@@ -179,8 +231,8 @@ Camera.onMoveStart = function(ctx,e)
 		var root = this;
 		this.ccancel("inertia");
 
-		this.xInertia = 0;
-		this.yInertia = 0;
+		//this.xInertia = 0;
+		//this.yInertia = 0;
 		this.tInertia = 0;
 		this.c_allowInertia = true;
 
@@ -237,9 +289,22 @@ Camera.onMoveEnd = function(ctx,e)
 		}
 	}
 }
-//TODO  add camera mock containers to manipulate scroll area
-//		Calculate boundaries and enforce zoom limits
-Camera.czoom = function(amount,cx,cy)
+
+Camera.cgetTransformOrigin = function(ox,oy)
+{
+	if(!ox)
+		ox = 0.5;
+	if(!oy)
+		oy = 0.5;
+
+	var dpos = this.display.getPos(0,0);
+	ox = ( - dpos.x + this.getPureWidth()*ox) / this.display.getPureWidth();
+	oy = ( - dpos.y + this.getPureHeight()*oy) / this.display.getPureHeight();
+	return {ox:ox,oy:oy};
+}
+
+//TODO	Calculate boundaries and enforce zoom limits
+Camera.czoom = function(amount,ox,oy)
 {
 	next = this.czoomLevel * amount
 	//check boundaries
@@ -247,33 +312,23 @@ Camera.czoom = function(amount,cx,cy)
 		return;
 	if( this.boundaries["LOzoom"] && next < this.boundaries['LOzoom'])
 		return;
+
 	//check cross referencing
 	if(this.antiCrossReff("czoom",1))
 		return;
 	
 	this.czoomLevel = next;
-	this.DOMreference.style.zoom = this.czoomLevel;
-	this.setWidth(this.properties['width']*(1/this.czoomLevel));
-	this.setHeight(this.properties['height']*(1/this.czoomLevel));
+	var torig = this.cgetTransformOrigin(ox,oy);
+	this.display.scale(amount,torig['ox'],torig['oy'])
 
-	if(!cx && !cy)
-	{
-		var pos = this.getCenter();
-		cx = pos.x;
-		cy = pos.y;
-	}
-	else
-	{
-		var pos = this.getPos(cx,cy);
-		cx = pos.x;
-		cy = pos.y;
-	}
-
-	//this.cmove( -cx * (1/amount), -cy * (1/amount) );
+	for( k in this.crelations )
+		if(this.crelations[k]['zoom'] != 0)
+			this.crelations[k]['root'].czoom(amount*this.crelations[k]['zoom'])
+	//anti cross reff
 	this.antiCrossReff("czoom",0)
 }
 //TODO investigate aligning imperfections
-Camera.crotate = function(amount,cx,cy) //SLOW & POSITIONING IMPERFECTIONS
+Camera.crotate = function(amount,ox,oy) //SLOW & POSITIONING IMPERFECTIONS
 {
 	//check boundaries
 	var next = this.cangle+amount;
@@ -286,37 +341,9 @@ Camera.crotate = function(amount,cx,cy) //SLOW & POSITIONING IMPERFECTIONS
 		return;
 
 	this.cangle = next;
-	console.log("Camera Angle:"+this.cangle);
-
-	//JS precision issues
-	if(!cx && !cy)
-	{
-		var pos = this.getCenter();
-		cx = pos.x;
-		cy = pos.y;
-		console.log("Camera center:"+cx+" "+cy);
-	}
-	//FPS.tickStart()
-	for( k in this.children )
-	{
-		var object = this.children[k].getCenter();
-		
-		var dx = object.x - cx; 
-		var dy = object.y - cy;
-		
-		var angle = Math.atan2(dy,dx);
-		var radius = Math.sqrt( dx*dx + dy*dy );
-		
-		//relocate container
-		angle += amount;
-		dx = cx + radius * Math.cos( angle );
-		dy = cy + radius * Math.sin( angle );
-		
-		this.children[k].putAt( dx, dy, 0.5, 0.5);
-		//rotate container
-		this.children[k].rotate((180.0*amount)/Math.PI);
-	}
-	//FPS.tick();
+	var torig = this.cgetTransformOrigin(ox,oy);
+	this.display.setAngle(this.cangle,torig['ox'],torig['oy']);
+	
 	//relations support
 	for( k in this.crelations )
 		this.crelations[k]['root'].crotate(amount*this.crelations[k]['angle'])
@@ -384,8 +411,8 @@ Camera.cfocusOn = function(target,options)
 	
 		if( Math.abs( targetPos.x - camPos.x) > 5 || Math.abs( targetPos.y - camPos.y) > 5) //|| Math.abs(target.angle) > 0 )
 		{
-			var dx = ( ( camPos.x + camera.DOMreference.scrollLeft )- targetPos.x ) / 20;
-			var dy = ( ( camPos.y + camera.DOMreference.scrollTop ) - targetPos.y ) / 20;
+			var dx = ( camPos.x - targetPos.x ) / 20;
+			var dy = ( camPos.y - targetPos.y ) / 20;
 			var da = -target.angle /10;
 			//do zoom adaptation as well ( and consider fit screen )
 			camera.cmove(dx,dy);

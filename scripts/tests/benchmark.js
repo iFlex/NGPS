@@ -15,6 +15,7 @@ function nextSector(){
 		x++;
 	}
 }
+
 this.benchmark = {};
 benchmark.grid = function(nr)
 {
@@ -24,6 +25,7 @@ benchmark.grid = function(nr)
 		nextSector();
 	}
 }
+
 benchmark.scroll = function(i,am)
 {
 	if(!i)
@@ -54,13 +56,19 @@ benchmark.zoom = function(i)
 {
 	if(!i)
 		i=30;
-	var zc = 1.1;
+	var zc = 0.99;
 	function zm(){
 		factory.root.czoom(zc);
 		if(factory.root.czoomLevel < 0.05)
+		{
 			zc = 1.01;
+			cli.showPrompt(" Benchmark zoom changed direction > ");
+		}
 		if(factory.root.czoomLevel > 10)
+		{
 			zc = 0.99;
+			cli.showPrompt(" Benchmark zoom changed direction <");
+		}
 		setTimeout(zm,i)
 	}
 	zm();

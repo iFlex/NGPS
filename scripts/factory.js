@@ -12,7 +12,7 @@
 *			This functionality enables themes ( a theme will therefore be an AMS combined with certain features )
 *		It also can decide what functions to link to the trigger events of containers depending on what mode it is initiated in ( Viewer or Editor )
 */
-requirejs(['container',"descriptors/containers","themes/default"]);
+requirejs(['container',"descriptors/containers","descriptors/links","themes/default"]);
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
 this.factory.initialised = false;
@@ -33,16 +33,20 @@ factory.init = factory.init || function(mode) // editor init
 	factory.settings.mode = mode || "editor";
 	//
 	var descriptor = platform.getScreenSize();
-	descriptor = utils.merge({x:0,y:0,background:"#fAfAfA",border_size:1,border_style:"solid"},descriptor);
+	//"#fAfAfA"
+	descriptor = utils.merge({x:0,y:0,background:"black",border_size:1,border_style:"solid"},descriptor);
 	//make a full screen camera object
 	var root = new container(descriptor);
 	root.load();
 	root.extend(Interactive);
 	root.extend(Camera);
 	root.interactive(true);
+	//root.DOMreference.addEventListener('mouseout' ,root.onMouseUp,  false);
 	root.cstart(1);
-
 	factory.root = root;
+
+	if(factory.setup) //if custom setup is loaded, run it
+		factory.setup();
 
 	if(factory.AMS && factory.AMS.init)
 		factory.AMS.init( factory.settings.container, factory.AMS);
@@ -83,6 +87,7 @@ factory.newContainer = function(possize,tag,parent)
 
 	return obj;
 }
+
 factory.createContainer = function(descriptor,parent)
 {
 	if(!factory.initialised)
@@ -99,6 +104,7 @@ factory.createContainer = function(descriptor,parent)
 	}
 	return obj;
 }
+
 factory.newCamera = function (possize,tag,parent,interval)
 {
 	if(!factory.initialised)
@@ -118,6 +124,7 @@ factory.newCamera = function (possize,tag,parent,interval)
 	}
 	return obj;
 }
+//APPs
 factory.newGlobalApp = function ( app )
 {
 	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"simple_rect");

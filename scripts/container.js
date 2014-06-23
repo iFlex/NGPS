@@ -5,6 +5,23 @@
 *	Dependencies:
 *	GSAP library:
 *		TweenLite Module
+*
+*	Available events:
+*		loadContainer
+*		addChild
+*		removeChild
+*		discardContainer
+*		hideContainer
+*		showContainer
+*		changeParent
+*		changeWidth
+*		changeHeight
+*		changeAngle
+*		changePosition
+*		link
+*		unlink
+*		linkChange
+*		appLoaded
 */
 //include dependencies
 requirejs(['TweenMax.min',"interact","app","camera","gem"]);
@@ -42,7 +59,7 @@ this.container = function(properties)
 	//TODO: Add possibility to  style with CSS
 	this.load = function(parent)
 	{
-
+		console.log("Initialising new container:"+utils.debug(properties));
 		if(this.parent)
 			return false;
 
@@ -58,8 +75,11 @@ this.container = function(properties)
 		}
 
 		//Custom Styling
-		if(this.properties['class']) //custom CSS styling
+		if(this.properties['class']) //custom CSS styling (does not seem to work & requires css file inclusion)
 			this.DOMreference.setAttribute('class',this.properties['class']);
+		
+		if(this.properties['cssText']) // custom CSS styling ( works more efficient, only needs CSS )
+			this.DOMreference.style.cssText = this.properties['cssText'];
 
 		//Default Styling 
 		if(this.properties['width'])
@@ -69,6 +89,7 @@ this.container = function(properties)
 
 		if(!this.DOMreference.style.position)
 			this.DOMreference.style.position 	= 'absolute';
+		
 		if(!this.DOMreference.style.overflow)
 			this.DOMreference.style.overflow 	= "hidden";
 
@@ -133,6 +154,12 @@ this.container = function(properties)
 		
 		this.properties['width'] = this.getWidth();
 		this.properties['height']= this.getHeight();
+
+		//EVENT
+		if( this.events['loadContainer'] || ( GEM.events['loadContainer'] && GEM.events['loadContainer']['_global'] ) )
+			GEM.fireEvent({event:"loadContainer",target:this})
+
+		console.log("New Container:"+utils.debug(this.DOMreference.style));
 		return true;
 	}
 	//EXTENTION Posibilities ( Turn Object into Camera )
@@ -158,17 +185,29 @@ this.container = function(properties)
 		this.children[ containerData.containerIndex ] = new container( properties );
 		var reff = this.children[ containerData.containerIndex ] 
 		reff.load( this );
+
+		//EVENT
+		if( this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
+			GEM.fireEvent({event:"addChild",target:this,child:reff})
+
 		return reff;
 	}
 	
 	this.removeChild = function(UID)
 	{
 		if( this.children[UID] )
+		{
+			//EVENT
+			if( this.events['removeChild'] || ( GEM.events['removeChild'] && GEM.events['removeChild']['_global'] ) )
+				GEM.fireEvent({event:"removeChild",target:this,childID:UID})
+
 			delete this.children[UID];
+		}
 	}
 
-	this.discard = function(bitch)
+	this.discard = function()
 	{
+		var uid = this.UID;
 		//discard all children
 		for( k in this.children )
 			this.children[k].discard();
@@ -190,14 +229,19 @@ this.container = function(properties)
 			document.body.removeChild(this.DOMreference);
 			delete this;
 		}
+
+		//EVENT
+		if( this.events['discardContainer'] || ( GEM.events['discardContainer'] && GEM.events['discardContainer']['_global'] ) )
+			GEM.fireEvent({event:"discardContainer",target:uid})
 	}
 
 	this.changeParent = function(parent)
 	{
-	
+		var oldP = 0;
 		if( parent && this.parent )
 		{
 			//handle old parent
+			oldP = this.parent;
 			if( this.parent.DOMreference && this.DOMreference )
 				this.parent.DOMreference.removeChild(this.DOMreference);
 			
@@ -210,6 +254,10 @@ this.container = function(properties)
 			if( copy.parent.DOMreference && copy.DOMreference )
 				copy.parent.DOMreference.appendChild(copy.DOMreference);
 			//WARNING: think about position when changing parents
+
+			//EVENT
+			if( this.events['changeParent'] || ( GEM.events['changeParent'] && GEM.events['changeParent']['_global'] ) )
+				GEM.fireEvent({event:"changeParent",target:this,newParent:parent,oldParent:oldP})
 
 			return true;
 		}
@@ -285,11 +333,17 @@ this.container = function(properties)
 	this.show = function()
 	{
 		this.DOMreference.style.display = "block";
+		//EVENT
+		if( this.events['showContainer'] || ( GEM.events['showContainer'] && GEM.events['showContainer']['_global'] ) )
+			GEM.fireEvent({event:"showContainer",target:this})
 	}
 
 	this.hide = function()
 	{
 		this.DOMreference.style.display = "none";
+		//EVENT
+		if( this.events['hideContainer'] || ( GEM.events['hideContainer'] && GEM.events['hideContainer']['_global'] ) )
+			GEM.fireEvent({event:"hideContainer",target:this})
 	}
 	this.redraw = function (){
 		this.hide();
@@ -317,11 +371,26 @@ this.container = function(properties)
 		return ( this.DOMreference.clientHeight + 2*parseInt(getComputedStyle(this.DOMreference,null).getPropertyValue("border-width")) ) * this.scaleY;
 	}
 
+	this.getPureWidth = function()
+	{
+		return  ( this.DOMreference.clientWidth + 2*parseInt(getComputedStyle(this.DOMreference,null).getPropertyValue("border-width")) ) ;
+	} 
+
+	this.getPureHeight = function()
+	{
+		return ( this.DOMreference.clientHeight + 2*parseInt(getComputedStyle(this.DOMreference,null).getPropertyValue("border-width")) );
+	}
+
 	this.getCenter = function()
 	{
 		return { x: this.DOMreference.offsetLeft + this.getWidth()/2 , y: this.DOMreference.offsetTop + this.getHeight()/2 };
 	}
 
+	this.getLocalPos = function(x,y)
+	{
+		var pos = this.getPos();
+		return {x: x - pos.x, y: y - pos.y};
+	}
 	//setters
 	this.setWidth = function(w)
 	{
@@ -331,6 +400,11 @@ this.container = function(properties)
 		if(this.isLeaf == true )
 			this.child.width = w;
 		//this.redraw();
+
+		this.maintainLinks();
+		//EVENT
+		if( this.events['changeWidth'] || ( GEM.events['changeWidth'] && GEM.events['changeWidth']['_global'] ) )
+			GEM.fireEvent({event:"changewidth",target:this})
 	} 
 
 	this.setHeight = function(h)
@@ -341,13 +415,29 @@ this.container = function(properties)
 		if(this.isLeaf == true )
 			this.child.height = h;
 		//this.redraw();
+
+		this.maintainLinks();
+		//EVENT
+		if( this.events['changeHeight'] || ( GEM.events['changeHeight'] && GEM.events['changeHeight']['_global'] ) )
+			GEM.fireEvent({event:"changeHeight",target:this})
 	}
-	this.setAngle = function(angle)
+	this.setAngle = function(angle,ox,oy)
 	{
+		if(!ox)
+			ox = 0.5;
+		if(!oy)
+			oy = 0.5;
+
 		this.angle = angle;
 		TweenMax.to(this.DOMreference,0,{
 			rotation:angle,
+			transformOrigin:((ox*100)+"% "+(oy*100)+"%")
 		});
+
+		this.maintainLinks();
+		//EVENT
+		if( this.events['changeAngle'] || ( GEM.events['changeAngle'] && GEM.events['changeAngle']['_global'] ) )
+			GEM.fireEvent({event:"changeAngle",target:this})
 	}
 	this.putAt = function(	x, y, refX , refY )
 	{
@@ -362,6 +452,11 @@ this.container = function(properties)
 
 		this.DOMreference.style.left = x - refX * this.getWidth() + "px";
 		this.DOMreference.style.top  = y - refY * this.getHeight() + "px";
+
+		this.maintainLinks();
+		//EVENT
+		if( this.events['changePosition'] || ( GEM.events['changePosition'] && GEM.events['changePosition']['_global'] ) )
+			GEM.fireEvent({event:"changePosition",target:this})
 	}
 
 	//actuators
@@ -373,17 +468,25 @@ this.container = function(properties)
 		this.DOMreference.style.left = this.DOMreference.offsetLeft + dx + "px";
 		this.DOMreference.style.top  = this.DOMreference.offsetTop  + dy + "px";
 
-		if(this.events["moved"] && !noevent)
-			GEM.fireEvent({event:"moved",target:this,dx:dx,dy:dy});
+		this.maintainLinks();
+		//EVENT
+		if( this.events['changePosition'] || ( GEM.events['changePosition'] && GEM.events['changePosition']['_global'] ) )
+			GEM.fireEvent({event:"changePosition",target:this})
 	}
 
-	this.scale = function(amount)
+	this.scale = function(amount,ox,oy)
 	{
+		if(!ox)
+			ox = 0.5;
+		if(!oy)
+			oy = 0.5;
+		
 		this.scaleX *= amount;
 		this.scaleY *= amount;
 		TweenMax.to(this.DOMreference,0,{
 			scaleX:this.scaleX,
 			scaleY:this.scaleY,
+			transformOrigin:((ox*100)+"% "+(oy*100)+"%")
 		});
 	}
 	this.enlarge = function(amount)
@@ -392,11 +495,13 @@ this.container = function(properties)
 		var h = this.getHeight()*amount;
 		this.setWidth(w);
 		this.setHeight(h);
+
+		this.maintainLinks();
 	}
 
-	this.rotate = function(dangle)
+	this.rotate = function(dangle,ox,oy)
 	{
-		this.setAngle(this.angle + dangle);	
+		this.setAngle(this.angle + dangle,ox,oy);	
 	}
 	//CONNections
 	this.getAncestors = function( node )
@@ -453,6 +558,10 @@ this.container = function(properties)
 			target.move(dx,dy);
 			target.maintainLinks();	
 		}
+
+		//EVENT
+		if( this.events['link'] || ( GEM.events['link'] && GEM.events['link']['_global'] ) )
+			GEM.fireEvent({event:"link",target:this,other:target,link:leLink})
 	}
 	this.unlink = function (target)
 	{
@@ -464,6 +573,10 @@ this.container = function(properties)
 		{
 			this.outgoing[target.UID]['link'].discard();
 			delete this.outgoing[target.UID];
+
+			//EVENT
+			if( this.events['unlink'] || ( GEM.events['unlink'] && GEM.events['unlink']['_global'] ) )
+				GEM.fireEvent({event:"unlink",target:this,other:target})
 		}
 	}
 	this.unlinkAll = function(){
@@ -490,6 +603,10 @@ this.container = function(properties)
 
 			this.outgoing[newTarget.UID] = {link:leLink,target:newTarget};
 			delete this.outgoing[oldTarget.UID];
+
+			//EVENT
+			if( this.events['linkChange'] || ( GEM.events['linkChange'] && GEM.events['linkChange']['_global'] ) )
+				GEM.fireEvent({event:"linkChange",target:ctx,old_owner:oldTarget,new_owner:newTarget,link:leLink})
 		}		
 	}
 	this.maintainLink = function(target)
@@ -530,12 +647,12 @@ this.container = function(properties)
 	this.addEventListener = function( event , handler )
 	{
 		this.events[event] = true;
-		GEM.addEventListener( event, this, handler );
+		GEM.addEventListener( event, this, handler, this );
 	}
 	this.removeEventListener = function( event , handler )
 	{
 		delete this.events[event];
-		GEM.removeEventListener( event, this, handler);
+		GEM.removeEventListener( event, this, handler, this);
 	}
 	//App support
 	//TODO: read app descriptor and load accordingly

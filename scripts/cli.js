@@ -162,7 +162,7 @@ cli.execute = function(str)
 	if(breakdown[0] == "sh") //show value of property
 	{
 		var property = eval(breakdown[1]);
-		cli.UIout.innerHTML += "<br>"+property+"="+utils.debug(property);
+		cli.UIout.innerHTML += "<br>"+property+"="+utils.debug(property,"<br>");
 		return;
 	}
 	
@@ -186,7 +186,7 @@ cli.execute = function(str)
 			{
 				//	cli.UIout.innerHTML += "<br>#"+result.UID;
 				if(typeof(result) != "function")
-				 cli.UIout.innerHTML += "<br>"+result+":"+utils.debug(result);
+				 cli.UIout.innerHTML += "<br>"+result+":"+utils.debug(result,"<br>");
 			}
 		} 
 		catch ( err )
@@ -249,7 +249,8 @@ cli.shtree = function()
 			type += "L"
 		if( node.isApp == true )
 			type += "A";
-		type+="]";
+		var pos = node.getPos();
+		type+=" x:"+pos.x+" y:"+pos.y+" w:"+node.getWidth()+" h:"+node.getHeight()+"]";
 
 		cli.UIout.innerHTML += "<br>"+tabsize+"#"+node.UID+type;
 		for( k in node.children )
@@ -305,6 +306,13 @@ cli.debugConfig = function()
 	cli.execute("cli ldtest 'benchmark'");
 	cli.execute('factory newGlobalApp "fps"');
 }
+
+cli.t = function()
+{
+	cli.execute("cli ldtest 'test_link'");
+	cli.execute('factory newGlobalApp "link"');
+}
+
 function init()
 {
 	//requirejs(['fps'],cli.show);

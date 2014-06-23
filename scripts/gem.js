@@ -7,15 +7,25 @@
 //		problems with identifying anonymous handlers
 this.GEM = {};
 GEM.events = {};
-GEM.debug = true;
+GEM.debug = false;
 GEM.fireEvent = function(data)
 {
 	function _fireEvent(event,ctx)
 	{
 		if( GEM.events[event] && GEM.events[event][ctx] )
 			for(k in GEM.events[event][ctx])
-				if( typeof(GEM.events[event][ctx][k]) == "function")//remove for increased performance when strange additional handlers problem is solved
-					GEM.events[event][ctx][k](data);
+			{
+				if( GEM.events[event][ctx][k]['handler'] )
+				{
+					var type = typeof(GEM.events[event][ctx][k]['handler']);
+					//running with global context
+					if( type == "function")
+						GEM.events[event][ctx][k]['handler'](data);
+				
+					else 	if( GEM.events[event][ctx][k]['context'] && type == "string" && typeof(GEM.events[event][ctx][k]['context']) == "object" )
+						GEM.events[event][ctx][k]['context'][ GEM.events[event][ctx][k]['handler'] ] (data);
+				}
+			}	
 	}
 
 	_fireEvent(data['event'],data['target']);
@@ -24,9 +34,9 @@ GEM.fireEvent = function(data)
 	if(GEM.debug)
 		cli.showPrompt("<br> ** NGPS_GEM_EVENT<br>"+utils.debug(data));
 }
-GEM.addEventListener = function(event,ctx,handler)
+GEM.addEventListener = function(event,ctx,handler,run_context)
 {
-	if(typeof(event)!="string" || ( ctx && typeof(ctx)!="object" ) || typeof(handler)!= "function" )
+	if( typeof(event)!="string" || ( ctx && typeof(ctx)!="object" ) )
 		return;
 
 	if(!ctx)
@@ -38,14 +48,14 @@ GEM.addEventListener = function(event,ctx,handler)
 	if(!GEM.events[event][ctx])
 		GEM.events[event][ctx] = [];
 	
-	GEM.events[event][ctx][GEM.events[event][ctx].length] = handler;
+	GEM.events[event][ctx][GEM.events[event][ctx].length] = {"handler":handler,"context":run_context};
 
 	if(GEM.debug )
 		cli.showPrompt("<br> * NGPS_GEM_LISTENER+<br>"+event+"("+ctx+" > "+ctx.UID+")="+utils.debug(handler));
 }
 GEM.removeEventListener = function(event,ctx,handler)
 {
-	if(typeof(event)!="string" || ( ctx && typeof(ctx)!="object" ) || typeof(handler)!= "function" )
+	if(typeof(event)!="string" || ( ctx && typeof(ctx)!="object" ) )
 		return;
 
 	if(!ctx)
@@ -57,7 +67,7 @@ GEM.removeEventListener = function(event,ctx,handler)
 		for( h in GEM.events[event][ctx] )
 		{
 			console.log(GEM.events[event][ctx][h] + " == " + handler )
-			if( GEM.events[event][ctx][h] == handler )
+			if( GEM.events[event][ctx][h]['handler'] == handler )
 			{
 				if(GEM.debug)
 					cli.showPrompt("<br> * NGPS_GEM_LISTENER-<br>"+event+"("+ctx+" > "+ctx.UID+")="+utils.debug(handler));

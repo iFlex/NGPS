@@ -1,4 +1,4 @@
-//standard for writting AMS
+ //standard for writting AMS
 //upon tick you receive:
 //		the applied settings 		         data
 //		a reference to the settings          set

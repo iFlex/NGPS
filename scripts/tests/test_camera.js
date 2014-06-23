@@ -31,7 +31,7 @@ function init(){
 		//obj.discard;
 	}
 	factory.root.onTrigger = makeContainer;
-
+	factory.root.setBoundaries({'LOx':0.5,'HIx':0.5,'LOy':0.5,'HIy':0.5});
 	for(k in tests)
 		tests[k]();
 }

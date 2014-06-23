@@ -23,7 +23,7 @@ loadAppCode('simple_connector',function(data)
 
 		if(this.a && this.b)
 		{
-			var cdsc = Descriptors.containers["rounded_rect"];
+			var cdsc = Descriptors.links["l000001"];
 			cdsc['height'] = 10;
 			var dsc = {
 				container:cdsc,
@@ -35,7 +35,7 @@ loadAppCode('simple_connector',function(data)
 					left_link_xreff:0,
 					left_link_yreff:0,
 					right_link_xreff:0,
-					right_link_xreff:0,
+					right_link_yreff:0,
 				}
 			};
 			this.a.link(this.b,dsc);

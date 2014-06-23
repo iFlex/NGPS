@@ -5,6 +5,12 @@
 *	
 *	Requirements:
 *		Must be applied to an existing Container Object
+*
+*	Available events:
+*		mouseDown
+*		mouseMove
+*		mouseUp
+*		mouseOut
 */
 this.Interactive = {}
 //What to do with interaction events( In some cases it's necessary to pass them to the parent )
@@ -49,6 +55,10 @@ Interactive.onMouseDown = function( e , ctx )
 		console.log("Mouse Down("+ctx.UID+")");
 		//smooth continuous interaction
 		Interaction.origin = ctx;
+
+		//EVENT
+		if( ctx.events['mouseDown'] || ( GEM.events['mouseDown'] && GEM.events['mouseDown']['_global'] ) )
+			GEM.fireEvent({event:"mouseDown",target:ctx,original_event:e})
 	}
 	else
 	{
@@ -62,13 +72,13 @@ Interactive.onMouseMove = function(e, ctx)
 	if(!ctx)
 		ctx = this.context;
 
+	if(e.stopPropagation)
+		e.stopPropagation();
+
 	//smooth continuous interaction
 	if( Interaction.origin && ctx.UID != Interaction.origin.UID && ctx.UID == factory.root.UID )
 	{
-		if(	Interaction.origin.hasMD )
-			Interaction.origin.onMouseMove( e , Interaction.origin )
-		else
-			Interaction.origin.onMouseDown( e , Interaction.origin )
+		Interaction.origin.onMouseMove( e , Interaction.origin )
 		return;
 	}
 
@@ -111,6 +121,9 @@ Interactive.onMouseMove = function(e, ctx)
 			ctx.lx = e.clientX;
 			ctx.ly = e.clientY;
 		}
+		//EVENT
+		if( ctx.events['mouseMove'] || ( GEM.events['mouseMove'] && GEM.events['mouseMove']['_global'] ) )
+			GEM.fireEvent({event:"mouseMove",target:ctx,original_event:e})
 	}
 	else
 	{
@@ -147,6 +160,10 @@ Interactive.onMouseUp = function( e , ctx )
 				ctx.triggerCount++;
 			}
 		}
+		//EVENT
+		if( ctx.events['mouseUp'] || ( GEM.events['mouseUp'] && GEM.events['mouseUp']['_global'] ) )
+			GEM.fireEvent({event:"mouseUp",target:ctx,original_event:e})
+
 		ctx.hasMD = false;
 		delete ctx.natAngle;
 		
@@ -171,6 +188,7 @@ Interactive.onMouseOut = function( e , ctx )
 	if( ctx.propagation == 1 ) 
 		return true;
 	
+	/*
 	//determine if point is within boundaries ( if yes ignore )
 	var pos = ctx.getPos();
 	var w = ctx.getWidth();
@@ -181,7 +199,10 @@ Interactive.onMouseOut = function( e , ctx )
 			return false;
 	
 	e.type = "mouseup";
-	ctx.onMouseUp( e , ctx );
+	ctx.onMouseUp( e , ctx );*/
+	//EVENT
+	if( ctx.events['mouseOut'] || ( GEM.events['mouseOut'] && GEM.events['mouseOut']['_global'] ) )
+		GEM.fireEvent({event:"mouseOut",target:ctx,original_event:e})
 } 
 
 //Mobile interaction
@@ -295,7 +316,7 @@ Interactive.interactive = function( d )
 	  		this.DOMreference.addEventListener('mousemove',this.onMouseMove, false);
 	  		this.DOMreference.addEventListener('mouseover',this.onMouseMove, false);
 	  		this.DOMreference.addEventListener('mouseup'  ,this.onMouseUp,   false);
-	  		//this.DOMreference.addEventListener('mouseout' ,this.onMouseOut,  false);
+	  		this.DOMreference.addEventListener('mouseout' ,this.onMouseOut,  false);
 	  		this.enableMobile ( this.DOMreference );
 	  	}
   	}
@@ -309,7 +330,7 @@ Interactive.interactive = function( d )
 		  	this.DOMreference.removeEventListener('mousemove',this.onMouseMove, false);
 		  	this.DOMreference.removeEventListener('mouseover',this.onMouseMove, false);
 		  	this.DOMreference.removeEventListener('mouseup'  ,this.onMouseUp,   false);
-		  	//this.DOMreference.removeEventListener('mouseout' ,this.onMouseOut,  false);
+		  	this.DOMreference.removeEventListener('mouseout' ,this.onMouseOut,  false);
 		  	this.disableMobile( this.DOMreference );
 		}
   	}

@@ -3,6 +3,14 @@
 *	Authos:	Milorad Liviu Felix
 *	7 June 2014 	12:20 GMT
 *	
+*	Available Events:
+*		appInitalised
+*		appDestroyed
+*		appShowed
+*		appHidden
+*		appRun
+*		appSuspend
+*	    
 *	Conventions:
 *		App must all the loadAppCode function with it's name as the first argument and it's code as the second ( function as class )
 *		App constructor function will get a object {} with parent: startWorker: and stopWorker properties and other initial required information
@@ -79,6 +87,10 @@ AppCtl.ainit = function(app)
 	}
 	//initialise app
 	this.app.init();
+
+	//EVENT
+	if( this.events['appInitialised'] || ( GEM.events['appInitialised'] && GEM.events['appInitialised']['_global'] ) )
+		GEM.fireEvent({event:"appInitialised",target:this})
 }
 AppCtl.adestroy = function() // completely remove app from container
 {
@@ -92,16 +104,28 @@ AppCtl.adestroy = function() // completely remove app from container
 		this.app.shutdown();
 	//stop all of the apps workers
 	this.stopWorker();
+	
+	//EVENT
+	if( this.events['appDestroyed'] || ( GEM.events['appDestroyed'] && GEM.events['appDestroyed']['_global'] ) )
+		GEM.fireEvent({event:"appDestroyed",target:this})
 }
 AppCtl.ashow = function()
 {
 	this.app.show();
 	this.allowMove = false;
+
+	//EVENT
+	if( this.events['appShowed'] || ( GEM.events['appShowed'] && GEM.events['appShowed']['_global'] ) )
+		GEM.fireEvent({event:"appShowed",target:this})
 }
 AppCtl.ahide = function()
 {
 	this.app.hide();
 	this.allowMove = true;
+
+	//EVENT
+	if( this.events['appHidden'] || ( GEM.events['appHidden'] && GEM.events['appHidden']['_global'] ) )
+		GEM.fireEvent({event:"appHidden",target:this})
 }
 AppCtl.arun = function(ctx)
 {
@@ -118,6 +142,10 @@ AppCtl.arun = function(ctx)
 	host.app.run();
 	AppMgr.running_app_parent = host;
 	AppMgr.status = "running";
+
+	//EVENT
+	if( this.events['appRun'] || ( GEM.events['appRun'] && GEM.events['appRun']['_global'] ) )
+		GEM.fireEvent({event:"appRun",target:this})
 }
 AppCtl.asuspend = function(ctx)
 {
@@ -133,6 +161,10 @@ AppCtl.asuspend = function(ctx)
 	host.exit.hide();
 	//app
 	host.app.suspend();
+
+	//EVENT
+	if( this.events['appSuspend'] || ( GEM.events['appSuspend'] && GEM.events['appSuspend']['_global'] ) )
+		GEM.fireEvent({event:"appSuspend",target:this})
 }
 
 //TODO test

@@ -15,31 +15,39 @@ utils.merge = function(a,b,option){
 	}
 	return a;
 }
-utils.debug = function(elem)
+utils.debug = function(elem,newline,verbose)
 {
+	if(!newline)
+		newline = "\n";
+
 	if(typeof(elem) == "string")
 		return "";
 	
-	var str = "{\n"
-	if(typeof(elem) == "object" && elem.UID)
-		str+= " NGPS Container #"+elem.UID+" \n}";
+	var str = "{"+newline;
+	if(typeof(elem) == "object" && elem.hasOwnProperty('UID'))
+		str+= " NGPS Container #"+elem.UID+newline+"}";
 	else
 	{
 		for( k in elem )
 		{	
-			str += k+":";
+			str += k + ":";
 			if(typeof(elem[k]) != "function" )
 			{
 				str += elem[k]
-				if(elem[k].UID)
-					str += "("+elem[k].UID+")";
-				str += "\n";
+				if(verbose)
+					str += utils.debug(elem[k],verbose)+" ";
+				else
+				{	
+					if(elem[k] && elem[k].hasOwnProperty("UID"))
+						str += "("+elem[k].UID+")";
+				}
+				str += newline;
 			}
 			//else
 			//	str += utils.debug(elem[k])+" ";
 		}
 	}
-	str += "}"
+	str += newline+"}"
 	return str;
 }
 utils.whois = function(elem)
