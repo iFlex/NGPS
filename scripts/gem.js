@@ -2,6 +2,10 @@
 *	NGPS General Event Manager system
 *	Author: Milorad Liviu Felix
 *	15 Jun 2014  10:43 GMT
+*	
+*	Specifications:
+*		a run_context can be passed to GEM so that each event listener runs in an appropriate context
+*		 inside the handler the context can be retireved with: this.context
 */
 //TODO: investigate strange additional null handlers appearing after loaiding "simple_connector" app on factory.root
 //		problems with identifying anonymous handlers

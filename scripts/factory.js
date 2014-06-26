@@ -44,16 +44,15 @@ factory.init = factory.init || function(mode) // editor init
 	//root.DOMreference.addEventListener('mouseout' ,root.onMouseUp,  false);
 	root.cstart(1);
 	factory.root = root;
-
+	factory.initialised = true;
+	
 	if(factory.setup) //if custom setup is loaded, run it
 		factory.setup();
 
 	if(factory.AMS && factory.AMS.init)
 		factory.AMS.init( factory.settings.container, factory.AMS);
-	
-	factory.initialised = true;
 }
-factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"transparent",border_size:5,border_style:"dashed",border_color:"0xFFFFDD",border_radius:["15px"]}
+factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"transparent"}
 
 //FACTORY functions
 factory.newContainer = function(possize,tag,parent)
@@ -65,11 +64,11 @@ factory.newContainer = function(possize,tag,parent)
 		parent = factory.root;
 	
 	//fetch descriptor
-	var descriptor = Descriptors.containers[tag];
-	if(!descriptor){
+	var descriptor = 0;
+	if(Descriptors.containers[tag])
+		descriptor = Descriptors.containers[tag];
+	if(!descriptor)
 		descriptor = factory.defaultDescriptor;
-		console.error("Coule not load desired container descriptor:" + tag);
-	}
 
 	descriptor = utils.merge(descriptor,factory.settings.container,"override");
 	
@@ -133,11 +132,6 @@ factory.newGlobalApp = function ( app )
 }
 //TODO: 
 factory.newLink = function( a , b , type)
-{
-
-}
-//TODO: simplify method of adding content through a few modes
-factory.addContent = function( obj , content , mode )
 {
 
 }

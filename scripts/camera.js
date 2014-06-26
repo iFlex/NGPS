@@ -178,6 +178,15 @@ Camera.antiCrossReff = function(funcName,action)
 	}
 	return false;;
 }
+//for content status updates
+Camera.getContentPositioning = function()
+{
+	if(!this.display)
+		return null;
+
+	var pos = this.display.getPos();
+	return {x:pos.x,y:pos.y,width:this.display.getWidth(),height:this.display.getHeight()};
+}
 //TODO: calculate boundaries and add boundary limit enforcing
 Camera.cmove = function(dx,dy)
 {

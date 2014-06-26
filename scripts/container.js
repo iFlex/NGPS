@@ -59,7 +59,6 @@ this.container = function(properties)
 	//TODO: Add possibility to  style with CSS
 	this.load = function(parent)
 	{
-		console.log("Initialising new container:"+utils.debug(properties));
 		if(this.parent)
 			return false;
 
@@ -159,7 +158,6 @@ this.container = function(properties)
 		if( this.events['loadContainer'] || ( GEM.events['loadContainer'] && GEM.events['loadContainer']['_global'] ) )
 			GEM.fireEvent({event:"loadContainer",target:this})
 
-		console.log("New Container:"+utils.debug(this.DOMreference.style));
 		return true;
 	}
 	//EXTENTION Posibilities ( Turn Object into Camera )
@@ -285,7 +283,7 @@ this.container = function(properties)
 				this.child.style.k = descriptor['style'][k];
 
 		//size the container to the image
-		if(descriptor['adapt_size'])
+		if(descriptor['adapt_container'] == true)
 		{
 			console.log("Adapting container to content")
 			var container = this;
@@ -299,21 +297,48 @@ this.container = function(properties)
 		}
 		else
 		{
-			if(descriptor['width'])
-				this.setWidth(descriptor['width'])
-			else
-				this.child.width = this.getWidth();
 
-			if(descriptor['height'])
-				this.setHeight(descriptor['height'])
+			if(descriptor['adapt_content'] == true)
+			{
+				var w = this.getWidth();
+				var h = this.getHeight();
+				var child = this.child;
+				this.child.onload = function()
+				{	
+					//adapt content to container
+					var rapw = child.width / w; 
+					var raph = child.height / h;
+					var diff = 1;
+					
+					if( rapw > 1)
+						diff = 1/rapw;
+					if( raph > 1 && (1/raph < diff) )
+						diff = 1/raph;
+
+					console.log(rapw+"=w "+raph+"=h "+diff+"=diff "+" cw:"+child.clientWidth+" ch:"+child.clientHeight);
+					var nw = child.clientWidth * diff;
+					var nh = child.clientHeight * diff;
+					child.width = nw;
+					child.height = nh;
+					console.log("ncw:"+child.clientWidth+" nch:"+child.clientHeight)
+				}
+				 
+			}
 			else
-				this.child.height = this.getHeight();
+			{
+				if(descriptor['width'])
+					this.setWidth(descriptor['width'])
+		
+				if(descriptor['height'])
+					this.setHeight(descriptor['height'])
+			}
 		}
 
 		//this.child.pointerEvents = "none";
 		this.child.ondragstart = function() { return false; };
 		this.DOMreference.appendChild(this.child);
 		this.isLeaf = true;
+		return this.child;
 	}
 	
 	this.removePrimitive = function()
@@ -644,15 +669,19 @@ this.container = function(properties)
 		}
 	}
 	//EVENTs support
-	this.addEventListener = function( event , handler )
+	this.addEventListener = function( event , handler , context )
 	{
+		if(!context)
+			context = this;
 		this.events[event] = true;
-		GEM.addEventListener( event, this, handler, this );
+		GEM.addEventListener( event, this, handler, context );
 	}
-	this.removeEventListener = function( event , handler )
+	this.removeEventListener = function( event , handler , context )
 	{
+		if(!context)
+			context = this;
 		delete this.events[event];
-		GEM.removeEventListener( event, this, handler, this);
+		GEM.removeEventListener( event, this, handler, context );
 	}
 	//App support
 	//TODO: read app descriptor and load accordingly
