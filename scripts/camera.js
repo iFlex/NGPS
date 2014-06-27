@@ -55,15 +55,9 @@ Camera.cstart = function(interval)
 	//now adding camera specific functions
 	this.display = 0; // this is the display area used for move, zoom, rotate
 	//camera focus
-	this.conTick = 0;
-	this.cfocusTarget = 0;
 	//camera content properties
 	this.czoomLevel = 1;
 	this.cangle = 0;
-	this.cx = 0;
-	this.cy = 0;
-	this.cwidth = 0;
-	this.cheight = 0;
 	//inertia
 	this.tInertia = 0;
 	this.xInertia = 0;
@@ -71,8 +65,6 @@ Camera.cstart = function(interval)
 	//operations flags
 	this.callow = true;
 	this.cops = {};
-	this.cmockLeft = 0;
-	this.cmockRight = 0;
 	if(!this.cinterval)
 	{
 		//used for time based animations and corrections
@@ -84,7 +76,6 @@ Camera.cstart = function(interval)
 	
 	this.c_allowInertia = true;
 	this.allowInertia = true;
-	this.callow = true;
 	//
 	this.crelations = {};
 	this.wasCalled = {};
@@ -190,6 +181,9 @@ Camera.getContentPositioning = function()
 //TODO: calculate boundaries and add boundary limit enforcing
 Camera.cmove = function(dx,dy)
 {
+	if(!this.callow)
+		return;
+	
 	//check boundaries
 	//check x axis
 	var sw = this.getPureWidth();
@@ -235,6 +229,9 @@ Camera.cmove = function(dx,dy)
 
 Camera.onMoveStart = function(ctx,e)
 {
+	if(!this.callow)
+		return;
+
 	if(this.allowInertia)
 	{
 		var root = this;
@@ -254,6 +251,9 @@ Camera.onMoveStart = function(ctx,e)
 }
 Camera.onMoveEnd = function(ctx,e)
 {
+	if(!this.callow)
+		return;
+
 	var ok = false;
 	if(this.cops['measureInertia'])
 	{
@@ -315,6 +315,8 @@ Camera.cgetTransformOrigin = function(ox,oy)
 //TODO	Calculate boundaries and enforce zoom limits
 Camera.czoom = function(amount,ox,oy)
 {
+	if(!this.callow)
+		return;
 	next = this.czoomLevel * amount
 	//check boundaries
 	if( this.boundaries["HIzoom"] && next > this.boundaries['HIzoom'])
@@ -339,6 +341,8 @@ Camera.czoom = function(amount,ox,oy)
 //TODO investigate aligning imperfections
 Camera.crotate = function(amount,ox,oy) //SLOW & POSITIONING IMPERFECTIONS
 {
+	if(!this.callow)
+		return;
 	//check boundaries
 	var next = this.cangle+amount;
 	if( this.boundaries['HIrotate'] && next > this.boundaries['HIrotate'] )
@@ -363,6 +367,8 @@ Camera.crotate = function(amount,ox,oy) //SLOW & POSITIONING IMPERFECTIONS
 //TODO 3D like camera pan
 Camera.cpan = function(panx,pany)
 {
+	if(!this.callow)
+		return;
 
 }
 
