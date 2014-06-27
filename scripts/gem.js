@@ -113,12 +113,3 @@ GEM.cancelAll = function()
 		for( j in GEM.events[i] )
 			delete GEM.events[i][j];
 }
-/*
-*	EVENTS
-*		container:
-*			moved
-*			resized
-*			triggered
-*			cameraMoved
-*			appLoaded
-*/

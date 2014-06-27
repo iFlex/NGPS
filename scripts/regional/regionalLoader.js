@@ -22,10 +22,12 @@ Regional.includeLanguagePack = function()
 		});
 }
 
-Regional.setLanguage = function(laguage)
+Regional.setLanguage = function(lng)
 {
+	//if(typeof(lng)!="string")
+	//	return;
 	//TODO:validate
-	Regional.language = language;
+	Regional.language = lng;
 	Regional.translate();	
 }
 /** 
@@ -52,8 +54,11 @@ Regional.tryToApply = function(str,obj)
 				var apply_method = str.slice(separator+1,str.length);
 				//alert("str:"+str+" msg:"+messages[message]+" method:"+apply_method);
 				//apply the message
-				obj[apply_method] = Regional.messages[Regional.language][message];
-				return true;
+				if(Regional.messages && Regional.messages[Regional.language] && Regional.messages[Regional.language][message])
+				{
+					obj[apply_method] = Regional.messages[Regional.language][message];
+					return true;
+				}
 			}
 		}
 	}
@@ -75,6 +80,9 @@ Regional.inspectObject = function(obj)
 }
 Regional.translate = function(root)
 {
+	if(!root)
+		root = factory.root;
+
 	Regional.includeLanguagePack();
 	if(!Regional.loadedLanguages[Regional.language])
 	{
@@ -87,6 +95,7 @@ Regional.translate = function(root)
 	Regional.inspectObject(root.DOMreference);
 	for (var i=0, max=all.length; i < max; i++)
 		Regional.inspectObject(all[i]);
+	
 	//extend to children
 	for( k in root.children )
 		Regional.translate(root.children[k]);
