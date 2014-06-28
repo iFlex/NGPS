@@ -12,6 +12,7 @@
 *		mouseUp
 *		mouseOut
 */
+alert("Interaction system online 1.9 ...");
 this.Interactive = {}
 //What to do with interaction events( In some cases it's necessary to pass them to the parent )
 Interactive.propagation = 0; 
@@ -42,13 +43,13 @@ Interactive.onMouseDown = function( e , ctx )
 	
 	if( ctx.propagation == 0 )
 	{
-		ctx.lx = e.clientX;
-		ctx.ly = e.clientY;
+		ctx.lx = e.pageX;
+		ctx.ly = e.pageY;
 		ctx.hasMD = true;
 		ctx.dragDist = 0;
 
 		var center = ctx.getCenter();
-		ctx.natAngle = Math.atan2(center.y - e.clientY,center.x - e.clientX);
+		ctx.natAngle = Math.atan2(center.y - e.pageY,center.x - e.pageX);
 
 		if(ctx.onMouseDown)
 			ctx.onMouseDown(ctx,e);
@@ -90,8 +91,8 @@ Interactive.onMouseMove = function(e, ctx)
 		if(ctx.hasMD)
 		{
 			//console.log("Mouse Move("+ctx.UID+")");
-			var dx = e.clientX - ctx.lx;
-			var dy = e.clientY - ctx.ly
+			var dx = e.pageX - ctx.lx;
+			var dy = e.pageY - ctx.ly
 			if(ctx.allowMove)
 			{
 				if( ctx.onMoved )
@@ -107,19 +108,19 @@ Interactive.onMouseMove = function(e, ctx)
 			{
 				var hWindow = ctx.getHeight()*0.5;
 				var wWindow = ctx.getWidth() *0.5;
-				if( e.clientX > (ctx.getWidth() - wWindow) ||  e.clientX < wWindow )
-					if( e.clientY < hWindow || e.clientY > (ctx.getHeight() - hWindow) )
+				if( e.pageX > (ctx.getWidth() - wWindow) ||  e.pageX < wWindow )
+					if( e.pageY < hWindow || e.pageY > (ctx.getHeight() - hWindow) )
 					{
 						var forceDir = Math.atan2(dy,dx);
 						var center = ctx.getCenter();
-						var angle = Math.atan2(center.y - e.clientY,center.x - e.clientX);
+						var angle = Math.atan2(center.y - e.pageY,center.x - e.pageX);
 						var amount = forceDir - angle / 10;
 						ctx.rotate(amount);
 						console.log("fd:"+forceDir+" a:"+angle+" am:"+amount);
 					}
 			}
-			ctx.lx = e.clientX;
-			ctx.ly = e.clientY;
+			ctx.lx = e.pageX;
+			ctx.ly = e.pageY;
 		}
 		//EVENT
 		if( ctx.events['mouseMove'] || ( GEM.events['mouseMove'] && GEM.events['mouseMove']['_global'] ) )
@@ -193,9 +194,9 @@ Interactive.onMouseOut = function( e , ctx )
 	var pos = ctx.getPos();
 	var w = ctx.getWidth();
 	var h = ctx.getHeight();
-	//console.log(" px:"+e.clientX+" py:"+e.clientY+" dx:"+pos.x+" dy:"+pos.y+" w:"+w+" h:"+h);
-	if( e.clientX >= pos.x && e.clientX < pos.x + w )
-		if( e.clientY >= pos.y && e.clientY < pos.y + h )
+	//console.log(" px:"+e.pageX+" py:"+e.pageY+" dx:"+pos.x+" dy:"+pos.y+" w:"+w+" h:"+h);
+	if( e.pageX >= pos.x && e.pageX < pos.x + w )
+		if( e.pageY >= pos.y && e.pageY < pos.y + h )
 			return false;
 	
 	e.type = "mouseup";
@@ -204,7 +205,24 @@ Interactive.onMouseOut = function( e , ctx )
 	if( ctx.events['mouseOut'] || ( GEM.events['mouseOut'] && GEM.events['mouseOut']['_global'] ) )
 		GEM.fireEvent({event:"mouseOut",target:ctx,original_event:e})
 } 
+Interactive.cancelMouse = function( e, ctx)
+{
+	if(!ctx)
+		ctx = this.context;
 
+	if( ctx.propagation == 1 )
+		return true;
+
+	ctx.hasMD = false;
+	
+	if( ctx.propagation != 0 )
+	{
+		ctx.hasMD = false;
+		if(ctx.parent)
+			ctx.parent.onMouseUp( e , ctx.parent );
+	}
+	Interaction.origin = null;
+}
 //Mobile interaction
 Interactive.mLastDistance = 0;
 Interactive.mLastAngle = 0;
@@ -216,17 +234,19 @@ Interactive.touchstart = function( e , ctx)
 	
 	if( ctx.propagation == 1 )
 		return true;
-
-	//NOT NEEDED AT THE MOMENT
+    
+    ctx.onMouseDown(e,ctx);
+    //NOT NEEDED AT THE MOMENT
 }
 //TODO: sort out propagation for this
 Interactive.touchmoved = function( e , ctx)
 {
+    if(!ctx)
+        ctx = this.context;
+	
 	if( e.touches.length > 1 )
 	{
-		if(!ctx)
-			ctx = this.context;
-	
+		ctx.cancelMouse(e,ctx)
 		if( ctx.propagation == 1 )
 			return true;
 
@@ -265,6 +285,8 @@ Interactive.touchmoved = function( e , ctx)
 			ctx.mLastAngle = angle;
 		}
 	}
+    else
+        ctx.onMouseMove(e,ctx);
 }
 
 Interactive.touchend = function( e, ctx){
@@ -277,25 +299,27 @@ Interactive.touchend = function( e, ctx){
 
 	ctx.mLastDistance = 0;
 	ctx.mLastAngle = 0;
+    ctx.onMouseUp(e,ctx);
 }
 
 Interactive.enableMobile = function ( obj )
 {
 	//one finger events
-	obj.addEventListener('touchmove', this.touchmoved, false);
-	obj.addEventListener('touchend', this.touchend, false);
-	obj.addEventListener('touchcancel', this.touchend, false);
-	obj.addEventListener('touchleave', this.touchend, false);
-
+    obj.ontouchstart = this.touchstart;
+	obj.ontouchmove = this.touchmoved;
+	obj.ontouchend = this.touchend;
+	obj.ontouchcancel = this.touchend;
+	obj.ontouchleave = this.touchend;
 }
 
 Interactive.disableMobile = function (obj)
 {
 	//one finger events
-	obj.removeEventListener('touchmove', this.touchmoved, false);
-	obj.removeEventListener('touchend', this.touchend, false);
-	obj.removeEventListener('touchcancel', this.touchend, false);
-	obj.removeEventListener('touchleave', this.touchend, false);
+    obj.ontouchstart = null;
+	obj.ontouchmove = null;
+	obj.ontouchend = null;
+	obj.ontouchcancel = null;
+	obj.ontouchleave = null;
 }
 
 //INTERACTION CONTROLLERS
@@ -306,9 +330,9 @@ Interactive.disableMobile = function (obj)
 //		Integrate mouse wheel scrolling
 Interactive.interactive = function( d )
 {
-	if( d ) 
+    if( d )
 	{
-		if(	!this.isInteractive )
+        if(	!this.isInteractive )
 		{
 			this.isInteractive = true;
 	  		//engage listeners
@@ -318,7 +342,7 @@ Interactive.interactive = function( d )
 	  		this.DOMreference.addEventListener('mouseup'  ,this.onMouseUp,   false);
 	  		this.DOMreference.addEventListener('mouseout' ,this.onMouseOut,  false);
 	  		this.enableMobile ( this.DOMreference );
-	  	}
+        }
   	}
   	else
   	{
