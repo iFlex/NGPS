@@ -12,7 +12,6 @@
 *		mouseUp
 *		mouseOut
 */
-alert("Interaction system online 1.9 ...");
 this.Interactive = {}
 //What to do with interaction events( In some cases it's necessary to pass them to the parent )
 Interactive.propagation = 0; 
