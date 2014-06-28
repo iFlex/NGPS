@@ -74,8 +74,8 @@ this.container = function(properties)
 		}
 
 		//Custom Styling
-		if(this.properties['class']) //custom CSS styling (does not seem to work & requires css file inclusion)
-			this.DOMreference.setAttribute('class',this.properties['class']);
+		if(this.properties['className']) //custom CSS styling ()
+			this.DOMreference.setAttribute('className',this.properties['class']);
 		
 		if(this.properties['cssText']) // custom CSS styling ( works more efficient, only needs CSS )
 			this.DOMreference.style.cssText = this.properties['cssText'];

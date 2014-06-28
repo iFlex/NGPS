@@ -93,6 +93,7 @@ Camera.cstart = function(interval)
 	//this.display.extend(Interactive);
 	//this.display.interactive(true);
 	this.addEventListener("addChild","maintainBoundaries");
+	this.isCamera = true;
 }
 //TODO: treat case when content is added outside the reference point of the camera div
 Camera.maintainBoundaries = function(data)
