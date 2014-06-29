@@ -11,6 +11,7 @@ Descriptors.containers = Descriptors.containers || {};
 //default
 Descriptors.containers['simple_rect'] = {x:0,y:0,width:100,height:100,background:"blue",border_size:2,border_style:"solid",border_color:"0x000000"};
 Descriptors.containers['rounded_rect'] = {x:0,y:0,width:100,height:100,background:"blue",border_size:2,border_style:"solid",border_color:"0x000000",border_radius:["15px"]};
+Descriptors.containers['simple_dashed'] = {x:0,y:0,width:100,height:100,background:"blue",border_size:5,border_style:"dashed"};
 //custom
 Descriptors.containers['c000000'] = { name:"Simple" , x:0 , y:0 , width:100 , height:100 , cssText : "background: red;" };
 Descriptors.containers['c000001'] = { name:"Rounded" , x:0 , y:0 , width:100 , height:100 , cssText : "border-radius:15px;background: red;" };

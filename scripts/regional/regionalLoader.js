@@ -69,7 +69,6 @@ Regional.tryToApply = function(str,obj)
 				
 				//alert("str:"+str+" msg:"+message+" method:"+apply_method+" le message:"+Regional.messages[Regional.language][message]);
 				//apply the message
-				alert("current language:"+Regional.language+" messages:"+utils.debug(Regional.messages[Regional.language]));
 				if(Regional.messages && Regional.messages[Regional.language] && Regional.messages[Regional.language][message])
 				{
 					obj[apply_method] = Regional.messages[Regional.language][message];
