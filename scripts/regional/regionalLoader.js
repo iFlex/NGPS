@@ -1,4 +1,15 @@
 
+/**
+*	NGPS Regionalisation module
+*	Authod: Milorad Liviu Felix
+*	29 Jun 2014  14:04 GMT
+* 
+* Encoding for elements that are regional specific
+*    #REG: this signals that the element is regional specific
+*    < message_name >
+*    :apply_method 
+*    example:  #REG:SUBMIT_BUTTON:value
+*/
 this.Regional = {};
 //default language english
 Regional.language = "en";
@@ -21,7 +32,17 @@ Regional.includeLanguagePack = function()
 				}
 		});
 }
+Regional.extend = function(language,messages)
+{
+	if(!Regional.messages)
+		Regional.messages = {};
+	
+	if(!Regional.messages[language])
+		Regional.messages[language] = {}
 
+	for( k in messages )
+		Regional.messages[language][k] = messages[k];
+}
 Regional.setLanguage = function(lng)
 {
 	//if(typeof(lng)!="string")
@@ -30,13 +51,6 @@ Regional.setLanguage = function(lng)
 	Regional.language = lng;
 	Regional.translate();	
 }
-/** 
-* Encoding for elements that are regional specific
-*    #REG: this signals that the element is regional specific
-*    < message_name >
-*    :apply_method 
-*    example:  #REG:SUBMIT_BUTTON:value
-*/
 Regional.tryToApply = function(str,obj)
 {
 	console.log("Attempting translation:"+str);
@@ -52,8 +66,10 @@ Regional.tryToApply = function(str,obj)
 			{
 				var message = str.slice(0,separator);
 				var apply_method = str.slice(separator+1,str.length);
-				//alert("str:"+str+" msg:"+messages[message]+" method:"+apply_method);
+				
+				//alert("str:"+str+" msg:"+message+" method:"+apply_method+" le message:"+Regional.messages[Regional.language][message]);
 				//apply the message
+				alert("current language:"+Regional.language+" messages:"+utils.debug(Regional.messages[Regional.language]));
 				if(Regional.messages && Regional.messages[Regional.language] && Regional.messages[Regional.language][message])
 				{
 					obj[apply_method] = Regional.messages[Regional.language][message];
@@ -64,9 +80,13 @@ Regional.tryToApply = function(str,obj)
 	}
 	return false;
 }
-Regional.inspectObject = function(obj)
+Regional.inspectObject = function(obj,message)
 {
-	//handle all the children of this element
+	if(message) //apply a provided message
+	{
+		Regional.tryToApply(message,obj);
+		return;
+	}
 	//handle this element
 	var str = obj.value;
 	if(!Regional.tryToApply(str,obj)) //try the value field
@@ -78,7 +98,7 @@ Regional.inspectObject = function(obj)
 		}
 	}	
 }
-Regional.translate = function(root)
+Regional.translate = function(root,message)
 {
 	if(!root)
 		root = factory.root;
@@ -92,7 +112,7 @@ Regional.translate = function(root)
 
 	var all = root.DOMreference.children;//document.getElementsByTagName("*");
 	
-	Regional.inspectObject(root.DOMreference);
+	Regional.inspectObject(root.DOMreference,message);
 	for (var i=0, max=all.length; i < max; i++)
 		Regional.inspectObject(all[i]);
 	

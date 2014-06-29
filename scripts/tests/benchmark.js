@@ -25,7 +25,19 @@ benchmark.grid = function(nr)
 		nextSector();
 	}
 }
-
+benchmark.heavyGrid = function(nr)
+{
+	for(var i =0;i<nr;++i)
+	{
+		var elem = factory.newContainer({x:x*size,y:y*size,width:100,height:100},"rounded_rect")
+		if(i%2)
+			elem.DOMreference.innerHTML = "askjvhsakjfhaslkdfhasldkjalskjdlaskjdlkasjdlkajslkdsjalkdjasldkjaskjfhdlkhbaskjhflkasjdlkjasldkjsalkdjalkjdlkajsdlkajlkasjdlkasjda"
+			//elem.addPrimitive({type:"p",content:{innerHTML:"as;kfjhs;fahlksjdbhf;kalhjsf;kajlhsfb;wih3poufwblskvjbaci;kesn bdlkvzjbklw;ejb;fkujlabs;jbc;kjdsn.kfj,mbvsdjkambfk.a,smbfkj.,bmsa.kj"}});
+		else
+			elem.addPrimitive({type:"img",adapt_content:true,content:{src:"./res/a.jpg"}});
+		nextSector();
+	}	
+}
 benchmark.scroll = function(i,am)
 {
 	if(!i)

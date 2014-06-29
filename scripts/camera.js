@@ -87,7 +87,10 @@ Camera.cstart = function(interval)
 	this.onMouseUp   = this.onMoveEnd;
 
 	//add the display
-	this.display = this.addChild({x:0,y:0,width:this.getWidth(),height:this.getHeight(),background:"yellow"},true);
+	var bkg = "transparent";
+	if(factory && factory.settings.debug == true)
+		bkg = "yellow";
+	this.display = this.addChild({x:0,y:0,width:this.getWidth(),height:this.getHeight(),background:bkg},true);
 	this.display.DOMreference.style.overflow = "";
 	
 	//this.display.extend(Interactive);

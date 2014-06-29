@@ -12,12 +12,12 @@
 *			This functionality enables themes ( a theme will therefore be an AMS combined with certain features )
 *		It also can decide what functions to link to the trigger events of containers depending on what mode it is initiated in ( Viewer or Editor )
 */
-requirejs(['container',"descriptors/containers","descriptors/links","themes/default"]);
+requirejs(['container',"descriptors/containers","descriptors/links","themes/default","regional/regionalLoader"]);
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
 this.factory.initialised = false;
 //initiation script comes here
-factory.init = factory.init || function(mode) // editor init
+factory.init = function(mode) // editor init
 {
 	if(factory.initialised)
 	{
@@ -25,8 +25,12 @@ factory.init = factory.init || function(mode) // editor init
 		factory.initialised = false;
 		factory.root.discard();
 	}
+	//
+	factory.presentation = {};
+	factory.presentation.name = "Not Decided Yet";
 	//settings
 	factory.settings = factory.settings || {};
+	factory.settings.debug = false;
 	factory.settings.container = {}
 	factory.settings.container.width = 250;
 	factory.settings.container.height = 250;
@@ -34,7 +38,7 @@ factory.init = factory.init || function(mode) // editor init
 	//
 	var descriptor = platform.getScreenSize();
 	//"#fAfAfA"
-	descriptor = utils.merge({x:0,y:0,background:"black",border_size:1,border_style:"solid"},descriptor);
+	descriptor = utils.merge({x:0,y:0,background:"white",border_size:1,border_style:"solid"},descriptor);
 	//make a full screen camera object
 	var root = new container(descriptor);
 	root.load();

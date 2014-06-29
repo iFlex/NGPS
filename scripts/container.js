@@ -516,11 +516,14 @@ this.container = function(properties)
 	}
 	this.enlarge = function(amount)
 	{
-		var w = this.getWidth()*amount;
-		var h = this.getHeight()*amount;
-		this.setWidth(w);
+		var oldW = this.getWidth()
+        var oldH = this.getHeight()
+		var w = oldW * amount;
+		var h = oldH * amount;
+		
+        this.setWidth(w);
 		this.setHeight(h);
-
+        this.move((oldW-w)/2,(oldH-h)/2);
 		this.maintainLinks();
 	}
 

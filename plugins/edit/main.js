@@ -6,33 +6,111 @@
 this.NGPS_Editor = {};
 loadAppCode("edit",function(data)
 {
+	NGPS_Editor.app = this;
+	NGPS_Editor.app.clistatus = 0;
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
 	this.startWorker = data['startWorker'];
 	this.stopWorker = data['stopWorker'];
 	//
 	this.heightCoeficient = 0.1;
-	this.UI = {};
+	this.interfaces = {};
+	this.input = 0;
+	this.file = 0;
+	this.onLoadedFile = 0;
+
+	this.UI = function(info){
+		this.parent = info['parent'];
+		this.parts = {};
+		this.parts['root'] = document.createElement("nav");
+		//this.root.style.height = this.parent.getHeight()+"px";
+		//this.root.style.width = this.parent.getWidth()+"px";
+		this.parts['root'].className = "navbar navbar-default navbar-fixed-top";
+		this.parts['root'].role = "navigation";
+
+		this.parts['mainDiv'] = document.createElement('div');
+		this.parts['mainDiv'].className = "container-fluid";
+		
+		this.parts['title'] = document.createElement('a');
+		this.parts['title'].className = "navbar-brand";
+
+		if( info['title'].indexOf("#REG:") > -1 )
+			this.parts['title'].value = info['title'];
+		else
+			this.parts['title'].innerHTML =	info['title'];
+		Regional.inspectObject(this.parts['title']);
+				
+		this.parts['interfaceRight'] = document.createElement('ul');
+		this.parts['interfaceRight'].className = "nav navbar-nav navbar-right";
+		
+		
+		this.parts['mainDiv'].appendChild(this.parts['title']);
+		this.parts['mainDiv'].appendChild(this.parts['interfaceRight']);
+	
+		this.parts['root'].appendChild(this.parts['mainDiv']);
+		this.parent.DOMreference.appendChild(this.parts['root']);
+
+		this.addButton = function(icon,handler,description)
+		{
+			var li = document.createElement('li');
+		
+			var a = document.createElement('a');
+			a.href = "#";
+			a.onclick = handler;
+			
+			var span = document.createElement('span');
+			span.className = icon;
+			
+			var name = 0;
+			if(description)
+			{
+				name = document.createElement('i');
+				name.value = description;
+				Regional.inspectObject(name);
+			}
+
+			li.appendChild(a);
+			a.appendChild(span);
+			if(name)	a.appendChild(name);
+			this.parts['interfaceRight'].appendChild(li);
+		}
+		this.addCustom = function(element,style,events)
+		{
+			var li = document.createElement('li');
+		
+			var a = document.createElement('a');
+			a.href = "#";
+		
+			var span = document.createElement(element);
+			span.style = style;
+
+			if(events)
+				for(k in events)
+					span[k] = events[k];
+
+			li.appendChild(a);
+			a.appendChild(span);
+			this.parts["interfaceRight"].appendChild(li);
+			return span;
+		}
+		this.destroy = function()
+		{
+			this.parent.DOMreference.removeChild(this.parts['root']);
+		}
+	}
+
 	NGPS_Editor.node = 0;
 	NGPS_Editor.possize = {x:0,y:0,width:100,height:100};
 	NGPS_Editor.tags = [];
-	this.addInterfaceButton = function(icon,handler)
-	{
-		var li = document.createElement('li');
-		
-		var a = document.createElement('a');
-		a.href = "#";
-		
-		var span = document.createElement('span');
-		span.className = icon;
-		span.onclick = handler;
-
-		li.appendChild(a);
-		a.appendChild(span);
-		this.UI['interfaceRight'].appendChild(li);
-	}
 	this.init = function() //called only one when bound with container
 	{
+		//include language packs
+		//requirejs(['plugins/edit/messages']);
+		//manual inclusion
+		var messages = document.createElement("script");
+		messages.src = "plugins/edit/messages.js";
+		messages.onload;
+		document.head.appendChild(messages);
 		//build the interface
 		var dimensions = 0;
 		if(this.parent.parent)
@@ -43,31 +121,26 @@ loadAppCode("edit",function(data)
 		this.parent.setWidth(0);
 		this.parent.setHeight(0);
 
-		this.UI['root'] = document.createElement("nav");
-		//this.root.style.height = this.parent.getHeight()+"px";
-		//this.root.style.width = this.parent.getWidth()+"px";
-		this.UI['root'].className = "navbar navbar-default navbar-fixed-top";
-		this.UI['root'].role = "navigation";
-
-		this.UI['mainDiv'] = document.createElement('div');
-		this.UI['mainDiv'].className = "container-fluid";
+		this.input = document.createElement("input");
+		this.input.type = "file";
+		this.input.multiple = "multiple"
+		this.input.display = "none";
+		this.input.onchange = function () {
+			// assuming there is a file input with the ID `my-input`...
+			var files = this.files;
+			for (var i = 0; i < files.length; i++)
+	    		NGPS_Editor.app.loadFromDataURL(files[i])		
+		};
 		
-		this.UI['title'] = document.createElement('a');
-		this.UI['title'].className = "navbar-brand";
-		this.UI['title'].innerHTML = "NGPS";
-		
-		this.UI['interfaceRight'] = document.createElement('ul');
-		this.UI['interfaceRight'].className = "nav navbar-nav navbar-right";
-		
-		
-		this.UI['mainDiv'].appendChild(this.UI['title']);
-		this.UI['mainDiv'].appendChild(this.UI['interfaceRight']);
-		//now adding individual buttons and their actions
-		this.addInterfaceButton('glyphicon glyphicon-plus',this.onAdd)
-		this.addInterfaceButton('glyphicon glyphicon-pencil',function(){alert("fck off")});	
-		//
-		this.UI['root'].appendChild(this.UI['mainDiv']);
-		this.parent.DOMreference.appendChild(this.UI['root']);
+		this.parent.DOMreference.appendChild(this.input);
+		//init interface
+		this.interfaces['main']	= new this.UI({parent:this.parent,title:"NGPS - "+factory.presentation.name});
+		this.interfaces['main'].addButton('glyphicon glyphicon-th',this.toggleCli);
+		this.interfaces['main'].addButton('glyphicon glyphicon-plus',this.onAddContainer);
+		this.interfaces['main'].addButton('glyphicon glyphicon-picture',this.onAddPicture);
+		this.interfaces['main'].addButton('glyphicon glyphicon-font',this.onAddContainer);
+		this.interfaces['main'].addButton('glyphicon glyphicon-film',this.onAddVideo);
+		this.interfaces['main'].addButton('glyphicon glyphicon-save',this.save);
 
 		//read tags
 		for( k in Descriptors.containers)
@@ -94,8 +167,32 @@ loadAppCode("edit",function(data)
 	{
 
 	}
+	this.fileDialog = function()
+	{
+		NGPS_Editor.app.input.click();
+	}
+	this.loadFromDataURL = function(url)
+	{
+		var reader = new FileReader();
+		reader.onload = NGPS_Editor.app.onLoadedFile;
+		reader.readAsDataURL(url);
+	}
+	
+	this.toggleCli = function()
+	{
+		if(!NGPS_Editor.app.clistatus)
+			cli.show();
+		else
+			cli.hide();
+		NGPS_Editor.app.clistatus = !NGPS_Editor.app.clistatus;
+	}
 
-	this.onAdd = function(){
+	this.save = function(){
+		alert("saving...");
+		document.execCommand("SaveAs");
+	}
+
+	this.onAddContainer = function(){
 		if(!NGPS_Editor.node)
 			NGPS_Editor.node = factory.root;
 
@@ -110,6 +207,85 @@ loadAppCode("edit",function(data)
 			dx = cameraInfo.x;
 			dy = cameraInfo.y;
 		}
-		factory.newContainer({x:x-dx,y:y-dy,width:NGPS_Editor.possize.width,height:NGPS_Editor.possize.height},NGPS_Editor.tags[0],NGPS_Editor.node);
+		return factory.newContainer({x:x-dx,y:y-dy,width:NGPS_Editor.possize.width,height:NGPS_Editor.possize.height},NGPS_Editor.tags[0],NGPS_Editor.node);
+	}
+	
+	this.addPictureFromFile = function(e)
+	{
+		var container = NGPS_Editor.app.onAddContainer();
+		container.addPrimitive({type:"img",adapt_container:true,content:{src:e.target.result}});
+	}
+
+	this.addPicture = function(link,info)
+	{
+		
+		//add image from link
+		var container = NGPS_Editor.app.onAddContainer();
+		container.addPrimitive({type:"img",adapt_container:true,content:{src:link}});
+		
+	}
+	
+	this.onAddPicture = function()
+	{
+		NGPS_Editor.app.interfaces['secondary'] = new NGPS_Editor.app.UI({parent:NGPS_Editor.app.parent,title:"#REG:EDIT_Add_Picture:innerHTML"})
+		NGPS_Editor.app.interfaces['secondary'].type = "image";
+		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-link');
+		
+		NGPS_Editor.app.interfaces['secondary']['link'] = NGPS_Editor.app.interfaces['secondary'].addCustom('input');
+		NGPS_Editor.app.interfaces['secondary']['link'].id =  "#REG:EDIT_IMAGE_LINK:placeholder"
+		Regional.inspectObject(NGPS_Editor.app.interfaces['secondary']['link']);
+
+		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-open', NGPS_Editor.app.fileDialog,"#REG:EDIT_browse:innerHTML");
+		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-ok', NGPS_Editor.app.succesSecondaryInterface);
+		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-remove', NGPS_Editor.app.cancelSecondaryInterface);
+
+		NGPS_Editor.app.onLoadedFile = NGPS_Editor.app.addPictureFromFile;
+		
+	}
+	this.succesSecondaryInterface = function()
+	{
+		if(NGPS_Editor.app.interfaces['secondary']['link'].value.length > 0)
+		{
+			if(NGPS_Editor.app.interfaces['secondary'].type == "image")
+				NGPS_Editor.app.addPicture(NGPS_Editor.app.interfaces['secondary']['link'].value);
+			
+			if(NGPS_Editor.app.interfaces['secondary'].type == "video")
+				NGPS_Editor.app.addVideo(NGPS_Editor.app.interfaces['secondary']['link'].value);
+		}
+
+		NGPS_Editor.app.cancelSecondaryInterface();
+	}
+	this.cancelSecondaryInterface = function()
+	{
+		if(NGPS_Editor.app.interfaces['secondary'])
+			NGPS_Editor.app.interfaces['secondary'].destroy();
+	}
+
+	this.onAddText = function()
+	{
+
+	}
+
+	this.addVideo = function(link,info)
+	{
+		//add image from link
+		var container = NGPS_Editor.app.onAddContainer();
+		container.addPrimitive({type:'iframe',width:420,height:345,content:{src:link,width:"420",height:"345"}});
+	}
+
+	this.onAddVideo = function()
+	{
+		NGPS_Editor.app.interfaces['secondary'] = new NGPS_Editor.app.UI({parent:NGPS_Editor.app.parent,title:"#REG:EDIT_Add_Video:innerHTML"})
+		NGPS_Editor.app.interfaces['secondary'].type = "video";
+		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-link');
+		NGPS_Editor.app.interfaces['secondary']['link'] = NGPS_Editor.app.interfaces['secondary'].addCustom('input');
+		NGPS_Editor.app.interfaces['secondary']['link'].id =  "#REG:EDIT_VIDEO_LINK:placeholder"
+		Regional.inspectObject(NGPS_Editor.app.interfaces['secondary']['link']);
+
+		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-open', NGPS_Editor.app.fileDialog,"#REG:EDIT_browse:innerHTML");
+		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-ok', NGPS_Editor.app.succesSecondaryInterface);
+		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-remove', NGPS_Editor.app.cancelSecondaryInterface);
+
+		//NGPS_Editor.app.onLoadedFile = NGPS_Editor.app.addVideoFromFile;
 	}
 });

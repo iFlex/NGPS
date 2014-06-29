@@ -276,10 +276,13 @@ Interactive.touchmoved = function( e , ctx)
 			ctx.mLastAngle = angle
 		else
 		{
+			var degAngle = (angle - ctx.mLastAngle) * 180 / 3.14;
 			if(ctx.onRotated)
-				ctx.onRotated( angle - ctx.mlastAngle )
+				ctx.onRotated( degAngle )
 			else
-				ctx.rotate( angle - ctx.mlastAngle )
+				ctx.rotate( degAngle )
+			
+			ctx.mLastAngle = angle;
 			
 			ctx.mLastAngle = angle;
 		}

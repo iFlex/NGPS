@@ -1,5 +1,3 @@
-this.Regional = this.Regional || {};
-Regional.messages = Regional.messages || {};
-Regional.messages['it'] = {
+Regional.extend("it",{
 	"I<3U":"Ti amo NGPS!",
-}
+});
