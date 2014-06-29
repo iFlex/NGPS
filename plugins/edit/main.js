@@ -3,6 +3,7 @@
 *	Author: Milorad Liviu Felix
 *	28 Jun 2014  18:45 GMT
 */
+//TODO: Fix weird trigger ( with the start interface listener ) evend firing on factory.root even though it's not listened for.
 this.NGPS_Editor = {};
 loadAppCode("edit",function(data)
 {
@@ -144,47 +145,50 @@ loadAppCode("edit",function(data)
 		this.interfaces['main'].addButton('glyphicon glyphicon-film',this.onAddVideo);
 		this.interfaces['main'].addButton('glyphicon glyphicon-save',this.save);
 		//edit UI
-		this.EditUI['rotate']  = factory.newContainer({x:0,y:0,width:32,height:32},"simple_rect",factory.root);
+		var descriptor = {x:0,y:0,width:32,height:32,background:"white",border_size:"0px"};
+		this.EditUI['rotate']  = factory.newContainer(descriptor,"simple_rect",factory.root);
 		this.EditUI['rotate'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-share-alt'></span></center>"; 
 		this.EditUI['rotate'].onMoved = this.onRotate;
 		this.EditUI['rotate'].hide();
 		
-		this.EditUI['enlarge'] = factory.newContainer({x:0,y:0,width:32,height:32},"simple_rect",factory.root); 
+		this.EditUI['enlarge'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
 		this.EditUI['enlarge'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-resize-full'></span></center>"; 
 		this.EditUI['enlarge'].onMoved = this.onEnlarge;
 		this.EditUI['enlarge'].hide();
 
-		this.EditUI['changeWidthLeft'] = factory.newContainer({x:0,y:0,width:32,height:32},"simple_rect",factory.root); 
+		this.EditUI['changeWidthLeft'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
 		this.EditUI['changeWidthLeft'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-left'></span></center>"; 
 		this.EditUI['changeWidthLeft'].onMoved = this.onChangeWidthLeft;
 		this.EditUI['changeWidthLeft'].hide();
 
-		this.EditUI['changeWidthRight'] = factory.newContainer({x:0,y:0,width:32,height:32},"simple_rect",factory.root); 
+		this.EditUI['changeWidthRight'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
 		this.EditUI['changeWidthRight'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-right'></span></center>";
 		this.EditUI['changeWidthRight'].onMoved = this.onChangeWidthRight; 
 		this.EditUI['changeWidthRight'].hide();
 
-		this.EditUI['changeHeightBottom'] = factory.newContainer({x:0,y:0,width:32,height:32},"simple_rect",factory.root); 
+		this.EditUI['changeHeightBottom'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
 		this.EditUI['changeHeightBottom'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-down'></span></center>"; 
 		this.EditUI['changeHeightBottom'].onMoved = this.onChangeHeightBottom;
 		this.EditUI['changeHeightBottom'].hide();
 
-		this.EditUI['changeHeightTop'] = factory.newContainer({x:0,y:0,width:32,height:32},"simple_rect",factory.root); 
+		this.EditUI['changeHeightTop'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
 		this.EditUI['changeHeightTop'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-up'></span></center>"; 
 		this.EditUI['changeHeightTop'].onMoved = this.onChangeHeightTop;
 		this.EditUI['changeHeightTop'].hide();
 
-		this.EditUI['delete'] = factory.newContainer({x:0,y:0,width:32,height:32},"simple_rect",factory.root); 
+		this.EditUI['delete'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
 		this.EditUI['delete'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-remove'></span></center>"; 
 		this.EditUI['delete'].hide();
 
-		this.EditUI['more'] = factory.newContainer({x:0,y:0,width:32,height:32},"simple_rect",factory.root); 
+		this.EditUI['more'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
 		this.EditUI['more'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-th-list'></span></center>"; 
 		this.EditUI['more'].hide();
 
 		//read tags
 		for( k in Descriptors.containers)
 			NGPS_Editor.tags.push(k);
+
+		factory.root.addEventListener("triggered",this.stopEditInterface);
 
 	}
 	this.run = function()	//called whenever the container is triggered
@@ -211,6 +215,10 @@ loadAppCode("edit",function(data)
 	{
 		NGPS_Editor.app.input.click();
 	}
+	this._startEditInterface = function(data)
+	{
+		NGPS_Editor.app.startEditInterface(data['target']);
+	}
 	this.startEditInterface = function(target)
 	{
 		NGPS_Editor.app.EditUI.target = target;
@@ -223,14 +231,18 @@ loadAppCode("edit",function(data)
 	}
 	this.stopEditInterface = function()
 	{
-		//remove event listeners
-		NGPS_Editor.app.EditUI.target.removeEventListener("changeWidth",this.focusEditInterface);
-		NGPS_Editor.app.EditUI.target.removeEventListener("changeHeight",this.focusEditInterface);
-		NGPS_Editor.app.EditUI.target.removeEventListener("changePosition",this.focusEditInterface);
-		//hide interface
-		for( k in NGPS_Editor.app.EditUI )
-			if( k != "target" )
-				NGPS_Editor.app.EditUI[k].hide();	
+		if(NGPS_Editor.app.EditUI.target)
+		{
+			//remove event listeners
+			NGPS_Editor.app.EditUI.target.removeEventListener("changeWidth",this.focusEditInterface);
+			NGPS_Editor.app.EditUI.target.removeEventListener("changeHeight",this.focusEditInterface);
+			NGPS_Editor.app.EditUI.target.removeEventListener("changePosition",this.focusEditInterface);
+			//hide interface
+			for( k in NGPS_Editor.app.EditUI )
+				if( k != "target" )
+					NGPS_Editor.app.EditUI[k].hide();
+			NGPS_Editor.app.EditUI.target = 0;	
+		}
 	}
 	this.focusEditInterface = function(e){
 		var target =  NGPS_Editor.app.EditUI.target;
@@ -300,6 +312,7 @@ loadAppCode("edit",function(data)
 			dy = cameraInfo.y;
 		}
 		var container = factory.newContainer({x:x-dx,y:y-dy,width:NGPS_Editor.possize.width,height:NGPS_Editor.possize.height},NGPS_Editor.tags[2],NGPS_Editor.node);
+		container.addEventListener("triggered",NGPS_Editor.app._startEditInterface);
 		NGPS_Editor.app.startEditInterface(container);
 		return container;
 	}

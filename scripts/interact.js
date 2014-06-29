@@ -11,6 +11,7 @@
 *		mouseMove
 *		mouseUp
 *		mouseOut
+*		triggered
 */
 this.Interactive = {}
 //What to do with interaction events( In some cases it's necessary to pass them to the parent )
@@ -54,7 +55,8 @@ Interactive.onMouseDown = function( e , ctx )
 			ctx.onMouseDown(ctx,e);
 		console.log("Mouse Down("+ctx.UID+")");
 		//smooth continuous interaction
-		Interaction.origin = ctx;
+		if(!Interaction.origin)
+			Interaction.origin = ctx;
 
 		//EVENT
 		if( ctx.events['mouseDown'] || ( GEM.events['mouseDown'] && GEM.events['mouseDown']['_global'] ) )
@@ -71,10 +73,12 @@ Interactive.onMouseMove = function(e, ctx)
 {
 	if(!ctx)
 		ctx = this.context;
+	
+	//do not bring back, find workarounds if necessary
+	//if(e.stopPropagation)
+	//	e.stopPropagation();
 
-	if(e.stopPropagation)
-		e.stopPropagation();
-
+	console.log("Mouse move on:"+ctx.UID);
 	//smooth continuous interaction
 	if( Interaction.origin && ctx.UID != Interaction.origin.UID && ctx.UID == factory.root.UID )
 	{
@@ -169,6 +173,15 @@ Interactive.onMouseUp = function( e , ctx )
 		
 		if(ctx.onMouseUp)
 			ctx.onMouseUp(ctx,e);
+
+		//smooth continuous interaction
+		if( Interaction.origin) 
+		{
+			if(ctx.UID != Interaction.origin.UID )
+				Interaction.origin.onMouseUp( e , Interaction.origin )
+			else
+				Interaction.origin = 0;
+		}
 	}
 	else
 	{
@@ -176,9 +189,6 @@ Interactive.onMouseUp = function( e , ctx )
 		if(ctx.parent)
 			ctx.parent.onMouseUp( e , ctx.parent );
 	}
-	//smooth continuous interaction
-	if( Interaction.origin && ctx.UID != Interaction.origin.UID )
-		Interaction.origin.onMouseUp( e , Interaction.origin )
 }
 Interactive.onMouseOut = function( e , ctx )
 {
