@@ -53,7 +53,7 @@ Interactive.onMouseDown = function( e , ctx )
 
 		if(ctx.onMouseDown)
 			ctx.onMouseDown(ctx,e);
-		console.log("Mouse Down("+ctx.UID+")");
+		//console.log("Mouse Down("+ctx.UID+")");
 		//smooth continuous interaction
 		if(!Interaction.origin)
 			Interaction.origin = ctx;
@@ -78,7 +78,6 @@ Interactive.onMouseMove = function(e, ctx)
 	//if(e.stopPropagation)
 	//	e.stopPropagation();
 
-	console.log("Mouse move on:"+ctx.UID);
 	//smooth continuous interaction
 	if( Interaction.origin && ctx.UID != Interaction.origin.UID && ctx.UID == factory.root.UID )
 	{
@@ -150,8 +149,8 @@ Interactive.onMouseUp = function( e , ctx )
 		if(ctx.hasMD)
 		{
 			Interaction.origin = 0;
-			console.log("Mouse Up("+ctx.UID+")"+"<"+e.type+">");
-			console.log("Trigger on:"+utils.whois(ctx));
+			//console.log("Mouse Up("+ctx.UID+")"+"<"+e.type+">");
+			//console.log("Trigger on:"+utils.whois(ctx));
 			// if triggered then call handler
 			if( ctx.dragDist < 7 && ctx.allowTrigger ) // this is considered a tap / click
 			{

@@ -32,7 +32,7 @@ GEM.fireEvent = function(data)
 			}	
 	}
 
-	_fireEvent(data['event'],data['target']);
+	_fireEvent(data['event'],data['target'].UID);
 	_fireEvent(data['event'],"_global");	
 		
 	if(GEM.debug)
@@ -49,10 +49,16 @@ GEM.addEventListener = function(event,ctx,handler,run_context)
 	if(!GEM.events[event])
 		GEM.events[event] = {};
 	
-	if(!GEM.events[event][ctx])
-		GEM.events[event][ctx] = [];
+	if(!GEM.events[event][ctx.UID])
+		GEM.events[event][ctx.UID] = [];
 	
-	GEM.events[event][ctx][GEM.events[event][ctx].length] = {"handler":handler,"context":run_context};
+	//check if this listening context is already present
+	for( i in GEM.events[event][ctx.UID])
+		if(	GEM.events[event][ctx.UID][i]['handler'] == handler &&
+			GEM.events[event][ctx.UID][i]['context'] == run_context)
+			return;
+	
+	GEM.events[event][ctx.UID][GEM.events[event][ctx.UID].length] = {"handler":handler,"context":run_context};
 
 	if(GEM.debug )
 		cli.showPrompt("<br> * NGPS_GEM_LISTENER+<br>"+event+"("+ctx+" > "+ctx.UID+")="+utils.debug(handler));
@@ -65,25 +71,28 @@ GEM.removeEventListener = function(event,ctx,handler)
 	if(!ctx)
 		ctx = "_global";
 
-	if( GEM.events[event] && GEM.events[event][ctx] )
+	var success = false;
+	if( GEM.events[event] && GEM.events[event][ctx.UID] )
 	{
 		//handler = JSON.stringify(handler);
-		for( h in GEM.events[event][ctx] )
+		for( h in GEM.events[event][ctx.UID] )
 		{
-			console.log(GEM.events[event][ctx][h] + " == " + handler )
-			if( GEM.events[event][ctx][h]['handler'] == handler )
+			console.log(typeof(GEM.events[event][ctx.UID][h]['handler']) + " == " + typeof(handler)+ " ? "+ (GEM.events[event][ctx.UID][h]['handler'] == handler) )
+			if( GEM.events[event][ctx.UID][h]['handler'] == handler )
 			{
 				if(GEM.debug)
 					cli.showPrompt("<br> * NGPS_GEM_LISTENER-<br>"+event+"("+ctx+" > "+ctx.UID+")="+utils.debug(handler));
 
-				GEM.events[event][ctx].splice(h,1);
-				return true;
+				GEM.events[event][ctx.UID].splice(h,1);
+				success = true;
+				break;
 			}
 		}
-		if(GEM.events[event][ctx].length == 0)
-			delete GEM.events[event][ctx];
+		
+		if(GEM.events[event][ctx.UID].length == 0)
+			delete GEM.events[event][ctx.UID];
 	}
-	return false;
+	return success;
 }
 GEM.list = function(verbose)
 {
@@ -93,7 +102,7 @@ GEM.list = function(verbose)
 		str += "<br>-"+i+":";
 		for( j in GEM.events[i] )
 		{
-			str += "<br>--"+j+" > "+j.UID;
+			str += "<br>--"+j;
 			var nrev = 0;
 			for( h in GEM.events[i][j])
 			{

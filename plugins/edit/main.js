@@ -221,11 +221,13 @@ loadAppCode("edit",function(data)
 	}
 	this.startEditInterface = function(target)
 	{
+		NGPS_Editor.app.stopEditInterface();
 		NGPS_Editor.app.EditUI.target = target;
 		//add event listeners
 		target.addEventListener("changeWidth",this.focusEditInterface);
 		target.addEventListener("changeHeight",this.focusEditInterface);
 		target.addEventListener("changePosition",this.focusEditInterface);
+		//target.addEventListener("changeAngle",this.focusEditInterface);
 		//shot interface
 		this.focusEditInterface();
 	}
@@ -234,9 +236,10 @@ loadAppCode("edit",function(data)
 		if(NGPS_Editor.app.EditUI.target)
 		{
 			//remove event listeners
-			NGPS_Editor.app.EditUI.target.removeEventListener("changeWidth",this.focusEditInterface);
-			NGPS_Editor.app.EditUI.target.removeEventListener("changeHeight",this.focusEditInterface);
-			NGPS_Editor.app.EditUI.target.removeEventListener("changePosition",this.focusEditInterface);
+			NGPS_Editor.app.EditUI.target.removeEventListener("changeWidth",NGPS_Editor.app.focusEditInterface);
+			NGPS_Editor.app.EditUI.target.removeEventListener("changeHeight",NGPS_Editor.app.focusEditInterface);
+			NGPS_Editor.app.EditUI.target.removeEventListener("changePosition",NGPS_Editor.app.focusEditInterface);
+			NGPS_Editor.app.EditUI.target.removeEventListener("changeAngle",NGPS_Editor.app.focusEditInterface);
 			//hide interface
 			for( k in NGPS_Editor.app.EditUI )
 				if( k != "target" )
@@ -244,9 +247,28 @@ loadAppCode("edit",function(data)
 			NGPS_Editor.app.EditUI.target = 0;	
 		}
 	}
+	//TODO:NOT WORKING PORPERLY 
+	this.setEditInterfaceAngle = function(angle)
+	{
+		angle *= Math.PI/180;
+		var tpos = NGPS_Editor.app.EditUI.target.getCenter();
+		for( k in NGPS_Editor.app.EditUI)
+			if( k != "target" )
+			{
+				var pos = NGPS_Editor.app.EditUI[k].getCenter();
+				var dx = tpos.x - pos.x;
+				var dy = tpos.y - pos.y;
+				var distance = Math.sqrt( dx*dx + dy*dy );
+				
+				angle += NGPS_Editor.app.EditUI[k].originalAngle;
+				NGPS_Editor.app.EditUI[k].putAt(tpos.x - distance*Math.cos(angle),tpos.y - distance*Math.sin(angle),0.5,0.5)
+				NGPS_Editor.app.EditUI[k].setAngle(angle);
+			}
+	}
 	this.focusEditInterface = function(e){
 		var target =  NGPS_Editor.app.EditUI.target;
 		var targetPos = target.getPos();
+		
 		NGPS_Editor.app.EditUI['rotate'].show();
 		NGPS_Editor.app.EditUI['rotate'].putAt( targetPos.x - NGPS_Editor.app.EditUI['rotate'].getWidth(), targetPos.y - NGPS_Editor.app.EditUI['rotate'].getHeight() )
 		
@@ -273,6 +295,7 @@ loadAppCode("edit",function(data)
 		NGPS_Editor.app.EditUI['more'].show();
 		NGPS_Editor.app.EditUI['more'].putAt( targetPos.x - NGPS_Editor.app.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight() )
 		
+		//NGPS_Editor.app.setEditInterfaceAngle(target.angle);
 	}
 
 	this.loadFromDataURL = function(url)

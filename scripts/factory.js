@@ -59,7 +59,7 @@ factory.init = function(mode) // editor init
 factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"transparent"}
 
 //FACTORY functions
-factory.newContainer = function(possize,tag,parent)
+factory.newContainer = function(possize,tag,parent,addToFrame)
 {
 	if(!factory.initialised)
 		factory.init();
@@ -76,7 +76,7 @@ factory.newContainer = function(possize,tag,parent)
 
 	descriptor = utils.merge(descriptor,factory.settings.container,"override");
 	
-	var obj = parent.addChild( utils.merge(descriptor,possize,true) );
+	var obj = parent.addChild( utils.merge(descriptor,possize,true) , addToFrame );
 	obj.extend(Interactive); //make object interactive
 
 	if(obj)
@@ -130,7 +130,7 @@ factory.newCamera = function (possize,tag,parent,interval)
 //APPs
 factory.newGlobalApp = function ( app )
 {
-	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"simple_rect");
+	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"simple_rect",factory.root,true);
 	host.loadApp(app);
 	return host;
 }
