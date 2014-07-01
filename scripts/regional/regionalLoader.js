@@ -67,10 +67,11 @@ Regional.tryToApply = function(str,obj)
 				var message = str.slice(0,separator);
 				var apply_method = str.slice(separator+1,str.length);
 				
-				//alert("str:"+str+" msg:"+message+" method:"+apply_method+" le message:"+Regional.messages[Regional.language][message]);
+				console.log("str:"+str+" msg:"+message+" method:"+apply_method+" le message:"+Regional.messages[Regional.language][message]+" messages:"+utils.debug(Regional.messages[Regional.language]));
 				//apply the message
 				if(Regional.messages && Regional.messages[Regional.language] && Regional.messages[Regional.language][message])
 				{
+					console.log("Success");
 					obj[apply_method] = Regional.messages[Regional.language][message];
 					return true;
 				}

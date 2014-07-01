@@ -63,7 +63,11 @@ this.container = function(properties)
 			return false;
 
 		this.UID = containerData.containerIndex++;
-		this.DOMreference = document.createElement("div");
+		var DOMtype = "div";
+		if(typeof(this.properties['type']) == "string")
+			DOMtype = this.properties['type'];
+
+		this.DOMreference = document.createElement(DOMtype);
 		this.DOMreference.setAttribute('id',this.UID);
 
 		//convert numbers to vaild CSS pixel quantity
@@ -141,16 +145,19 @@ this.container = function(properties)
 				}
 			}
 		}
-
-		if(parent)
+		//isolated containers do not get included in the standard container hierarchy 
+		if(!this.properties['*isolated'])
 		{
-			//append
-			this.parent = parent;
-			parent.DOMreference.appendChild(this.DOMreference);
+			if(parent)
+			{
+				//append
+				this.parent = parent;
+				parent.DOMreference.appendChild(this.DOMreference);
+			}
+			else //this is the master object ( root )
+				document.body.appendChild(this.DOMreference);
 		}
-		else //this is the master object ( root )
-			document.body.appendChild(this.DOMreference);
-		
+
 		this.properties['width'] = this.getWidth();
 		this.properties['height']= this.getHeight();
 

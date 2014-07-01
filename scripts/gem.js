@@ -26,8 +26,12 @@ GEM.fireEvent = function(data)
 					if( type == "function")
 						GEM.events[event][ctx][k]['handler'](data);
 				
-					else 	if( GEM.events[event][ctx][k]['context'] && type == "string" && typeof(GEM.events[event][ctx][k]['context']) == "object" )
-						GEM.events[event][ctx][k]['context'][ GEM.events[event][ctx][k]['handler'] ] (data);
+					else 	if( GEM.events[event][ctx][k]['context'] && 
+						        type == "string" && 
+						        typeof(GEM.events[event][ctx][k]['context']) == "object" ){
+									//console.log("GEM ::hdl:"+GEM.events[event][ctx][k]['handler'])
+									GEM.events[event][ctx][k]['context'][ GEM.events[event][ctx][k]['handler'] ] (data);
+							}
 				}
 			}	
 	}
@@ -44,8 +48,8 @@ GEM.addEventListener = function(event,ctx,handler,run_context)
 		return;
 
 	if(!ctx)
-		ctx = "_global";
-
+		ctx = {UID:"_global"};
+	
 	if(!GEM.events[event])
 		GEM.events[event] = {};
 	
@@ -69,7 +73,7 @@ GEM.removeEventListener = function(event,ctx,handler)
 		return;
 
 	if(!ctx)
-		ctx = "_global";
+		ctx ={UID:"_global"};
 
 	var success = false;
 	if( GEM.events[event] && GEM.events[event][ctx.UID] )
@@ -99,18 +103,15 @@ GEM.list = function(verbose)
 	str = "NGPS_GEM:[";
 	for( i in GEM.events )
 	{
-		str += "<br>-"+i+":";
+		str += "<br>(event):"+i+":";
 		for( j in GEM.events[i] )
 		{
-			str += "<br>--"+j;
-			var nrev = 0;
+			str += "<br>(event_context):"+j+" handlers:"+GEM.events[i][j].length;
 			for( h in GEM.events[i][j])
 			{
 				if(verbose == true)
-					str +="<br>----"+GEM.events[i][j][h];
-				nrev++;
+					str +="<br>(event_handler):"+GEM.events[i][j][h];
 			}
-			str += "<br>--has "+nrev+" handlers";
 		}
 	}
 	str += "<br>]";

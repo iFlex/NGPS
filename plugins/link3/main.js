@@ -1,11 +1,10 @@
-loadAppCode("link",function(data){
+loadAppCode("link3",function(data){
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
 	this.left = 0;
 	this.right = 0;
 	this.temp = 0;
 	this.active = true;
-	this.rootDir = "plugins/link";
 
 	this.cDescriptor = {};
 	this.linkData = {};
@@ -18,9 +17,9 @@ loadAppCode("link",function(data){
 		app.isActive = !app.isActive;
 		//change icon
 		if(app.isActive)
-			ctx.DOMreference.innerHTML = "<img src='"+app.rootDir+"/resources/0.png"+"' style='width:16px;height:16px'></img>";
+			ctx.DOMreference.innerHTML = "<i class='glyphicon glyphicon-th-list'></i>";
 		else
-			ctx.DOMreference.innerHTML = "<img src='"+app.rootDir+"/resources/1.png"+"' style='width:16px;height:16px'></img>";
+			ctx.DOMreference.innerHTML = "<i class='glyphicon glyphicon-lock'></i>";
 	}
 	this.onMouseOut = function(data)
 	{

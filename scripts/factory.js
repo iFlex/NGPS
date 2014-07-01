@@ -108,6 +108,18 @@ factory.createContainer = function(descriptor,parent)
 	return obj;
 }
 
+factory.newIsolatedContainer = function(descriptor)
+{
+	descriptor['*isolated'] = true;
+	var obj = new container(descriptor);
+	obj.load();
+	obj.extend(Interactive);
+	obj.interactive(true);
+	//safety
+	obj.parent = factory.root;
+	return obj;
+}
+
 factory.newCamera = function (possize,tag,parent,interval)
 {
 	if(!factory.initialised)

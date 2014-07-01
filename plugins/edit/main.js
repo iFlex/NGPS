@@ -4,11 +4,10 @@
 *	28 Jun 2014  18:45 GMT
 */
 //TODO: Fix weird trigger ( with the start interface listener ) evend firing on factory.root even though it's not listened for.
-this.NGPS_Editor = {};
 loadAppCode("edit",function(data)
 {
-	NGPS_Editor.app = this;
-	NGPS_Editor.app.clistatus = 0;
+	factory.dock = this;
+	factory.dock.clistatus = 0;
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
 	this.startWorker = data['startWorker'];
@@ -53,12 +52,15 @@ loadAppCode("edit",function(data)
 		this.parts['root'].appendChild(this.parts['mainDiv']);
 		this.parent.DOMreference.appendChild(this.parts['root']);
 
-		this.addButton = function(icon,handler,description)
+		this.addButton = function(icon,handler,description,properties)
 		{
 			var li = document.createElement('li');
-		
 			var a = document.createElement('a');
 			a.href = "#";
+			
+			if(properties && properties['no_anchor'])
+				a.style.color = "inherit";
+
 			a.onclick = handler;
 			
 			var span = document.createElement('span');
@@ -72,24 +74,38 @@ loadAppCode("edit",function(data)
 				Regional.inspectObject(name);
 			}
 
+			
 			li.appendChild(a);
 			a.appendChild(span);
 			if(name)	a.appendChild(name);
 			this.parts['interfaceRight'].appendChild(li);
+			return span;
 		}
-		this.addCustom = function(element,style,events)
+		this.addCustom = function(element,style,events,properties)
 		{
 			var li = document.createElement('li');
 		
 			var a = document.createElement('a');
 			a.href = "#";
-		
-			var span = document.createElement(element);
-			span.style = style;
+			
+			var span = 0;
+			if(typeof(element) == "string")
+			{
+				span = document.createElement(element);
+				span.style = style;
 
-			if(events)
-				for(k in events)
-					span[k] = events[k];
+				if(events)
+					for(k in events)
+						span[k] = events[k];
+			}
+			else
+			{
+				span = element.DOMreference;
+				//events seem to bleed through the anchor so no bother
+				//a.onclick = function(){
+					//element.onTrigger(element,{});
+				//};
+			}
 
 			li.appendChild(a);
 			a.appendChild(span);
@@ -102,9 +118,88 @@ loadAppCode("edit",function(data)
 		}
 	}
 
-	NGPS_Editor.node = 0;
-	NGPS_Editor.possize = {x:0,y:0,width:100,height:100};
-	NGPS_Editor.tags = [];
+	factory.dock.node = 0;
+	factory.dock.possize = {x:0,y:0,width:100,height:100};
+	factory.dock.tags = [];
+	this.buildInterface = function()
+	{
+		//build the interface
+		var dimensions = 0;
+		if(factory.dock.parent.parent)
+			dimensions = {width:factory.dock.parent.parent.getWidth(),height:factory.dock.parent.parent.getHeight()}
+		else
+			dimensions = platform.getScreenSize();
+
+		factory.dock.parent.setWidth(0);
+		factory.dock.parent.setHeight(0);
+
+		factory.dock.input = document.createElement("input");
+		factory.dock.input.type = "file";
+		factory.dock.input.multiple = "multiple"
+		factory.dock.input.display = "none";
+		factory.dock.input.onchange = function () {
+			// assuming there is a file input with the ID `my-input`...
+			var files = this.files;
+			for (var i = 0; i < files.length; i++)
+	    		factory.dock.loadFromDataURL(files[i])		
+		};
+		
+		factory.dock.parent.DOMreference.appendChild(factory.dock.input);
+		//init interface
+		factory.dock.interfaces['main']	= new factory.dock.UI({parent:factory.dock.parent,title:"NGPS - "+factory.presentation.name});
+		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-plus',factory.dock.onAddContainer)//,"#REG:EDIT_add:innerHTML");
+		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-picture',factory.dock.onAddPicture)//,"#REG:EDIT_picture:innerHTML");
+		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-font',factory.dock.onAddContainer)//,"#REG:EDIT_text:innerHTML");
+		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-film',factory.dock.onAddVideo)//,"#REG:EDIT_video:innerHTML");
+		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-save',factory.dock.save)//,"#REG:EDIT_save:innerHTML");
+		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-th',factory.dock.toggleCli);
+		//factory.dock.dockApp('link');
+		//edit UI
+		var descriptor = {x:0,y:0,width:32,height:32,background:"white",border_size:"0px"};
+		factory.dock.EditUI['rotate']  = factory.newContainer(descriptor,"simple_rect",factory.root);
+		factory.dock.EditUI['rotate'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-share-alt'></span></center>"; 
+		factory.dock.EditUI['rotate'].onMoved = factory.dock.onRotate;
+		factory.dock.EditUI['rotate'].hide();
+		
+		factory.dock.EditUI['enlarge'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
+		factory.dock.EditUI['enlarge'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-resize-full'></span></center>"; 
+		factory.dock.EditUI['enlarge'].onMoved = factory.dock.onEnlarge;
+		factory.dock.EditUI['enlarge'].hide();
+
+		factory.dock.EditUI['changeWidthLeft'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
+		factory.dock.EditUI['changeWidthLeft'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-left'></span></center>"; 
+		factory.dock.EditUI['changeWidthLeft'].onMoved = factory.dock.onChangeWidthLeft;
+		factory.dock.EditUI['changeWidthLeft'].hide();
+
+		factory.dock.EditUI['changeWidthRight'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
+		factory.dock.EditUI['changeWidthRight'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-right'></span></center>";
+		factory.dock.EditUI['changeWidthRight'].onMoved = factory.dock.onChangeWidthRight; 
+		factory.dock.EditUI['changeWidthRight'].hide();
+
+		factory.dock.EditUI['changeHeightBottom'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
+		factory.dock.EditUI['changeHeightBottom'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-down'></span></center>"; 
+		factory.dock.EditUI['changeHeightBottom'].onMoved = factory.dock.onChangeHeightBottom;
+		factory.dock.EditUI['changeHeightBottom'].hide();
+
+		factory.dock.EditUI['changeHeightTop'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
+		factory.dock.EditUI['changeHeightTop'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-up'></span></center>"; 
+		factory.dock.EditUI['changeHeightTop'].onMoved = factory.dock.onChangeHeightTop;
+		factory.dock.EditUI['changeHeightTop'].hide();
+
+		factory.dock.EditUI['delete'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
+		factory.dock.EditUI['delete'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-remove'></span></center>"; 
+		factory.dock.EditUI['delete'].hide();
+
+		factory.dock.EditUI['more'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
+		factory.dock.EditUI['more'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-th-list'></span></center>"; 
+		factory.dock.EditUI['more'].hide();
+
+		//read tags
+		for( k in Descriptors.containers)
+			factory.dock.tags.push(k);
+
+		factory.root.addEventListener("triggered",this.stopEditInterface);
+	}
 	this.init = function() //called only one when bound with container
 	{
 		//include language packs
@@ -112,84 +207,9 @@ loadAppCode("edit",function(data)
 		//manual inclusion
 		var messages = document.createElement("script");
 		messages.src = "plugins/edit/messages.js";
-		messages.onload;
+		messages.onload = this.buildInterface;
 		document.head.appendChild(messages);
-		//build the interface
-		var dimensions = 0;
-		if(this.parent.parent)
-			dimensions = {width:this.parent.parent.getWidth(),height:this.parent.parent.getHeight()}
-		else
-			dimensions = platform.getScreenSize();
-
-		this.parent.setWidth(0);
-		this.parent.setHeight(0);
-
-		this.input = document.createElement("input");
-		this.input.type = "file";
-		this.input.multiple = "multiple"
-		this.input.display = "none";
-		this.input.onchange = function () {
-			// assuming there is a file input with the ID `my-input`...
-			var files = this.files;
-			for (var i = 0; i < files.length; i++)
-	    		NGPS_Editor.app.loadFromDataURL(files[i])		
-		};
-		
-		this.parent.DOMreference.appendChild(this.input);
-		//init interface
-		this.interfaces['main']	= new this.UI({parent:this.parent,title:"NGPS - "+factory.presentation.name});
-		this.interfaces['main'].addButton('glyphicon glyphicon-th',this.toggleCli);
-		this.interfaces['main'].addButton('glyphicon glyphicon-plus',this.onAddContainer);
-		this.interfaces['main'].addButton('glyphicon glyphicon-picture',this.onAddPicture);
-		this.interfaces['main'].addButton('glyphicon glyphicon-font',this.onAddContainer);
-		this.interfaces['main'].addButton('glyphicon glyphicon-film',this.onAddVideo);
-		this.interfaces['main'].addButton('glyphicon glyphicon-save',this.save);
-		//edit UI
-		var descriptor = {x:0,y:0,width:32,height:32,background:"white",border_size:"0px"};
-		this.EditUI['rotate']  = factory.newContainer(descriptor,"simple_rect",factory.root);
-		this.EditUI['rotate'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-share-alt'></span></center>"; 
-		this.EditUI['rotate'].onMoved = this.onRotate;
-		this.EditUI['rotate'].hide();
-		
-		this.EditUI['enlarge'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		this.EditUI['enlarge'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-resize-full'></span></center>"; 
-		this.EditUI['enlarge'].onMoved = this.onEnlarge;
-		this.EditUI['enlarge'].hide();
-
-		this.EditUI['changeWidthLeft'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		this.EditUI['changeWidthLeft'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-left'></span></center>"; 
-		this.EditUI['changeWidthLeft'].onMoved = this.onChangeWidthLeft;
-		this.EditUI['changeWidthLeft'].hide();
-
-		this.EditUI['changeWidthRight'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		this.EditUI['changeWidthRight'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-right'></span></center>";
-		this.EditUI['changeWidthRight'].onMoved = this.onChangeWidthRight; 
-		this.EditUI['changeWidthRight'].hide();
-
-		this.EditUI['changeHeightBottom'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		this.EditUI['changeHeightBottom'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-down'></span></center>"; 
-		this.EditUI['changeHeightBottom'].onMoved = this.onChangeHeightBottom;
-		this.EditUI['changeHeightBottom'].hide();
-
-		this.EditUI['changeHeightTop'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		this.EditUI['changeHeightTop'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-up'></span></center>"; 
-		this.EditUI['changeHeightTop'].onMoved = this.onChangeHeightTop;
-		this.EditUI['changeHeightTop'].hide();
-
-		this.EditUI['delete'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		this.EditUI['delete'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-remove'></span></center>"; 
-		this.EditUI['delete'].hide();
-
-		this.EditUI['more'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		this.EditUI['more'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-th-list'></span></center>"; 
-		this.EditUI['more'].hide();
-
-		//read tags
-		for( k in Descriptors.containers)
-			NGPS_Editor.tags.push(k);
-
-		factory.root.addEventListener("triggered",this.stopEditInterface);
-
+		factory.dock.dockedApps = {};
 	}
 	this.run = function()	//called whenever the container is triggered
 	{
@@ -213,16 +233,16 @@ loadAppCode("edit",function(data)
 	}
 	this.fileDialog = function()
 	{
-		NGPS_Editor.app.input.click();
+		factory.dock.input.click();
 	}
 	this._startEditInterface = function(data)
 	{
-		NGPS_Editor.app.startEditInterface(data['target']);
+		factory.dock.startEditInterface(data['target']);
 	}
 	this.startEditInterface = function(target)
 	{
-		NGPS_Editor.app.stopEditInterface();
-		NGPS_Editor.app.EditUI.target = target;
+		factory.dock.stopEditInterface();
+		factory.dock.EditUI.target = target;
 		//add event listeners
 		target.addEventListener("changeWidth",this.focusEditInterface);
 		target.addEventListener("changeHeight",this.focusEditInterface);
@@ -233,85 +253,85 @@ loadAppCode("edit",function(data)
 	}
 	this.stopEditInterface = function()
 	{
-		if(NGPS_Editor.app.EditUI.target)
+		if(factory.dock.EditUI.target)
 		{
 			//remove event listeners
-			NGPS_Editor.app.EditUI.target.removeEventListener("changeWidth",NGPS_Editor.app.focusEditInterface);
-			NGPS_Editor.app.EditUI.target.removeEventListener("changeHeight",NGPS_Editor.app.focusEditInterface);
-			NGPS_Editor.app.EditUI.target.removeEventListener("changePosition",NGPS_Editor.app.focusEditInterface);
-			NGPS_Editor.app.EditUI.target.removeEventListener("changeAngle",NGPS_Editor.app.focusEditInterface);
+			factory.dock.EditUI.target.removeEventListener("changeWidth",factory.dock.focusEditInterface);
+			factory.dock.EditUI.target.removeEventListener("changeHeight",factory.dock.focusEditInterface);
+			factory.dock.EditUI.target.removeEventListener("changePosition",factory.dock.focusEditInterface);
+			factory.dock.EditUI.target.removeEventListener("changeAngle",factory.dock.focusEditInterface);
 			//hide interface
-			for( k in NGPS_Editor.app.EditUI )
+			for( k in factory.dock.EditUI )
 				if( k != "target" )
-					NGPS_Editor.app.EditUI[k].hide();
-			NGPS_Editor.app.EditUI.target = 0;	
+					factory.dock.EditUI[k].hide();
+			factory.dock.EditUI.target = 0;	
 		}
 	}
 	//TODO:NOT WORKING PORPERLY 
 	this.setEditInterfaceAngle = function(angle)
 	{
 		angle *= Math.PI/180;
-		var tpos = NGPS_Editor.app.EditUI.target.getCenter();
-		for( k in NGPS_Editor.app.EditUI)
+		var tpos = factory.dock.EditUI.target.getCenter();
+		for( k in factory.dock.EditUI)
 			if( k != "target" )
 			{
-				var pos = NGPS_Editor.app.EditUI[k].getCenter();
+				var pos = factory.dock.EditUI[k].getCenter();
 				var dx = tpos.x - pos.x;
 				var dy = tpos.y - pos.y;
 				var distance = Math.sqrt( dx*dx + dy*dy );
 				
-				angle += NGPS_Editor.app.EditUI[k].originalAngle;
-				NGPS_Editor.app.EditUI[k].putAt(tpos.x - distance*Math.cos(angle),tpos.y - distance*Math.sin(angle),0.5,0.5)
-				NGPS_Editor.app.EditUI[k].setAngle(angle);
+				angle += factory.dock.EditUI[k].originalAngle;
+				factory.dock.EditUI[k].putAt(tpos.x - distance*Math.cos(angle),tpos.y - distance*Math.sin(angle),0.5,0.5)
+				factory.dock.EditUI[k].setAngle(angle);
 			}
 	}
 	this.focusEditInterface = function(e){
-		var target =  NGPS_Editor.app.EditUI.target;
+		var target =  factory.dock.EditUI.target;
 		var targetPos = target.getPos();
 		
-		NGPS_Editor.app.EditUI['rotate'].show();
-		NGPS_Editor.app.EditUI['rotate'].putAt( targetPos.x - NGPS_Editor.app.EditUI['rotate'].getWidth(), targetPos.y - NGPS_Editor.app.EditUI['rotate'].getHeight() )
+		factory.dock.EditUI['rotate'].show();
+		factory.dock.EditUI['rotate'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y - factory.dock.EditUI['rotate'].getHeight() )
 		
-		NGPS_Editor.app.EditUI['enlarge'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight() )
-		NGPS_Editor.app.EditUI['enlarge'].show();
+		factory.dock.EditUI['enlarge'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight() )
+		factory.dock.EditUI['enlarge'].show();
 
-		NGPS_Editor.app.EditUI['changeWidthLeft'].show();
-		NGPS_Editor.app.EditUI['changeWidthLeft'].putAt( targetPos.x - NGPS_Editor.app.EditUI['changeWidthLeft'].getWidth(), targetPos.y + (target.getHeight() - NGPS_Editor.app.EditUI['changeWidthLeft'].getHeight())/2 )	
+		factory.dock.EditUI['changeWidthLeft'].show();
+		factory.dock.EditUI['changeWidthLeft'].putAt( targetPos.x - factory.dock.EditUI['changeWidthLeft'].getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2 )	
 
-		NGPS_Editor.app.EditUI['changeWidthRight'].show();
-		NGPS_Editor.app.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - NGPS_Editor.app.EditUI['changeWidthLeft'].getHeight())/2 )	
+		factory.dock.EditUI['changeWidthRight'].show();
+		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2 )	
 	
-		NGPS_Editor.app.EditUI['changeHeightBottom'].show();
-		NGPS_Editor.app.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - NGPS_Editor.app.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight() )
+		factory.dock.EditUI['changeHeightBottom'].show();
+		factory.dock.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight() )
 
-		NGPS_Editor.app.EditUI['changeHeightTop'].show();
-		NGPS_Editor.app.EditUI['changeHeightTop'].putAt( targetPos.x + (target.getWidth() - NGPS_Editor.app.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y - NGPS_Editor.app.EditUI['changeWidthLeft'].getHeight() )	
+		factory.dock.EditUI['changeHeightTop'].show();
+		factory.dock.EditUI['changeHeightTop'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y - factory.dock.EditUI['changeWidthLeft'].getHeight() )	
 		
-		NGPS_Editor.app.EditUI['delete'].show();
-		NGPS_Editor.app.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y - NGPS_Editor.app.EditUI['rotate'].getHeight() )
-		NGPS_Editor.app.EditUI['delete'].onTrigger = this.onDelete;
-		NGPS_Editor.app.EditUI['delete'].onMoved = function(){};
+		factory.dock.EditUI['delete'].show();
+		factory.dock.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y - factory.dock.EditUI['rotate'].getHeight() )
+		factory.dock.EditUI['delete'].onTrigger = this.onDelete;
+		factory.dock.EditUI['delete'].onMoved = function(){};
 
-		NGPS_Editor.app.EditUI['more'].show();
-		NGPS_Editor.app.EditUI['more'].putAt( targetPos.x - NGPS_Editor.app.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight() )
+		factory.dock.EditUI['more'].show();
+		factory.dock.EditUI['more'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight() )
 		
-		//NGPS_Editor.app.setEditInterfaceAngle(target.angle);
+		//factory.dock.setEditInterfaceAngle(target.angle);
 	}
 
 	this.loadFromDataURL = function(url)
 	{
 		var reader = new FileReader();
-		reader.onload = NGPS_Editor.app.onLoadedFile;
+		reader.onload = factory.dock.onLoadedFile;
 		reader.readAsDataURL(url);
 	}
 	
 	this.toggleCli = function()
 	{
-		if(!NGPS_Editor.app.clistatus)
+		if(!factory.dock.clistatus)
 			cli.show();
 		else
 			cli.hide();
-		NGPS_Editor.app.clistatus = !NGPS_Editor.app.clistatus;
+		factory.dock.clistatus = !factory.dock.clistatus;
 	}
 
 	this.save = function(){
@@ -320,29 +340,29 @@ loadAppCode("edit",function(data)
 	}
 
 	this.onAddContainer = function(){
-		if(!NGPS_Editor.node)
-			NGPS_Editor.node = factory.root;
+		if(!factory.dock.node)
+			factory.dock.node = factory.root;
 
-		var x = ( NGPS_Editor.node.getWidth() - NGPS_Editor.possize.width ) / 2;
-		var y = ( NGPS_Editor.node.getHeight() - NGPS_Editor.possize.height ) / 2;
+		var x = ( factory.dock.node.getWidth() - factory.dock.possize.width ) / 2;
+		var y = ( factory.dock.node.getHeight() - factory.dock.possize.height ) / 2;
 		var dx = 0;
 		var dy = 0;
 
-		if(NGPS_Editor.node.isCamera)
+		if(factory.dock.node.isCamera)
 		{
-			var cameraInfo = NGPS_Editor.node.getContentPositioning();
+			var cameraInfo = factory.dock.node.getContentPositioning();
 			dx = cameraInfo.x;
 			dy = cameraInfo.y;
 		}
-		var container = factory.newContainer({x:x-dx,y:y-dy,width:NGPS_Editor.possize.width,height:NGPS_Editor.possize.height},NGPS_Editor.tags[2],NGPS_Editor.node);
-		container.addEventListener("triggered",NGPS_Editor.app._startEditInterface);
-		NGPS_Editor.app.startEditInterface(container);
+		var container = factory.newContainer({x:x-dx,y:y-dy,width:factory.dock.possize.width,height:factory.dock.possize.height},factory.dock.tags[2],factory.dock.node);
+		container.addEventListener("triggered",factory.dock._startEditInterface);
+		factory.dock.startEditInterface(container);
 		return container;
 	}
 	
 	this.addPictureFromFile = function(e)
 	{
-		var container = NGPS_Editor.app.onAddContainer();
+		var container = factory.dock.onAddContainer();
 		container.addPrimitive({type:"img",adapt_container:true,content:{src:e.target.result}});
 	}
 
@@ -350,45 +370,45 @@ loadAppCode("edit",function(data)
 	{
 		
 		//add image from link
-		var container = NGPS_Editor.app.onAddContainer();
+		var container = factory.dock.onAddContainer();
 		container.addPrimitive({type:"img",adapt_container:true,content:{src:link}});
 		
 	}
 	
 	this.onAddPicture = function()
 	{
-		NGPS_Editor.app.interfaces['secondary'] = new NGPS_Editor.app.UI({parent:NGPS_Editor.app.parent,title:"#REG:EDIT_Add_Picture:innerHTML"})
-		NGPS_Editor.app.interfaces['secondary'].type = "image";
-		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-link');
+		factory.dock.interfaces['secondary'] = new factory.dock.UI({parent:factory.dock.parent,title:"#REG:EDIT_Add_Picture:innerHTML"})
+		factory.dock.interfaces['secondary'].type = "image";
+		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-link',0,0,{no_anchor:true});
 		
-		NGPS_Editor.app.interfaces['secondary']['link'] = NGPS_Editor.app.interfaces['secondary'].addCustom('input');
-		NGPS_Editor.app.interfaces['secondary']['link'].id =  "#REG:EDIT_IMAGE_LINK:placeholder"
-		Regional.inspectObject(NGPS_Editor.app.interfaces['secondary']['link']);
+		factory.dock.interfaces['secondary']['link'] = factory.dock.interfaces['secondary'].addCustom('input');
+		factory.dock.interfaces['secondary']['link'].id =  "#REG:EDIT_IMAGE_LINK:placeholder"
+		Regional.inspectObject(factory.dock.interfaces['secondary']['link']);
 
-		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-open', NGPS_Editor.app.fileDialog,"#REG:EDIT_browse:innerHTML");
-		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-ok', NGPS_Editor.app.succesSecondaryInterface);
-		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-remove', NGPS_Editor.app.cancelSecondaryInterface);
+		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-open', factory.dock.fileDialog,"#REG:EDIT_browse:innerHTML");
+		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-ok', factory.dock.succesSecondaryInterface);
+		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-remove', factory.dock.cancelSecondaryInterface);
 
-		NGPS_Editor.app.onLoadedFile = NGPS_Editor.app.addPictureFromFile;
+		factory.dock.onLoadedFile = factory.dock.addPictureFromFile;
 		
 	}
 	this.succesSecondaryInterface = function()
 	{
-		if(NGPS_Editor.app.interfaces['secondary']['link'].value.length > 0)
+		if(factory.dock.interfaces['secondary']['link'].value.length > 0)
 		{
-			if(NGPS_Editor.app.interfaces['secondary'].type == "image")
-				NGPS_Editor.app.addPicture(NGPS_Editor.app.interfaces['secondary']['link'].value);
+			if(factory.dock.interfaces['secondary'].type == "image")
+				factory.dock.addPicture(factory.dock.interfaces['secondary']['link'].value);
 			
-			if(NGPS_Editor.app.interfaces['secondary'].type == "video")
-				NGPS_Editor.app.addVideo(NGPS_Editor.app.interfaces['secondary']['link'].value);
+			if(factory.dock.interfaces['secondary'].type == "video")
+				factory.dock.addVideo(factory.dock.interfaces['secondary']['link'].value);
 		}
 
-		NGPS_Editor.app.cancelSecondaryInterface();
+		factory.dock.cancelSecondaryInterface();
 	}
 	this.cancelSecondaryInterface = function()
 	{
-		if(NGPS_Editor.app.interfaces['secondary'])
-			NGPS_Editor.app.interfaces['secondary'].destroy();
+		if(factory.dock.interfaces['secondary'])
+			factory.dock.interfaces['secondary'].destroy();
 	}
 
 	this.onAddText = function()
@@ -399,71 +419,89 @@ loadAppCode("edit",function(data)
 	this.addVideo = function(link,info)
 	{
 		//add image from link
-		var container = NGPS_Editor.app.onAddContainer();
+		var container = factory.dock.onAddContainer();
 		container.addPrimitive({type:'iframe',width:420,height:345,content:{src:link,width:"420",height:"345"}});
 	}
 
 	this.onAddVideo = function()
 	{
-		NGPS_Editor.app.interfaces['secondary'] = new NGPS_Editor.app.UI({parent:NGPS_Editor.app.parent,title:"#REG:EDIT_Add_Video:innerHTML"})
-		NGPS_Editor.app.interfaces['secondary'].type = "video";
-		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-link');
-		NGPS_Editor.app.interfaces['secondary']['link'] = NGPS_Editor.app.interfaces['secondary'].addCustom('input');
-		NGPS_Editor.app.interfaces['secondary']['link'].id =  "#REG:EDIT_VIDEO_LINK:placeholder"
-		Regional.inspectObject(NGPS_Editor.app.interfaces['secondary']['link']);
+		factory.dock.interfaces['secondary'] = new factory.dock.UI({parent:factory.dock.parent,title:"#REG:EDIT_Add_Video:innerHTML"})
+		factory.dock.interfaces['secondary'].type = "video";
+		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-link',0,0,{no_anchor:true});
+		factory.dock.interfaces['secondary']['link'] = factory.dock.interfaces['secondary'].addCustom('input');
+		factory.dock.interfaces['secondary']['link'].id =  "#REG:EDIT_VIDEO_LINK:placeholder"
+		Regional.inspectObject(factory.dock.interfaces['secondary']['link']);
 
-		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-open', NGPS_Editor.app.fileDialog,"#REG:EDIT_browse:innerHTML");
-		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-ok', NGPS_Editor.app.succesSecondaryInterface);
-		NGPS_Editor.app.interfaces['secondary'].addButton('glyphicon glyphicon-remove', NGPS_Editor.app.cancelSecondaryInterface);
+		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-open', factory.dock.fileDialog,"#REG:EDIT_browse:innerHTML");
+		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-ok', factory.dock.succesSecondaryInterface);
+		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-remove', factory.dock.cancelSecondaryInterface);
 
-		//NGPS_Editor.app.onLoadedFile = NGPS_Editor.app.addVideoFromFile;
+		//factory.dock.onLoadedFile = factory.dock.addVideoFromFile;
 	}
 	//edit interface functions
 	this.onEnlarge = function(dx,dy)
 	{
 		var minD = (dx<dy)?dx:dy;
-		var amount = (NGPS_Editor.app.EditUI['target'].getWidth()+minD)/NGPS_Editor.app.EditUI['target'].getWidth();
-		NGPS_Editor.app.EditUI['target'].enlarge(amount);
+		var amount = (factory.dock.EditUI['target'].getWidth()+minD)/factory.dock.EditUI['target'].getWidth();
+		factory.dock.EditUI['target'].enlarge(amount);
 	}
 	//edit interface functions
 	this.onChangeWidthRight = function(dx,dy)
 	{
-		NGPS_Editor.app.EditUI['target'].setWidth(NGPS_Editor.app.EditUI['target'].getWidth()+dx);
-		NGPS_Editor.app.focusEditInterface();
+		factory.dock.EditUI['target'].setWidth(factory.dock.EditUI['target'].getWidth()+dx);
+		factory.dock.focusEditInterface();
 	}
 	//edit interface functions
 	this.onChangeWidthLeft = function(dx,dy)
 	{
-		NGPS_Editor.app.EditUI['target'].setWidth(NGPS_Editor.app.EditUI['target'].getWidth()-dx);
-		NGPS_Editor.app.EditUI['target'].move(dx,0);
+		factory.dock.EditUI['target'].setWidth(factory.dock.EditUI['target'].getWidth()-dx);
+		factory.dock.EditUI['target'].move(dx,0);
 	}
 	//edit interface functions
 	this.onChangeHeightBottom = function(dx,dy)
 	{
-		NGPS_Editor.app.EditUI['target'].setHeight(NGPS_Editor.app.EditUI['target'].getHeight()+dy);
+		factory.dock.EditUI['target'].setHeight(factory.dock.EditUI['target'].getHeight()+dy);
 	}
 	//edit interface functions
 	this.onChangeHeightTop = function(dx,dy)
 	{
-		NGPS_Editor.app.EditUI['target'].setHeight(NGPS_Editor.app.EditUI['target'].getHeight()-dy);
-		NGPS_Editor.app.EditUI['target'].move(0,dy);
+		factory.dock.EditUI['target'].setHeight(factory.dock.EditUI['target'].getHeight()-dy);
+		factory.dock.EditUI['target'].move(0,dy);
 	}
 	this.onDelete = function()
 	{
-		NGPS_Editor.app.EditUI.target.discard();
-		NGPS_Editor.app.stopEditInterface();
+		factory.dock.EditUI.target.discard();
+		factory.dock.stopEditInterface();
 	}
 	this.onRotate = function(dx,dy)
 	{
-		NGPS_Editor.app.EditUI['rotate'].move(dx,dy)
-		var center = NGPS_Editor.app.EditUI.target.getCenter();
-		var ctl   = NGPS_Editor.app.EditUI['rotate'].getCenter();
+		factory.dock.EditUI['rotate'].move(dx,dy)
+		var center = factory.dock.EditUI.target.getCenter();
+		var ctl   = factory.dock.EditUI['rotate'].getCenter();
 		var angle = Math.atan2( center.y - ctl.y , center.x - ctl.x )
-		if(NGPS_Editor.app.EditUI['rotate'].lastEditAngle)
+		if(factory.dock.EditUI['rotate'].lastEditAngle)
 		{
-			var dif = ( angle - NGPS_Editor.app.EditUI['rotate'].lastEditAngle )*180/Math.PI;
-			NGPS_Editor.app.EditUI.target.rotate(dif);
+			var dif = ( angle - factory.dock.EditUI['rotate'].lastEditAngle )*180/Math.PI;
+			factory.dock.EditUI.target.rotate(dif);
 		}
-		NGPS_Editor.app.EditUI['rotate'].lastEditAngle = angle;
+		factory.dock.EditUI['rotate'].lastEditAngle = angle;
+	}
+	//DOCK code
+	this.dockApp = function(app){
+		if(!factory.dock.dockedApps[app])
+		{
+			factory.dock.dockedApps[app] = {};
+			factory.dock.dockedApps[app].host = factory.newIsolatedContainer({type:"span"});
+			var parent = factory.dock.interfaces['main'].addCustom(factory.dock.dockedApps[app].host);
+			factory.dock.dockedApps[app].host.onMoved = function(){};//cancel movement
+			factory.dock.dockedApps[app].host.loadApp(app);
+		}
+	}
+	this.undockApp = function(app){
+		if(factory.dock.dockedApps[app])
+		{
+			factory.dock.dockedApps[app].host.discard();
+			//rearrange others
+		}
 	}
 });
