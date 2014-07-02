@@ -708,6 +708,8 @@ this.container = function(properties)
 			//lookup app
 			requirejs(['plugins/'+app+"/main.js"],function(){
 				//AppMgr.loadedApps[app] = eval(app);
+				host.appName = app;
+				host.appPath = 'plugins/'+app;
 				ldApp(AppMgr.loadedApps[app]);
 			});
 		}
@@ -718,7 +720,7 @@ this.container = function(properties)
 		{
 			host.extend(AppCtl);
 			host.ainit(app);
-			
+
 			if(host.events["appLoaded"])
 				GEM.fireEvent({event:"appLoaded",target:host});
 			

@@ -408,7 +408,7 @@ loadAppCode("edit",function(data)
 		document.execCommand("SaveAs");
 	}
 
-	this.onAddContainer = function(noEvent){
+	this.onAddContainer = function(noEvent,descriptor){
 		if(!factory.dock.node)
 			factory.dock.node = factory.root;
 
@@ -423,7 +423,7 @@ loadAppCode("edit",function(data)
 			dx = cameraInfo.x;
 			dy = cameraInfo.y;
 		}
-		var container = factory.newContainer({x:x-dx,y:y-dy,width:factory.dock.possize.width,height:factory.dock.possize.height},factory.dock.tags[2],factory.dock.node);
+		var container = factory.newContainer(utils.merge({x:x-dx,y:y-dy,width:factory.dock.possize.width,height:factory.dock.possize.height},descriptor),factory.dock.tags[2],factory.dock.node);
 		
 		if(noEvent == true)
 			return container;
@@ -486,7 +486,7 @@ loadAppCode("edit",function(data)
 
 	this.onAddText = function()
 	{
-		var container = factory.dock.onAddContainer(true);
+		var container = factory.dock.onAddContainer(true,{border_size:"1px",border_type:"solid",background:"transparent",borders:["0px"]});
 		factory.dock.stopEditInterface();
 		container.addEventListener("triggered",function(data){ factory.dock.startSpecialEditInterface(data['target']);});
 		factory.dock.startSpecialEditInterface(container);

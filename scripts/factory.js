@@ -46,7 +46,7 @@ factory.init = function(mode) // editor init
 	root.extend(Camera);
 	root.interactive(true);
 	//root.DOMreference.addEventListener('mouseout' ,root.onMouseUp,  false);
-	root.cstart(1);
+	root.cstart(10);
 	factory.root = root;
 	factory.initialised = true;
 	
