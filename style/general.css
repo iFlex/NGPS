@@ -3,3 +3,17 @@
   -webkit-user-select: none;
   -ms-user-select: none;
 }
+
+.spacing{
+	width:10px;
+}
+.dropdown_cell{
+	padding:0 15px 0 15px;
+}
+.dropdown_cell_small{
+	padding:0 1px;
+}
+.color_preview{
+	width:16px;
+	height:16px;
+}

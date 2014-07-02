@@ -15,6 +15,50 @@ utils.merge = function(a,b,option){
 	}
 	return a;
 }
+utils.makeHTML = function(markup,parent)
+{
+	for( i in markup )
+	{
+		var type = Object.keys(markup[i])[0];
+		var child = document.createElement(type);
+		keys = Object.keys(markup[i][type]);
+		//console.log("Key:"+type+" "+keys.length+" : "+utils.debug(keys));
+		
+		for( j = 0 ; j < keys.length ; ++j )
+		{
+			if(keys[j] != "children")
+			{
+				if(keys[j].indexOf("data-") > -1)
+				{
+					var attrib = keys[j].slice(5, keys[j].length);
+					child.dataset[attrib] = markup[i][type][keys[j]]
+					continue;
+				}
+				if(keys[j] == "class")
+				{
+					child.className = markup[i][type][keys[j]];
+					continue;
+				}
+				//style
+				if(keys[j] == "style" || keys[j] == "cssText")
+				{
+					keys[j] = "cssText";
+					child.style[ keys[j] ] = markup[i][type][keys[j]];
+					continue;
+				}
+				//normal properties
+				child[ keys[j] ] = markup[i][type][keys[j]];
+			}
+			else
+				utils.makeHTML(markup[i][type][keys[j]],child); 
+		}
+		
+		if(!parent)
+			return child;
+		
+		parent.appendChild(child);
+	}
+}
 utils.debug = function(elem,newline,verbose)
 {
 	if(!newline)

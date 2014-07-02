@@ -149,11 +149,12 @@ loadAppCode("edit",function(data)
 		factory.dock.interfaces['main']	= new factory.dock.UI({parent:factory.dock.parent,title:"NGPS - "+factory.presentation.name});
 		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-plus',factory.dock.onAddContainer)//,"#REG:EDIT_add:innerHTML");
 		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-picture',factory.dock.onAddPicture)//,"#REG:EDIT_picture:innerHTML");
-		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-font',factory.dock.onAddContainer)//,"#REG:EDIT_text:innerHTML");
+		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-font',factory.dock.onAddText)//,"#REG:EDIT_text:innerHTML");
 		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-film',factory.dock.onAddVideo)//,"#REG:EDIT_video:innerHTML");
 		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-save',factory.dock.save)//,"#REG:EDIT_save:innerHTML");
 		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-th',factory.dock.toggleCli);
 		//factory.dock.dockApp('link');
+		factory.newGlobalApp("text");
 		//edit UI
 		var descriptor = {x:0,y:0,width:32,height:32,background:"white",border_size:"0px"};
 		factory.dock.EditUI['rotate']  = factory.newContainer(descriptor,"simple_rect",factory.root);
@@ -198,7 +199,7 @@ loadAppCode("edit",function(data)
 		for( k in Descriptors.containers)
 			factory.dock.tags.push(k);
 
-		factory.root.addEventListener("triggered",this.stopEditInterface);
+		factory.root.addEventListener("triggered",factory.dock.stopEditInterface);
 	}
 	this.init = function() //called only one when bound with container
 	{
@@ -243,6 +244,7 @@ loadAppCode("edit",function(data)
 	{
 		factory.dock.stopEditInterface();
 		factory.dock.EditUI.target = target;
+		factory.dock.node = target;
 		//add event listeners
 		target.addEventListener("changeWidth",this.focusEditInterface);
 		target.addEventListener("changeHeight",this.focusEditInterface);
@@ -251,10 +253,48 @@ loadAppCode("edit",function(data)
 		//shot interface
 		this.focusEditInterface();
 	}
+	this.startSpecialEditInterface = function(target)
+	{
+		factory.dock.stopEditInterface();
+		factory.dock.EditUI.target = target;
+		factory.dock.node = target;
+		//add event listeners
+		target.addEventListener("changeWidth",this.focusEditInterface);
+		target.addEventListener("changeHeight",this.focusEditInterface);
+		target.addEventListener("changePosition",this.focusEditInterface);
+		//target.addEventListener("changeAngle",this.focusEditInterface);
+		//shot interface
+		factory.dock.isSpecialInterface = true;
+		this.focusSpecialEditInterface();
+	}
+	this.stopSpecialEditInterface = function()
+	{
+		if(factory.dock.EditUI.target)
+		{
+			//remove event listeners
+			factory.dock.EditUI.target.removeEventListener("changeWidth",factory.dock.focusEditInterface);
+			factory.dock.EditUI.target.removeEventListener("changeHeight",factory.dock.focusEditInterface);
+			factory.dock.EditUI.target.removeEventListener("changePosition",factory.dock.focusEditInterface);
+			//hide interface
+			for( k in factory.dock.EditUI )
+				if( k != "target" )
+					factory.dock.EditUI[k].hide();
+
+			factory.dock.EditUI.target = 0;	
+			factory.dock.node = 0;
+			factory.dock.isSpecialInterface = 0;
+		}
+		keyboard.hideEditor();
+	}
 	this.stopEditInterface = function()
 	{
 		if(factory.dock.EditUI.target)
 		{
+			if(factory.dock.isSpecialInterface)
+			{
+				factory.dock.stopSpecialEditInterface(factory.dock.EditUI.target)
+				return;
+			}
 			//remove event listeners
 			factory.dock.EditUI.target.removeEventListener("changeWidth",factory.dock.focusEditInterface);
 			factory.dock.EditUI.target.removeEventListener("changeHeight",factory.dock.focusEditInterface);
@@ -265,7 +305,11 @@ loadAppCode("edit",function(data)
 				if( k != "target" )
 					factory.dock.EditUI[k].hide();
 			factory.dock.EditUI.target = 0;	
+			factory.dock.node = 0;
+			factory.dock.isSpecialInterface = 0;
 		}
+		keyboard.hideEditor();
+		
 	}
 	//TODO:NOT WORKING PORPERLY 
 	this.setEditInterfaceAngle = function(angle)
@@ -285,7 +329,13 @@ loadAppCode("edit",function(data)
 				factory.dock.EditUI[k].setAngle(angle);
 			}
 	}
+	//TODO: Not working properly for nested object
 	this.focusEditInterface = function(e){
+		if(factory.dock.isSpecialInterface)
+		{
+			factory.dock.focusSpecialEditInterface(e);
+			return;
+		}
 		var target =  factory.dock.EditUI.target;
 		var targetPos = target.getPos();
 		
@@ -317,7 +367,26 @@ loadAppCode("edit",function(data)
 		
 		//factory.dock.setEditInterfaceAngle(target.angle);
 	}
+	this.focusSpecialEditInterface = function(e){
+		var target =  factory.dock.EditUI.target;
+		var targetPos = target.getPos();
+		keyboard.focusEditor(target);
+		factory.dock.EditUI['changeWidthRight'].show();
+		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2 )	
+	
+		factory.dock.EditUI['changeHeightBottom'].show();
+		factory.dock.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight() )
 
+		factory.dock.EditUI['delete'].show();
+		factory.dock.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight() )
+		factory.dock.EditUI['delete'].onTrigger = this.onDelete;
+		factory.dock.EditUI['delete'].onMoved = function(){};
+
+		factory.dock.EditUI['more'].show();
+		factory.dock.EditUI['more'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight() )
+		
+		//factory.dock.setEditInterfaceAngle(target.angle);
+	}
 	this.loadFromDataURL = function(url)
 	{
 		var reader = new FileReader();
@@ -339,7 +408,7 @@ loadAppCode("edit",function(data)
 		document.execCommand("SaveAs");
 	}
 
-	this.onAddContainer = function(){
+	this.onAddContainer = function(noEvent){
 		if(!factory.dock.node)
 			factory.dock.node = factory.root;
 
@@ -355,6 +424,10 @@ loadAppCode("edit",function(data)
 			dy = cameraInfo.y;
 		}
 		var container = factory.newContainer({x:x-dx,y:y-dy,width:factory.dock.possize.width,height:factory.dock.possize.height},factory.dock.tags[2],factory.dock.node);
+		
+		if(noEvent == true)
+			return container;
+
 		container.addEventListener("triggered",factory.dock._startEditInterface);
 		factory.dock.startEditInterface(container);
 		return container;
@@ -413,7 +486,10 @@ loadAppCode("edit",function(data)
 
 	this.onAddText = function()
 	{
-
+		var container = factory.dock.onAddContainer(true);
+		factory.dock.stopEditInterface();
+		container.addEventListener("triggered",function(data){ factory.dock.startSpecialEditInterface(data['target']);});
+		factory.dock.startSpecialEditInterface(container);
 	}
 
 	this.addVideo = function(link,info)

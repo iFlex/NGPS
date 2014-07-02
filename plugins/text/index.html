@@ -1,35 +1,220 @@
-
-<!DOCTYPE html>
-<!--
-Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
-For licensing, see LICENSE.md or http://ckeditor.com/license
--->
 <html>
-<head>
-	<meta charset="utf-8">
-	<title>Inline Editing by Code &mdash; CKEditor Sample</title>
-	<script src="ckeditor.js"></script>
-	<link href="sample.css" rel="stylesheet">
-	<style>
+	<head>
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 
-		#editable
-		{
-			padding: 10px;
-			float: left;
-		}
+		<style>
+			.spacing{
+				width:10px;
+			}
+			.dropdown_cell{
+				padding:0 15px 0 15px;
+			}
+			.dropdown_cell_small{
+				padding:0 1px;
+			}
+			.color_preview{
+				width:16px;
+				height:16px;
+			}
+		</style>
 
-	</style>
-</head>
-<body>
-	<div id="editable" contenteditable="true">
-		<p> Click to edit text </p>
-	</div>
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="jquery.js"></script>
+		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<script>
+			this.interface = {};
+			interface.textSize = 12;
+			interface.maxTextSize = 500;
+			interface.minTextSize = 5;
+			interface.textChangeAm = 2;
 
-	<script>
-		// We need to turn off the automatic editor creation first.
-		CKEDITOR.disableAutoInline = true;
+			interface.subject = 0;
+			interface.isBold = false;
+			interface.isItalic = false;
+			interface.align = "left";
+			interface.indentationLevel = 0;
 
-		var editor = CKEDITOR.inline( 'editable' );
-	</script>
-</body>
+			interface.updateText = function()
+			{
+				//for now change whole text size
+				if(interface.subject)
+				{
+					interface.subject.style.color = interface.current_color.style.background;
+					interface.subject.style.fontSize = interface.textSize+"px";
+					interface.subject.style.fontStyle = (interface.isItalic)?"italic":"";
+					interface.subject.style.fontWeight = (interface.isBold)?"bold":"";
+					interface.subject.style.textAlign = interface.align;
+					document.getElementById('current_alignment').className = "glyphicon glyphicon-align-"+interface.align;
+					document.getElementById('boldCtl').className = (interface.isBold)?"active":"";
+					document.getElementById('italicCtl').className = (interface.isItalic)?"active":"";
+				}
+			}
+			interface.onCurrentColorChanged = function(e)
+			{
+				interface.current_color.style.background = e.target.style.background;
+				interface.updateText();
+				//TODO:notify parent
+			}
+			interface.onTextEnlarged = function()
+			{
+				if(interface.textSize + interface.textChangeAm <= interface.maxTextSize)
+					interface.textSize += interface.textChangeAm;
+				interface.updateText();
+				//TODO:notify parent		
+			}
+			interface.onTextShrinked = function()
+			{
+				if(interface.textSize - interface.textChangeAm >= interface.minTextSize)
+					interface.textSize -= interface.textChangeAm;
+				interface.updateText();
+				//TODO:notify parent		
+			}
+			
+			interface.onToggleBold = function(e)
+			{
+				interface.isBold = !interface.isBold;
+				interface.updateText();
+			}
+			
+			interface.onToggleItalic = function(e)
+			{	
+				interface.isItalic= !interface.isItalic;
+				interface.updateText();
+			}
+			interface.alignLeft = function(e)
+			{
+				interface.align = "left";
+				interface.updateText();
+			}
+			interface.alignCenter = function(e)
+			{
+				interface.align = "center";
+				interface.updateText();
+			}
+			interface.alignRight = function(e)
+			{
+				interface.align = "right";
+				interface.updateText();
+			}
+			interface.alignJustified = function(e)
+			{
+				interface.align = "justify";
+				interface.updateText();
+			}
+
+			var palette = ["#000000","#ffffff","#9A0511","#273F27","#E8C03B","#E6A285","#E65665","#000000","#ffffff","#9A0511","#273F27","#E8C03B","#E6A285","#E65665","#000000","#ffffff","#9A0511","#273F27","#E8C03B","#E6A285","#E65665"];
+			window.onload = function(){
+				interface.current_color = document.getElementById('current_color');
+				interface.current_color.style.background = palette[0];
+
+				//alert("running...");
+				var perWidth = 10;
+				var currentNode = 0;
+				var root = document.getElementById('color_palette');
+				
+				function cellSpace(){
+					var spacing = document.createElement('td');
+					spacing.className = "dropdown_cell_small";
+					content.className = "color_preview";
+					return spacing;
+				}
+
+				for(i in palette)
+				{
+					if(!i || i%perWidth == 0)
+					{
+						currentNode = document.createElement('tr');
+						var space = document.createElement('tr');
+						space.style.height = "2px";
+						root.appendChild(currentNode);
+						root.appendChild(space);
+					}
+					
+					var currentCell = document.createElement('td');
+					var content = document.createElement('div');
+					content.style.background = palette[i];
+					content.onclick = interface.onCurrentColorChanged;
+					currentCell.appendChild(content);
+
+					currentNode.appendChild(cellSpace());
+					currentNode.appendChild(currentCell);
+					if(i%perWidth == perWidth-1)
+						currentNode.appendChild(cellSpace())
+
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div style="top:300px;left:100px;width:800;height:300px;background:black">
+		<nav class="navbar navbar-default navbar-static-top" role="navigation">
+            <div class="container-fluid">
+                <ul class="nav navbar-nav navbar-left">
+					<li><a href="#" onclick = "interface.onTextShrinked();"><span class="glyphicon glyphicon-chevron-down" ></span></a></li>
+					<li><a href="#" onclick = "interface.onTextEnlarged();"><span class="glyphicon glyphicon-chevron-up" ></span></a></li>
+					<li class="dropdown">
+			          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+			          	<table>
+			          		<tr>
+			          			<td>
+			          				<div id="current_color" class="color_preview"></div>
+			          			</td><td>
+			          				<span class="caret"></span>
+			          			</td>
+			          		</tr>
+			          	</table>
+			      	  </a>
+			          <ul class="dropdown-menu" role="menu">
+			            <table id="color_palette">
+			            </table>
+			          </ul>
+			        </li>
+                	<li id="boldCtl"><a href="#" onclick="interface.onToggleBold();" ><span class="glyphicon glyphicon-bold" ></span></a></li>
+                    <li id="italicCtl"><a href="#" onclick="interface.onToggleItalic();" ><span class="glyphicon glyphicon-italic" ></span></a></li>
+
+                    <li class="dropdown">
+			          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span id="current_alignment" class="glyphicon glyphicon-align-left"></span> <span class="caret"></span></a>
+			          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+			            <center>
+				            <table>
+				            	<tr>
+						            <td class="dropdown_cell">
+						            	<li><a href="#" onclick="interface.alignLeft();"><span class="glyphicon glyphicon-align-left" ></span></a></li>
+						            </td>
+				                    <td class="dropdown_cell">
+				                    	<li><a href="#" onclick="interface.alignCenter();"><span class="glyphicon glyphicon-align-center" ></span></a></li>
+				                    </td>
+				                    <td class="dropdown_cell">
+				                    	<li><a href="#" onclick="interface.alignRight();"><span class="glyphicon glyphicon-align-right" ></span></a></li>
+				                    </td>
+				                    <td class="dropdown_cell">
+				                    	<li><a href="#" onclick="interface.alignJustified();"><span class="glyphicon glyphicon-align-justify" ></span></a></li>
+				          			</td>
+				          		</tr>
+				          	</table>
+			         	</center>
+			          </ul>
+			        </li>
+                    <li><a href="#"><span class="glyphicon glyphicon-list" ></span></a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-indent-left" ></span></a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-indent-right" ></span></a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+        <br>
+        <br>
+        <br>
+        <br>
+        <div id="text_example" style="width:400px;height:300px;border:1px solid">
+        	This is a test! Please be careful when handling it!
+        	<br>If you don't care about this text please leave it alone<br>
+        	Do not be an asshole!
+        </div>
+        <script>
+        	//TEST
+        	interface.subject = document.getElementById('text_example');
+        </script>
+	</body>
 </html>
