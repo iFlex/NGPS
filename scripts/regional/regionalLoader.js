@@ -67,7 +67,7 @@ Regional.tryToApply = function(str,obj)
 				var message = str.slice(0,separator);
 				var apply_method = str.slice(separator+1,str.length);
 				
-				console.log("str:"+str+" msg:"+message+" method:"+apply_method+" le message:"+Regional.messages[Regional.language][message]+" messages:"+utils.debug(Regional.messages[Regional.language]));
+				console.log("str:"+str+" msg:"+message+" method:"+apply_method+" le message:"+Regional.messages[Regional.language][message]);
 				//apply the message
 				if(Regional.messages && Regional.messages[Regional.language] && Regional.messages[Regional.language][message])
 				{
@@ -97,6 +97,9 @@ Regional.inspectObject = function(obj,message)
 			Regional.tryToApply(str,obj);
 		}
 	}	
+	var all = obj.children;//document.getElementsByTagName("*");
+	for (var i=0; i < all.length; i++)
+		Regional.inspectObject(all[i]);
 }
 Regional.translate = function(root,message)
 {
@@ -109,16 +112,12 @@ Regional.translate = function(root,message)
 		Regional.queue[Regional.index++] = {obj:root}
 		return;
 	}
-
-	var all = root.DOMreference.children;//document.getElementsByTagName("*");
 	
 	Regional.inspectObject(root.DOMreference,message);
-	for (var i=0, max=all.length; i < max; i++)
-		Regional.inspectObject(all[i]);
 	
 	//extend to children
-	for( k in root.children )
-		Regional.translate(root.children[k]);
+	//for( k in root.children )
+	//	Regional.translate(root.children[k]);
 }
 //initialise
 Regional.includeLanguagePack();

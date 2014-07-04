@@ -9,10 +9,30 @@ pLOAD.root = 0;
 this.loadTree = 0;
 pLOAD._unit = function(node,root)
 {
+	var croot = 0;
+	if(root)
+		croot = root.addChild({cssText:node.css});
+	else
+	{
+		croot = new container({cssText:node.css})
+		croot.load();
+	}
+	if(node.camera)
+	{
+		croot.extend(Camera);
+		croot.extend(Interactive);
+		croot.interactive(true);
+		croot.cstart(node.camera.interval);
+	}
+	//add content
+	if(node.innerHTML && node.innerHTML.length)
+		croot.DOMreference.innerHTML = decodeURIComponent(node.innerHTML);
+
+	//extensions
 	for(k in node.children)
 	{
-		var croot = root.addChild(loadTree[node.children[k]].css);
-		pLOAD._unit( loadTree[node.children[k]],croot);
+		if(loadTree[node.children[k]])
+			pLOAD._unit( loadTree[node.children[k]],croot);
 	}
 }
 pLOAD.proceed = function(jsn)
@@ -23,16 +43,7 @@ pLOAD.proceed = function(jsn)
 		if(loadTree)
 		{
 			var k = Object.keys(loadTree)[0];
-			pLOAD.root = new container({cssText:loadTree[k].css});
-			pLOAD.root.load();
-			pLOAD.root.extend(Interactive);
-			pLOAD.root.interactive(true);
-			if(loadTree[k].camera)
-			{
-				pLOAD.extend(Camera);
-				pLOAD.root.cstart(loadTree[k].camera.interval);
-			}
-			pLOAD._unit(loadTree[k],pLOAD.root);
+			pLOAD._unit(loadTree[k])
 		}
 		else
 			setTimeout(waitForJson,50);

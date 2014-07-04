@@ -80,7 +80,7 @@ Camera.cstart = function(interval)
 	this.crelations = {};
 	this.wasCalled = {};
 	//
-	this.boundaries = {};	
+	this.boundaries = {};
 	// Built in Fast Callbacks
 	this.onMoved = this.cmove;
 	this.onMouseDown = this.onMoveStart;
@@ -487,10 +487,33 @@ Camera.unsetBoundaries = function(boundaries)
 }
 
 //TODO: add tween function for camera properties ( pos, zoom, rot, pan )
-Camera.tween = function(data)
+Camera.tween = function(data,time)
 {
-	var interval = 1;
-	if(data['interval'])
-		interval = data['interval'];
-
+	this.ccancel('tween');
+	console.log("prep tween:"+time+" "+this.cinterval);
+	var ctx = this;
+	var steps = time/this.cinterval;
+	if(steps < 1)
+		steps = 1;
+	console.log("steps:"+steps)
+	var delta = 0;
+	function _unit()
+	{
+		
+		//do transforms
+		if(data['zoom'])
+		{
+			delta = (data['zoom'] - ctx.czoomLevel)/steps;
+			//regula de 3 simpla
+			var w = ctx.display.getWidth()
+			var intendedZ = w*(ctx.czoomLevel+delta)/ctx.czoomLevel
+			ctx.czoom(intendedZ/w);
+		}
+		//console.log("tweenwork:"+ctx.ctweenInfo.steps)
+		steps--;
+		//stop
+		if(steps <= 0)
+			ctx.ccancel('tween');
+	}
+	this.cops['tween'] = setInterval(_unit,this.cinterval);
 }

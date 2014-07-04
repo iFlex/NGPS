@@ -5,8 +5,9 @@
 * 	This module reads the presentation configuration and saves in the form of a website
 */
 this.save = {};
-this.saveTree = {};
+save.saveTree = {};
 save.nestCount = 0;
+save.ignore = {};
 //just for testing
 this.saveBuffer = 0;
 //TODO check if memory allows a ram save
@@ -24,6 +25,7 @@ save._unit = function(node,operation_mode)
 	//now save the most relevant stuff
 	st[node.UID].css = node.DOMreference.style.cssText;
 	st[node.UID].parent = (node.parent)?node.parent.UID:null;
+	st[node.UID].innerHTML = encodeURIComponent(node.DOMreference.innerHTML);
 	//now look for static children
 	if(node.child)
 	{
@@ -45,20 +47,23 @@ save._unit = function(node,operation_mode)
 		st[node.UID].camera.interval = node.cinterval;
 		st[node.UID].camera.relations = node.crelations;
 		st[node.UID].camera.boundaries = node.boundaries;
+		save.ignore[ node.display.UID ] = node.UID;
 	}
 	st[node.UID].children = [];
 	//save links
 	//save callbacks
 	//save certain event bindings
 	if( operation_mode['build'] == "continuous")
-		this.saveTree[node.UID] = st[node.UID];
+		save.saveTree[node.UID] = st[node.UID];
 	if( operation_mode['build'] == "chunked")
 	{
 		//do somethign with saved chunk st
 	}
+	
 	for(k in node.children)
 	{
 		st[node.UID].children.push(node.children[k].UID);
+		
 		if(operation_mode['iteration'] == "recursive")
 			save._unit(node.children[k],operation_mode);
 		if(operation_mode['iteration'] == "asynchronous")
@@ -77,12 +82,12 @@ save._unit = function(node,operation_mode)
 save.RAMsave = function(){
 	
 	//clean save tree
-	delete this.saveTree;
-	this.saveTree = {};
+	delete  save.saveTree;
+	save.saveTree = {};
 	//start save
-	save._unit(factory.root,{build:"continuous",iteration:"recursive"});
+	save._unit(factory.root.display,{build:"continuous",iteration:"recursive"});
 	//now stringify
-	saveBuffer = JSON.stringify(this.saveTree);
+	saveBuffer = JSON.stringify(save.saveTree);
 
 	return saveBuffer;
 }

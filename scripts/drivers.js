@@ -42,8 +42,7 @@ utils.makeHTML = function(markup,parent)
 				//style
 				if(keys[j] == "style" || keys[j] == "cssText")
 				{
-					keys[j] = "cssText";
-					child.style[ keys[j] ] = markup[i][type][keys[j]];
+					child.style.cssText = markup[i][type][keys[j]];
 					continue;
 				}
 				//normal properties

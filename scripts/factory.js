@@ -91,14 +91,14 @@ factory.newContainer = function(possize,tag,parent,addToFrame)
 	return obj;
 }
 
-factory.createContainer = function(descriptor,parent)
+factory.createContainer = function(descriptor,parent,addToFrame)
 {
 	if(!factory.initialised)
 		factory.init();
 	
 	if(!parent)
 		parent = factory.root;
-	var obj = parent.addChild(descriptor);
+	var obj = parent.addChild(descriptor,addToFrame);
 	if(obj)
 	{
 		obj.load();
@@ -120,13 +120,13 @@ factory.newIsolatedContainer = function(descriptor)
 	return obj;
 }
 
-factory.newCamera = function (possize,tag,parent,interval)
+factory.newCamera = function (possize,tag,parent,interval,addToFrame)
 {
 	if(!factory.initialised)
 		factory.init();
 
 	possize.isCamera = true;
-	var obj = factory.newContainer(possize,tag,parent)
+	var obj = factory.newContainer(possize,tag,parent,addToFrame)
 	if(obj)
 	{
 		//possibly fetch camera tag for camera configurations

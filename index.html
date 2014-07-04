@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
     <head id="head">
@@ -17,7 +18,7 @@
             });
             //include testing
             requirejs(['cli']);
-            requirejs(['drivers','factory'],function(){
+            requirejs(['drivers','factory','save'],function(){
                 //iniialise editor mode
                 setTimeout(function(){
                     factory.init('editor');
