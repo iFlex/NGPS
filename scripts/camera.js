@@ -56,7 +56,11 @@ Camera.cstart = function(interval)
 	this.display = 0; // this is the display area used for move, zoom, rotate
 	//camera focus
 	//camera content properties
+	//zoom
 	this.czoomLevel = 1;
+	this.zoomDX = 0;
+	this.zoomDY = 0;
+	//rotate
 	this.cangle = 0;
 	//inertia
 	this.tInertia = 0;
@@ -121,6 +125,14 @@ Camera.maintainBoundaries = function(data)
 	*/
 }
 
+Camera.cgetPos = function(refX,refY)
+{
+	var pos = this.display.getPos(refX,refY);
+	pos.x += this.zoomDX;
+	pos.y += this.zoomDY;
+	return pos;
+}
+
 Camera.showAnimations = function()
 {
 	str = "Camera_animations:[";
@@ -180,7 +192,10 @@ Camera.getContentPositioning = function()
 		return null;
 
 	var pos = this.display.getPos();
-	return {x:pos.x,y:pos.y,width:this.display.getWidth(),height:this.display.getHeight()};
+	return { x:pos.x+this.zoomDX,
+		     y:pos.y+this.zoomDY,
+		     width:this.display.getWidth(),
+		     height:this.display.getHeight() };
 }
 //TODO: calculate boundaries and add boundary limit enforcing
 Camera.cmove = function(dx,dy)
@@ -264,7 +279,11 @@ Camera.onMoveEnd = function(ctx,e)
 		this.ccancel('measureInertia');
 		ok = true;
 	}
-	if(this.allowInertia && ok)
+	if(ok)
+		this.applyInertia();
+}
+Camera.applyInertia = function(){
+	if(this.allowInertia)
 	{
 		var root = this;
 		
@@ -331,7 +350,10 @@ Camera.czoom = function(amount,ox,oy)
 	//check cross referencing
 	if(this.antiCrossReff("czoom",1))
 		return;
-	
+	//maintain displacement from original position
+	this.zoomDX += this.display.getWidth()*( 1 - amount ) / 2;
+	this.zoomDY += this.display.getHeight()*( 1 - amount ) / 2;
+	//
 	this.czoomLevel = next;
 	var torig = this.cgetTransformOrigin(ox,oy);
 	this.display.scale(amount,torig['ox'],torig['oy'])
@@ -367,7 +389,6 @@ Camera.crotate = function(amount,ox,oy) //SLOW & POSITIONING IMPERFECTIONS
 
 	this.antiCrossReff("crotate",0);
 }
-
 //TODO 3D like camera pan
 Camera.cpan = function(panx,pany)
 {
@@ -378,7 +399,6 @@ Camera.cpan = function(panx,pany)
 
 //TODO perfect focus exit conditin and add parameters for selective exclusion of tweening
 // eg. don't zoom to level, don't turn to level, don't pan camera 
-//TODO adapt to new move & zoom system
 Camera.cfocusOn = function(target,options)
 {
 	console.log("Camera focusing on:"+target+" "+target.UID);
@@ -389,52 +409,56 @@ Camera.cfocusOn = function(target,options)
 		clearInterval(this.cops['focusOn']);
 	
 	var camera = this;
-	var realTarget = null;
-	var globalPos = {x:0,y:0};
-	var beginning = true;
-	var realTarget = target;
-	//find correct parent to focus on ( in case target is nested )
-	function getCorrectFocusTarget(t){
-		if( t.parent && t.parent == camera )
-		{	
-			realTarget = t;
-			return false;
-		}
-		else
-		{
-			if(beginning)
-				globalPos = t.getPos();
-			else
-			{
-				var lepos = t.getPos();
-				globalPos.x += lepos.x;
-				globalPos.y += lepos.y;
-				console.log("found Pos:"+globalPos.x+" "+globalPos.y);
-			}
-			beginning = false;
-		}
-		return getCorrectFocusTarget(t.parent);
+	var destination = this.getPos(0.5,0.5);//destination position
+	
+	var pace = 20;
+	var focusWidth = this.getWidth();
+	var focusHeight = this.getHeight();
+	if(options)
+	{
+		if(options['pace'])
+			pace = options['pace'];
+		
+		if(options['focusWidth'])
+			focusWidth = options['focusWidth'];
+
+		if(options['focusHeight'])
+			focusHeight = options['focusHeight'];
 	}
-	var fail = getCorrectFocusTarget(target);
-	if(fail)
-		return;
 
 	function focusOn()
 	{
 		
-		var targetPos = realTarget.getPos();
-		targetPos.x += globalPos.x + target.getWidth()/2;
-		targetPos.y += globalPos.y + target.getHeight()/2;
+		var camPos = camera.cgetPos(0,0);
+		var targetPos = target.getPos(0.5,0.5);
+		camPos.x += targetPos.x;
+		camPos.y += targetPos.y;
 
-		var camPos    = camera.getCenter();
-	
-		if( Math.abs( targetPos.x - camPos.x) > 5 || Math.abs( targetPos.y - camPos.y) > 5) //|| Math.abs(target.angle) > 0 )
+		var zoomWrap = (focusWidth / (target.getWidth()*camera.czoomLevel));
+		var zoomHrap = (focusHeight / (target.getHeight()*camera.czoomLevel));
+		var zoom = ( zoomWrap < zoomHrap ) ? zoomWrap : zoomHrap;
+
+		//console.log("zoom:"+zoom+" zoomW:"+zoomWrap+" zoomH:"+zoomHrap + " fw:"+focusWidth+" w:"+target.getWidth()*camera.czoomLevel + " czl:"+camera.czoomLevel);
+		if( Math.abs( destination.x - camPos.x) > 5 || Math.abs( destination.y - camPos.y) > 5 ||  zoom != 1 )
 		{
-			var dx = ( camPos.x - targetPos.x ) / 20;
-			var dy = ( camPos.y - targetPos.y ) / 20;
-			var da = -target.angle /10;
-			//do zoom adaptation as well ( and consider fit screen )
+			//TODO: fux zoom
+			//if(zoom != 1)
+			//	camera.czoom(1+(zoom-1)/pace);
+			//move
+			var dx = ( destination.x - camPos.x );
+			var dy = ( destination.y - camPos.y );
+			if( Math.abs(dx) < pace && Math.abs(dy) < pace)
+			{	
+				pace /= 2;
+				if(pace<1)
+					pace = 1;
+			}
+			dx/=pace;
+			dy/=pace;
 			camera.cmove(dx,dy);
+			//console.log("x:"+camPos.x+" y:"+camPos.y+" dx:"+destination.x+"dy:"+destination.y)
+			//rotate
+			//var da = -target.angle /10;
 			//camera.crotate(da);
 		}
 		else
@@ -446,6 +470,7 @@ Camera.cfocusOn = function(target,options)
 
 	this.cops['focusOn'] = setInterval( focusOn, this.cinterval );
 }
+
 //Camera relationships
 //TODO: When adding new actuators make sure you include the antiCrossReff system
 Camera.addRelated = function(cam,descriptor)

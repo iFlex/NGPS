@@ -1,0 +1,1 @@
+GEM.addEventListener('windowResize',0,function(){alert("WORKING")});

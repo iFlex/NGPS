@@ -58,6 +58,20 @@ utils.makeHTML = function(markup,parent)
 		parent.appendChild(child);
 	}
 }
+utils.validateEmail = function(email)
+{
+	var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
+utils.redFlagField = function(field)
+{
+	field.style.border = "2px solid";
+	field.style.borderColor = "red";
+}
+utils.normaliseField = function(field)
+{
+	field.style.border = "0px";
+}
 utils.debug = function(elem,newline,verbose)
 {
 	if(!newline)

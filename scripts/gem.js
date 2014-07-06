@@ -36,7 +36,8 @@ GEM.fireEvent = function(data)
 			}	
 	}
 
-	_fireEvent(data['event'],data['target'].UID);
+	if(!data['isGlobal'])
+		_fireEvent(data['event'],data['target'].UID);
 	_fireEvent(data['event'],"_global");	
 	
 	if(GEM.debug)
@@ -122,4 +123,7 @@ GEM.cancelAll = function()
 	for( i in GEM.events )
 		for( j in GEM.events[i] )
 			delete GEM.events[i][j];
+}
+window.onresize = function(){
+	GEM.fireEvent({event:"windowResize",isGlobal:true});
 }

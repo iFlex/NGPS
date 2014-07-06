@@ -93,7 +93,7 @@ this.container = function(properties)
 		if(!this.DOMreference.style.position)
 			this.DOMreference.style.position 	= 'absolute';
 		
-		if(!this.DOMreference.style.overflow)
+		if(!this.DOMreference.style.overflow && this.properties['dynamic_size'] != true )
 			this.DOMreference.style.overflow 	= "hidden";
 
 		if(this.properties['x'])
@@ -118,8 +118,8 @@ this.container = function(properties)
 			this.DOMreference.style.left = this.properties['left'];
 
 		
-		if(!this.DOMreference.style.background)
-			this.DOMreference.style.background 	= this.properties['background'] || "transparent";
+		if(this.properties['background']) //initial descriptor overrides cssText
+			this.DOMreference.style.background 	= this.properties['background'];
 		
 		//border props
 		if(!this.DOMreference.style.borderWidth)
@@ -383,15 +383,51 @@ this.container = function(properties)
 	}
 
 	//getters
+	this.local2global = function(x,y){
+		function getGlobalPos(node)
+		{
+			if(node)
+			{
+				var before = getGlobalPos(node.parent);
+				var now = node.getPos(0,0,false);
+				if(before)
+				{
+					now.x += before.x;
+					now.y += before.y;
+				}
+				return now;
+			}
+			return 0;
+		}
+		var pos = getGlobalPos(this.parent);
+		var ret = {x:x,y:y};
+		if(pos)
+		{
+			ret.x+=pos.x;
+			ret.y+=pos.y;
+		}
+		return ret;
+	}
+	this.global2local = function(x,y){
+		var origin = this.local2global(0,0);
+		return { x: x - origin.x, y: y - origin.y};
+	}
 	//TODO: Fix bad actual size reporting problem
-	this.getPos   = function(cx,cy)
+	this.getPos   = function(cx,cy,global)
 	{	
 		if(!cx)
 			cx = 0;
 		if(!cy)
 			cy = 0;
 
-		return { x: (this.DOMreference.offsetLeft + this.getWidth()*cx), y: (this.DOMreference.offsetTop + this.getHeight()*cy) };
+		var pos = { x: (this.DOMreference.offsetLeft + this.getWidth()*cx), y: (this.DOMreference.offsetTop + this.getHeight()*cy) };
+		if(global)
+		{
+			var l2g = this.local2global(0,0);
+			pos.x += l2g.x;
+			pos.y += l2g.y;
+		}
+		return pos;
 	}
 	this.getWidth = function()
 	{
@@ -471,7 +507,7 @@ this.container = function(properties)
 		if( this.events['changeAngle'] || ( GEM.events['changeAngle'] && GEM.events['changeAngle']['_global'] ) )
 			GEM.fireEvent({event:"changeAngle",target:this})
 	}
-	this.putAt = function(	x, y, refX , refY )
+	this.putAt = function(	x, y, refX , refY,global)
 	{
 		//if(this.DOMreference.style.position != 'absolute')
 		//	this.DOMreference.style.position = 'absolute';
@@ -481,6 +517,13 @@ this.container = function(properties)
 		
 		if(!refY)
 			refY = 0;
+
+		if(global)
+		{
+			var pos = this.global2local(x,y);
+			x = pos.x;
+			y = pos.y;
+		}
 
 		this.DOMreference.style.left = x - refX * this.getWidth() + "px";
 		this.DOMreference.style.top  = y - refY * this.getHeight() + "px";

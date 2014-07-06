@@ -53,7 +53,6 @@ Regional.setLanguage = function(lng)
 }
 Regional.tryToApply = function(str,obj)
 {
-	console.log("Attempting translation:"+str);
 	if(str)
 	{
 		var isReg = str.indexOf("#REG:");
@@ -67,11 +66,9 @@ Regional.tryToApply = function(str,obj)
 				var message = str.slice(0,separator);
 				var apply_method = str.slice(separator+1,str.length);
 				
-				console.log("str:"+str+" msg:"+message+" method:"+apply_method+" le message:"+Regional.messages[Regional.language][message]);
 				//apply the message
 				if(Regional.messages && Regional.messages[Regional.language] && Regional.messages[Regional.language][message])
 				{
-					console.log("Success");
 					obj[apply_method] = Regional.messages[Regional.language][message];
 					return true;
 				}
@@ -94,9 +91,12 @@ Regional.inspectObject = function(obj,message)
 		str = obj.id; //try the id field
 		if(!Regional.tryToApply(str,obj)){
 			str = obj.placeholder; //try the placeholder
-			Regional.tryToApply(str,obj);
+			if(!Regional.tryToApply(str,obj)){
+				str = obj.getAttribute("data-regional");
+				Regional.tryToApply(str,obj);
+			}
 		}
-	}	
+	}
 	var all = obj.children;//document.getElementsByTagName("*");
 	for (var i=0; i < all.length; i++)
 		Regional.inspectObject(all[i]);

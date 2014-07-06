@@ -156,7 +156,7 @@ loadAppCode("edit",function(data)
 		//factory.dock.dockApp('link');
 		factory.newGlobalApp("text");
 		//edit UI
-		var descriptor = {x:0,y:0,width:32,height:32,background:"white",border_size:"0px"};
+		var descriptor = {x:0,y:0,width:32,height:32,background:"white",border_size:"0px",cssText:"z-index:4;"};
 		factory.dock.EditUI['rotate']  = factory.newContainer(descriptor,"simple_rect",factory.root);
 		factory.dock.EditUI['rotate'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-share-alt'></span></center>"; 
 		factory.dock.EditUI['rotate'].onMoved = factory.dock.onRotate;
@@ -337,53 +337,53 @@ loadAppCode("edit",function(data)
 			return;
 		}
 		var target =  factory.dock.EditUI.target;
-		var targetPos = target.getPos();
+		var targetPos = target.getPos(0,0,true); //get global target pos
 		
 		factory.dock.EditUI['rotate'].show();
-		factory.dock.EditUI['rotate'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y - factory.dock.EditUI['rotate'].getHeight() )
+		factory.dock.EditUI['rotate'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y - factory.dock.EditUI['rotate'].getHeight(),0,0,true)
 		
-		factory.dock.EditUI['enlarge'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight() )
+		factory.dock.EditUI['enlarge'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight(),0,0,true)
 		factory.dock.EditUI['enlarge'].show();
 
 		factory.dock.EditUI['changeWidthLeft'].show();
-		factory.dock.EditUI['changeWidthLeft'].putAt( targetPos.x - factory.dock.EditUI['changeWidthLeft'].getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2 )	
+		factory.dock.EditUI['changeWidthLeft'].putAt( targetPos.x - factory.dock.EditUI['changeWidthLeft'].getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)	
 
 		factory.dock.EditUI['changeWidthRight'].show();
-		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2 )	
+		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)	
 	
 		factory.dock.EditUI['changeHeightBottom'].show();
-		factory.dock.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight() )
+		factory.dock.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight(),0,0,true)
 
 		factory.dock.EditUI['changeHeightTop'].show();
-		factory.dock.EditUI['changeHeightTop'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y - factory.dock.EditUI['changeWidthLeft'].getHeight() )	
+		factory.dock.EditUI['changeHeightTop'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y - factory.dock.EditUI['changeWidthLeft'].getHeight(),0,0,true)	
 		
 		factory.dock.EditUI['delete'].show();
-		factory.dock.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y - factory.dock.EditUI['rotate'].getHeight() )
+		factory.dock.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y - factory.dock.EditUI['rotate'].getHeight(),0,0,true)
 		factory.dock.EditUI['delete'].onTrigger = this.onDelete;
 		factory.dock.EditUI['delete'].onMoved = function(){};
 
 		factory.dock.EditUI['more'].show();
-		factory.dock.EditUI['more'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight() )
-		
+		factory.dock.EditUI['more'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight(),0,0,true)
+		factory.dock.EditUI['rotate'].lastEditAngle = "none";
 		//factory.dock.setEditInterfaceAngle(target.angle);
 	}
 	this.focusSpecialEditInterface = function(e){
 		var target =  factory.dock.EditUI.target;
-		var targetPos = target.getPos();
+		var targetPos = target.getPos(0,0,true);
 		keyboard.focusEditor(target);
 		factory.dock.EditUI['changeWidthRight'].show();
-		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2 )	
+		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)	
 	
 		factory.dock.EditUI['changeHeightBottom'].show();
-		factory.dock.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight() )
+		factory.dock.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight(),0,0,true)
 
 		factory.dock.EditUI['delete'].show();
-		factory.dock.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight() )
+		factory.dock.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight(),0,0,true)
 		factory.dock.EditUI['delete'].onTrigger = this.onDelete;
 		factory.dock.EditUI['delete'].onMoved = function(){};
 
 		factory.dock.EditUI['more'].show();
-		factory.dock.EditUI['more'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight() )
+		factory.dock.EditUI['more'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight(),0,0,true)
 		
 		//factory.dock.setEditInterfaceAngle(target.angle);
 	}
@@ -552,10 +552,10 @@ loadAppCode("edit",function(data)
 	this.onRotate = function(dx,dy)
 	{
 		factory.dock.EditUI['rotate'].move(dx,dy)
-		var center = factory.dock.EditUI.target.getCenter();
-		var ctl   = factory.dock.EditUI['rotate'].getCenter();
+		var center = factory.dock.EditUI.target.getPos(0.5,0.5,true);
+		var ctl   = factory.dock.EditUI['rotate'].getPos(0.5,0.5,true);
 		var angle = Math.atan2( center.y - ctl.y , center.x - ctl.x )
-		if(factory.dock.EditUI['rotate'].lastEditAngle)
+		if(factory.dock.EditUI['rotate'].lastEditAngle && typeof(factory.dock.EditUI['rotate'].lastEditAngle)!="string")
 		{
 			var dif = ( angle - factory.dock.EditUI['rotate'].lastEditAngle )*180/Math.PI;
 			factory.dock.EditUI.target.rotate(dif);
