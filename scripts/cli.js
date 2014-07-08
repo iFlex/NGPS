@@ -247,8 +247,14 @@ cli.shtree = function()
 			type += ".";
 		if( node.isLink == true )
 			type += "L"
+		if( node.isCamera == true)
+		{
+			type += "C";
+			type += utils.debug(node.getContentPositioning()); 
+		}
 		if( node.isApp == true )
 			type += "A";
+
 		var pos = node.getPos();
 		type+=" x:"+pos.x+" y:"+pos.y+" w:"+node.getWidth()+" h:"+node.getHeight()+"]";
 

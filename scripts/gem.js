@@ -64,7 +64,7 @@ GEM.addEventListener = function(event,ctx,handler,run_context)
 			return;
 	
 	GEM.events[event][ctx.UID][ GEM.events[event][ctx.UID].length ] = {"handler":handler,"context":run_context};
-	console.log("Adding event("+event+") listener:"+handler+" context:"+run_context)
+	//console.log("Adding event("+event+") listener:"+handler+" context:"+run_context)
 	if(GEM.debug )
 		cli.showPrompt("<br> * NGPS_GEM_LISTENER+<br>"+event+"("+ctx+" > "+ctx.UID+")="+utils.debug(handler));
 }
@@ -82,7 +82,7 @@ GEM.removeEventListener = function(event,ctx,handler)
 		//handler = JSON.stringify(handler);
 		for( h in GEM.events[event][ctx.UID] )
 		{
-			console.log(typeof(GEM.events[event][ctx.UID][h]['handler']) + " == " + typeof(handler)+ " ? "+ (GEM.events[event][ctx.UID][h]['handler'] == handler) )
+			//console.log(typeof(GEM.events[event][ctx.UID][h]['handler']) + " == " + typeof(handler)+ " ? "+ (GEM.events[event][ctx.UID][h]['handler'] == handler) )
 			if( GEM.events[event][ctx.UID][h]['handler'] == handler )
 			{
 				if(GEM.debug)

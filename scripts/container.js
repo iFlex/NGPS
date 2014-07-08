@@ -24,6 +24,7 @@
 *		appLoaded
 */
 //include dependencies
+//requirejs(['TweenMax.min',"interact","app","camera","gem"]);
 requirejs(['TweenMax.min',"interact","app","camera","gem"]);
 //
 this.containerData = {};
@@ -100,6 +101,7 @@ this.container = function(properties)
 		{
 			this.DOMreference.style.position 	= 'absolute';
 			this.DOMreference.style.left 		= this.properties['x'];
+			console.log("Set x:"+this.properties['x']+" is:"+this.DOMreference.style.left)
 		}
 
 		if(this.properties['y'])
@@ -412,7 +414,7 @@ this.container = function(properties)
 		var origin = this.local2global(0,0);
 		return { x: x - origin.x, y: y - origin.y};
 	}
-	//TODO: Fix bad actual size reporting problem
+	//TODO: make it work for other browsers than chrome
 	this.getPos   = function(cx,cy,global)
 	{	
 		if(!cx)
@@ -429,29 +431,41 @@ this.container = function(properties)
 		}
 		return pos;
 	}
-	this.getWidth = function()
+	this.getWidth = function(pure)
 	{
-		return  ( this.DOMreference.clientWidth + 2*parseInt(getComputedStyle(this.DOMreference,null).getPropertyValue("border-width")) ) * this.scaleX;
+		var  w = this.DOMreference.clientWidth
+		var  a =  2*parseInt(getComputedStyle(this.DOMreference,null).getPropertyValue("border-width"));
+		if(a)
+			w+=a;
+		if(pure)
+			return w*this.scaleX;
+		return w;
 	} 
 
-	this.getHeight = function()
+	this.getHeight = function(pure)
 	{
-		return ( this.DOMreference.clientHeight + 2*parseInt(getComputedStyle(this.DOMreference,null).getPropertyValue("border-width")) ) * this.scaleY;
+		var h = this.DOMreference.clientHeight
+		var a = 2*parseInt(getComputedStyle(this.DOMreference,null).getPropertyValue("border-width"))
+		if(a)
+			h+=a;
+		if(pure)
+			return h*this.scaleX;
+		return h;
 	}
 
 	this.getPureWidth = function()
 	{
-		return  ( this.DOMreference.clientWidth + 2*parseInt(getComputedStyle(this.DOMreference,null).getPropertyValue("border-width")) ) ;
+		return this.getWidth(true);
 	} 
 
 	this.getPureHeight = function()
 	{
-		return ( this.DOMreference.clientHeight + 2*parseInt(getComputedStyle(this.DOMreference,null).getPropertyValue("border-width")) );
+		return this.getHeight(true)
 	}
 
-	this.getCenter = function()
+	this.getCenter = function() //deprecated, don't use
 	{
-		return { x: this.DOMreference.offsetLeft + this.getWidth()/2 , y: this.DOMreference.offsetTop + this.getHeight()/2 };
+		return this.getPos(0.5,0.5);
 	}
 
 	this.getLocalPos = function(x,y)
