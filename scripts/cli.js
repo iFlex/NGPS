@@ -31,7 +31,7 @@ cli.showPrompt = function(message)
 
 cli.show = function()
 {
-	console.log("CLI:: call to cli.show(); CLI status:"+cli.status);
+	//console.log("CLI:: call to cli.show(); CLI status:"+cli.status);
 	if(cli.status  == 0 )
 	{
 		//build the cli

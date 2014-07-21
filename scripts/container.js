@@ -101,7 +101,6 @@ this.container = function(properties)
 		{
 			this.DOMreference.style.position 	= 'absolute';
 			this.DOMreference.style.left 		= this.properties['x'];
-			console.log("Set x:"+this.properties['x']+" is:"+this.DOMreference.style.left)
 		}
 
 		if(this.properties['y'])
@@ -274,7 +273,6 @@ this.container = function(properties)
 	//		add event dispatching for apps that run inside in case that is needed
 	this.addPrimitive = function(descriptor)
 	{
-		console.log("AddPrimitive called on "+this.UID+" isLeaf:"+this.isLeaf)
 		if(!descriptor['type'])
 			return false;
 		
@@ -294,12 +292,10 @@ this.container = function(properties)
 		//size the container to the image
 		if(descriptor['adapt_container'] == true)
 		{
-			console.log("Adapting container to content")
 			var container = this;
 			var child = this.child;
 			this.child.onload = function()
 			{
-				console.log("Setting parent container size:"+child.clientWidth+" x "+child.clientHeith );
 				container.setWidth( child.clientWidth );
 				container.setHeight( child.clientHeight	);
 			}
@@ -324,12 +320,10 @@ this.container = function(properties)
 					if( raph > 1 && (1/raph < diff) )
 						diff = 1/raph;
 
-					console.log(rapw+"=w "+raph+"=h "+diff+"=diff "+" cw:"+child.clientWidth+" ch:"+child.clientHeight);
 					var nw = child.clientWidth * diff;
 					var nh = child.clientHeight * diff;
 					child.width = nw;
 					child.height = nh;
-					console.log("ncw:"+child.clientWidth+" nch:"+child.clientHeight)
 				}
 				 
 			}

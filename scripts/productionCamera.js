@@ -6,6 +6,9 @@
 *	Requirements:
 *		Must be applied to an existing Container Object
 */
+//TODO: Change camera working method:
+//TODO: Make display object very wide and high
+
 // relations are defined in terms of a coefficient applied to the a property
 // example: x => 0.5
 
@@ -21,41 +24,16 @@
 //TODO: Add camera display object & adapt all actuators + adapt addChild
 //		Inspect camera move boundaries when scaled
 this.Camera = {};
-Camera.addChild = function(descriptor,addToFrame)
-{
-	var reff = 0;
-	if(!addToFrame)
-	{
-		if(this.display)
-		{
-			this.display.children[ containerData.containerIndex ] = new container( descriptor );
-			reff = this.display.children[ containerData.containerIndex ] 
-			reff.load( this.display );
-			
-			//EVENT
-			if( this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
-				GEM.fireEvent({event:"addChild",target:this,child:reff})
 
-			return reff;
-		}
-	}
-	
-	this.children[ containerData.containerIndex ] = new container( descriptor );
-	reff = this.children[ containerData.containerIndex ] 
-	reff.load( this );
-
-	//EVENT
-	if( !addToFrame && this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
-		GEM.fireEvent({event:"addChild",target:this,child:reff})
-
-	return reff;
-}
 Camera.cstart = function(interval)
 {
 	//now adding camera specific functions
 	this.display = 0; // this is the display area used for move, zoom, rotate
 	//camera focus
 	//camera content properties
+	//scroll
+	this.oldX = 0;
+	this.oldY = 0;
 	//zoom
 	this.czoomLevel = 1;
 	this.zoomDX = 0;
@@ -69,6 +47,7 @@ Camera.cstart = function(interval)
 	//operations flags
 	this.callow = true;
 	this.cops = {};
+
 	if(!this.cinterval)
 	{
 		//used for time based animations and corrections
@@ -94,55 +73,127 @@ Camera.cstart = function(interval)
 	var bkg = "transparent";
 	if(factory && factory.settings.debug == true)
 		bkg = "yellow";
-	this.display = this.addChild({x:0,y:0,width:this.getWidth(),height:this.getHeight(),background:bkg},true);
+
+	this.initialWidth = this.getWidth();
+	this.initialHeight = this.getHeight();
+	this.display = this.addChild({ x:0 , y:0 , width: this.initialWidth , height: this.initialHeight, background:bkg},true);
 	this.display.DOMreference.style.overflow = "hidden";
 	this.DOMreference.style.overflow = "scroll";
 	//this.display.extend(Interactive);
 	//this.display.interactive(true);
 	this.addEventListener("addChild","maintainBoundaries");
 	this.isCamera = true;
+	console.log(" Camera range:"+this.properties.range)
+	if( this.properties.range != "restricted")
+	{	
+		this.initialWidth = (this.properties['initialWidth']) ? this.properties['initialWidth'] : 50000;
+		this.initialHeight = (this.properties['initialHeight']) ? this.properties['initialHeight'] : 50000;
+		
+		this.display.setWidth(this.initialWidth);
+		this.display.setHeight(this.initialHeight);
+		console.log("iW:"+this.initialWidth + " iH:"+this.initialHeight+" w:"+this.display.getWidth()+" h:"+this.display.getHeight());
+		var dx = ( this.display.getWidth() - this.getWidth() ) / 2;
+		var dy = ( this.display.getHeight() - this.getHeight() ) / 2;
+		this.cmove( dx > 0 ? -dx : 0 , dy > 0 ? -dy : 0 );
+	}
+	//
+	console.log(" iW:" + this.initialWidth + " iH:" + this.initialHeight )
+	this.DOMreference.onscroll = this.scrollHandler;
+}
+
+Camera.addChild = function(descriptor,addToFrame)
+{
+	var reff = 0;
+	if(!addToFrame)
+	{
+		if(this.display)
+		{
+			this.display.children[ containerData.containerIndex ] = new container( descriptor );
+			reff = this.display.children[ containerData.containerIndex ] 
+			reff.load( this.display );
+			//EVENT
+			if( this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
+				GEM.fireEvent({event:"addChild",target:this,child:reff})
+
+			return reff;
+		}
+	}
+	
+	this.children[ containerData.containerIndex ] = new container( descriptor );
+	reff = this.children[ containerData.containerIndex ] 
+	reff.load( this );
+
+	//EVENT
+	if( !addToFrame && this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
+		GEM.fireEvent({event:"addChild",target:this,child:reff})
+
+	return reff;
+}
+Camera.setCameraRange = function ( w , h )
+{
+	this.display.setWidth(w);
+	this.display.setHeight(h);
 }
 //TODO: treat case when content is added outside the reference point of the camera div
-
 Camera.maintainBoundaries = function(data)
 {
 	var target = data['child'];
 	var pos = target.getPos(1,1);
 	var hpos = target.getPos(0,0);
 	var tpos = this.display.getPos();
-	//far right
+	//extend downwards and rightwards
 	if( pos.x > this.display.getPureWidth())
 		this.display.setWidth(pos.x);
 
 	if( pos.y > this.display.getPureHeight())
 		this.display.setHeight(pos.y);
 
-	//far left
-	
+	/*
 	//inefficient but with no workaround
 	var dx = 0;
 	var dy = 0;
 	if( hpos.x < 0)
 		dx = -pos.x;
 	if( hpos.y < 0)
-	  	dy = -pox.y;
-	console.log("Maintain b dx:"+dx+" dy:"+dy)
-	this.display.setWidth(this.display.getWidth() + dx);
-	this.display.setHeight(this.display.getHeight() + dy);
-	this.display.move(-dx,-dy);
-	for(k in this.display.children)
-		this.display.children[k].move(dx,dy);
-
+	  	dy = -pos.y;
+	if(dx || dy)
+	{
+		console.log("Camera perspective extend:"+dx+" "+dy)
+		this.display.setWidth(this.display.getWidth() + dx);
+		this.display.setHeight(this.display.getHeight() + dy);
+		this.display.move(-dx,-dy);
+		for(k in this.display.children)
+			this.display.children[k].move(dx,dy);
+	}
+	*/
 }
-
+//GETTERS
 Camera.cgetPos = function(refX,refY)
 {
 	var pos = this.display.getPos(refX,refY);
-	pos.x += this.zoomDX;
-	pos.y += this.zoomDY;
+	pos.x += this.DOMreference.scrollLeft;
+	pos.y += this.DOMreference.scrollTop;
+	
+	//if(!this.DOMreference.scrollLeft)
+	//	pos.x += this.zoomDX;
+	
+	//if(!this.DOMreference.scrollTop)
+	//	pos.y += this.zoomDY;
+
 	return pos;
 }
-
+Camera.cgetTransformOrigin = function(ox,oy)
+{
+	if(typeof(ox) == "undefined")
+		ox = 0.5;
+	if(typeof(oy) == "undefined")
+		oy = 0.5;
+	
+	ox = ( this.DOMreference.scrollLeft + this.getWidth() * ox ) / this.display.getWidth();
+	oy = ( this.DOMreference.scrollTop + this.getHeight() * oy ) / this.display.getHeight();
+	return {ox:ox,oy:oy};
+}
+//
 Camera.showAnimations = function()
 {
 	str = "Camera_animations:[";
@@ -195,20 +246,54 @@ Camera.antiCrossReff = function(funcName,action)
 	}
 	return false;;
 }
+Camera.pullContent = function(dx,dy)
+{
+	//pulls content from camera's edge to make it visible while keeping the camera's position at the same place
+	if(!dx)
+		dx = 0;
+	if(!dy)
+		dy = 0;
+
+	console.log("PULLING CONTENT. dx:"+dx+" dy:"+dy)
+	
+	for( k in this.display.children )
+		this.display.children[k].move(dx,dy);
+
+	this.cmove(-dx,-dy,true);
+}
 //for content status updates
 Camera.getContentPositioning = function()
 {
 	if(!this.display)
 		return null;
 
-	var pos = this.display.getPos();
-	return { x:pos.x+this.zoomDX,
-		     y:pos.y+this.zoomDY,
+	var pos = this.cgetPos();
+	return { x:pos.x,
+		     y:pos.y,
 		     width:this.display.getWidth(),
 		     height:this.display.getHeight() };
 }
+
+Camera.scrollHandler = function()
+{
+	var parent = this.context;
+	var dy = parent.DOMreference.scrollTop - parent.oldY;
+	var dx = parent.DOMreference.scrollLeft - parent.oldX;
+	parent.oldY = parent.DOMreference.scrollTop;
+	parent.oldX = parent.DOMreference.scrollLeft;
+
+	//check cross refference 
+	if(parent.antiCrossReff("cmove",1))
+		return;
+
+	//relations support
+	for( k in parent.crelations )
+		parent.crelations[k]['root'].cmove(dx*parent.crelations[k]['x'],dy*parent.crelations[k]['y'])
+
+	parent.antiCrossReff("cmove",0);
+}
 //TODO: calculate boundaries and add boundary limit enforcing
-Camera.cmove = function(dx,dy)
+Camera.cmove = function(dx,dy,norel)
 {
 	if(!this.callow)
 		return;
@@ -220,17 +305,25 @@ Camera.cmove = function(dx,dy)
 	//inertia buildup
 	if(this.c_allowInertia && this.allowInertia)
 	{
-		this.xInertia += dx;
-		this.yInertia += dy;
+		//this.xInertia += dx;
+		//this.yInertia += dy;
 	}
 	//
+	this.oldY = this.DOMreference.scrollTop;
+	this.oldX = this.DOMreference.scrollLeft; 
+	
 	this.DOMreference.scrollTop -= dy;
 	this.DOMreference.scrollLeft -= dx;
+
+	if(this.DOMreference.scrollTop == this.oldY && this.DOMreference.scrollLeft == this.oldX )
+		console.log("DID NOT MOVE! BITH DOES NOT WANT TO WORK:"+this.DOMreference.scrollTop+" "+this.DOMreference.scrollLeft+" w:"+this.getWidth()+" h:"+this.getHeight())
+	//	this.display.move(dx,dy);
 	//TODO: investigate if moving a scaled camera needs any kind of adaptation: * (1/this.czoomLevel) , *(1/this.czoomLevel) 
 
 	//relations support
-	for( k in this.crelations )
-		this.crelations[k]['root'].cmove(dx*this.crelations[k]['x'],dy*this.crelations[k]['y'])
+	if(!norel)
+		for( k in this.crelations )
+			this.crelations[k]['root'].cmove(dx*this.crelations[k]['x'],dy*this.crelations[k]['y'])
 
 	this.antiCrossReff("cmove",0);
 }
@@ -311,19 +404,6 @@ Camera.applyInertia = function(){
 	}
 }
 
-Camera.cgetTransformOrigin = function(ox,oy)
-{
-	if(!ox)
-		ox = 0.5;
-	if(!oy)
-		oy = 0.5;
-
-	var dpos = this.display.getPos(0,0);
-	ox = ( - dpos.x + this.getPureWidth()*ox) / this.display.getPureWidth();
-	oy = ( - dpos.y + this.getPureHeight()*oy) / this.display.getPureHeight();
-	return {ox:ox,oy:oy};
-}
-
 //TODO	Calculate boundaries and enforce zoom limits
 Camera.czoom = function(amount,ox,oy)
 {
@@ -339,17 +419,19 @@ Camera.czoom = function(amount,ox,oy)
 	//check cross referencing
 	if(this.antiCrossReff("czoom",1))
 		return;
+
 	//maintain displacement from original position
-	this.zoomDX += this.display.getWidth()*( 1 - amount ) / 2;
-	this.zoomDY += this.display.getHeight()*( 1 - amount ) / 2;
+	//this.zoomDX += this.display.getWidth() * ( 1 - amount ) / 2;
+	//this.zoomDY += this.display.getHeight() * ( 1 - amount ) / 2;
 	//
 	this.czoomLevel = next;
 	var torig = this.cgetTransformOrigin(ox,oy);
+	console.log("TORIG:"+utils.debug(torig," ")+" x:"+this.display.getWidth()*torig['ox']+" y:"+this.display.getHeight()*torig['oy']);
 	this.display.scale(amount,torig['ox'],torig['oy'])
 
 	for( k in this.crelations )
 		if(this.crelations[k]['zoom'] != 0)
-			this.crelations[k]['root'].czoom(amount*this.crelations[k]['zoom'])
+			this.crelations[k]['root'].czoom( amount * this.crelations[k]['zoom'] )
 	//anti cross reff
 	this.antiCrossReff("czoom",0)
 }
@@ -400,7 +482,7 @@ Camera.cfocusOn = function(target,options)
 	var camera = this;
 	var destination = this.getPos(0.5,0.5);//destination position
 	
-	var pace = 20;
+	var pace = 10;
 	var focusWidth = this.getWidth();
 	var focusHeight = this.getHeight();
 	if(options)
@@ -418,23 +500,25 @@ Camera.cfocusOn = function(target,options)
 	function focusOn()
 	{
 		
-		var camPos = camera.display.getPos(0,0);
+		var camPos = camera.cgetPos(0,0);
 		var targetPos = target.getPos(0.5,0.5);
-		camPos.x += targetPos.x;
-		camPos.y += targetPos.y;
-
+		
+		console.log("CX:"+camPos.x+" CY:"+camPos.y+" TX:"+targetPos.x+" TY:"+targetPos.y+" Dx:"+destination.x+" Dy:"+destination.y)
+		targetPos.x -= camPos.x;
+		targetPos.y -= camPos.y;
+	
 		var zoomWrap = (focusWidth / (target.getWidth()*camera.czoomLevel));
 		var zoomHrap = (focusHeight / (target.getHeight()*camera.czoomLevel));
 		var zoom = ( zoomWrap < zoomHrap ) ? zoomWrap : zoomHrap;
 
 		//console.log("zoom:"+zoom+" zoomW:"+zoomWrap+" zoomH:"+zoomHrap + " fw:"+focusWidth+" w:"+target.getWidth()*camera.czoomLevel + " czl:"+camera.czoomLevel);
-		if( Math.abs( destination.x - camPos.x) > 5 || Math.abs( destination.y - camPos.y) > 5 ||  zoom != 1 )
+		if( Math.abs( targetPos.x - destination.x) > 5 || Math.abs( targetPos.y - destination.y) > 5 ||  zoom != 1 )
 		{
 			if(zoom != 1)
-				camera.czoom(1+(zoom-1)/pace);
+				camera.czoom(1+(zoom-1)/(pace*1.3));
 			//move
-			var dx = ( destination.x - camPos.x );
-			var dy = ( destination.y - camPos.y );
+			var dx = ( destination.x - targetPos.x );
+			var dy = ( destination.y - targetPos.y );
 			if( Math.abs(dx) < pace && Math.abs(dy) < pace)
 			{	
 				pace /= 2;
@@ -444,7 +528,7 @@ Camera.cfocusOn = function(target,options)
 			dx/=pace;
 			dy/=pace;
 			camera.cmove(dx,dy);
-			console.log("x:"+camPos.x+" y:"+camPos.y+" dx:"+destination.x+"dy:"+destination.y)
+			console.log("Dx:"+destination.x+" Dy:"+destination.y+" tx:"+targetPos.x+"ty:"+targetPos.y+" dx:"+dx+" dy:"+dy)
 			//rotate
 			//var da = -target.angle /10;
 			//camera.crotate(da);
