@@ -40,8 +40,12 @@ factory.init = function(mode) // editor init
 	//"#fAfAfA"
 	descriptor = utils.merge({x:0,y:0,background:"white",border_size:1,border_style:"solid"},descriptor);
 	//make a full screen camera object
+	factory.display = new container(descriptor);
+	factory.display.load();
+
+	descriptor['background'] = "transparent";
 	var root = new container(descriptor);
-	root.load();
+	root.load(factory.display);
 	root.extend(Interactive);
 	root.extend(Camera);
 	root.interactive(true);
@@ -59,7 +63,7 @@ factory.init = function(mode) // editor init
 factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"transparent"}
 
 //FACTORY functions
-factory.newContainer = function(possize,tag,parent,addToFrame)
+factory.newContainer = function(possize,tag,parent,addToFrame,translate)
 {
 	if(!factory.initialised)
 		factory.init();
@@ -76,7 +80,7 @@ factory.newContainer = function(possize,tag,parent,addToFrame)
 
 	descriptor = utils.merge(descriptor,factory.settings.container,"override");
 	
-	var obj = parent.addChild( utils.merge(descriptor,possize,true) , addToFrame );
+	var obj = parent.addChild( utils.merge(descriptor,possize,true) , addToFrame, translate );
 	obj.extend(Interactive); //make object interactive
 
 	if(obj)
@@ -91,14 +95,14 @@ factory.newContainer = function(possize,tag,parent,addToFrame)
 	return obj;
 }
 
-factory.createContainer = function(descriptor,parent,addToFrame)
+factory.createContainer = function(descriptor,parent,addToFrame,translate)
 {
 	if(!factory.initialised)
 		factory.init();
 	
 	if(!parent)
 		parent = factory.root;
-	var obj = parent.addChild(descriptor,addToFrame);
+	var obj = parent.addChild(descriptor,addToFrame,translate);
 	if(obj)
 	{
 		obj.load();
@@ -120,13 +124,13 @@ factory.newIsolatedContainer = function(descriptor)
 	return obj;
 }
 
-factory.newCamera = function (possize,tag,parent,interval,addToFrame)
+factory.newCamera = function (possize,tag,parent,interval,addToFrame,translate)
 {
 	if(!factory.initialised)
 		factory.init();
 
 	possize.isCamera = true;
-	var obj = factory.newContainer(possize,tag,parent,addToFrame)
+	var obj = factory.newContainer(possize,tag,parent,addToFrame,translate)
 	if(obj)
 	{
 		//possibly fetch camera tag for camera configurations
@@ -142,7 +146,7 @@ factory.newCamera = function (possize,tag,parent,interval,addToFrame)
 //APPs
 factory.newGlobalApp = function ( app )
 {
-	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"simple_rect",factory.root,true);
+	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"simple_rect",factory.display);
 	host.loadApp(app);
 	return host;
 }

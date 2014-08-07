@@ -25,7 +25,7 @@
 */
 //include dependencies
 //requirejs(['TweenMax.min',"interact","app","camera","gem"]);
-requirejs(['TweenMax.min',"interact","app","camera","gem"]);
+requirejs(['TweenMax.min',"interact","app","productionCamera","gem"]);
 //
 this.containerData = {};
 containerData.containerIndex = 0;
@@ -465,6 +465,7 @@ this.container = function(properties)
 	this.getLocalPos = function(x,y)
 	{
 		var pos = this.getPos();
+		console.log("Getting local pos ID:"+this.UID+" x:"+x+" y:"+y+" px:"+pos.x+" py:"+pos.y)
 		return {x: x - pos.x, y: y - pos.y};
 	}
 	//setters

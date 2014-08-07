@@ -1,6 +1,6 @@
 loadAppCode("zoom",function(data){
 	this.config = {interface:"none"};
-	this.parent = factory.root;
+	this.parent = factory.display;
 	this.buttonNames = ['zup','zdn'];
 	this.buttons = {};
 	this.buttonSize = 30;
@@ -15,9 +15,7 @@ loadAppCode("zoom",function(data){
 		var screen = platform.getScreenSize();
 		var offset = ( screen.width - width) / 2;
 		for(i in this.buttonNames)
-		{
-			this.buttons[this.buttonNames[i]].putAt(offset + i*this.buttonSize , 50)
-		}
+			this.buttons[this.buttonNames[i]].putAt(offset + i*this.buttonSize , 55);
 	}
 	this.init = function() //called only one when bound with container
 	{	
@@ -25,13 +23,10 @@ loadAppCode("zoom",function(data){
 		var btnSize = this.buttonSize;
 		for( i in this.buttonNames)
 		{
-			var ctl = this.parent.addChild({width:btnSize,height:btnSize,type:"button",class:"btn btn-danger btn-lg",cssText:"width: 30px;height: 30px;text-align: center;padding: 6px 0;font-size: 12px;line-height: 1.42;border-radius: 15px;"},true);
+			var ctl = this.parent.addChild({x:0,y:0,width:btnSize,height:btnSize,type:"button",class:"btn btn-danger btn-lg",cssText:"text-align: center;padding: 6px 0;font-size: 12px;line-height: 1.42;border-radius: 15px;"},true);
 			ctl.extend(Interactive);
 			ctl.interactive(true);
 			ctl.onMoved = function(){};
-
-			ctl.DOMreference.style.top = "0px";
-			ctl.DOMreference.style.left = "0px";
 			ctl.DOMreference.type = "button";
 
 			this.buttons[this.buttonNames[i]] = ctl;

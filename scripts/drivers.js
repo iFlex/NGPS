@@ -72,6 +72,21 @@ utils.normaliseField = function(field)
 {
 	field.style.border = "0px";
 }
+utils.loadStyle = function(path,onload)
+{
+	var s = document.createElement('link');
+	s.rel = "stylesheet";
+	s.href = path;
+	document.body.appendChild(s);
+	if(onload)
+		s.onload = onload;
+}
+utils.loadRawStyle = function(style)
+{
+	var s = document.createElement('style');
+	s.innerHTML = style;
+	document.body.appendChild(s);
+}
 utils.debug = function(elem,newline,verbose)
 {
 	if(!newline)
@@ -119,11 +134,16 @@ platform.os = "unknown";
 platform.isMobile = "false";
 
 platform.getScreenSize = function(){
-	return { height:window.screen.availHeight, width:window.screen.availWidth }
+	var d = document.getElementById('canvas');
+	//var r = window.devicePixelRatio || 1;
+	//return { height:screen.height*r, width:screen.width*r }
+	return { height:d.clientHeight, width:d.clientWidth }
 }
 
 platform.detectOS = function(){
 	str = "";
+	var s = platform.getScreenSize();
+	str+= s.width+"x"+s.height+" \n";
 	for(k in navigator.appVersion)
 		str +=	navigator.appVersion[k];
 	alert(str);

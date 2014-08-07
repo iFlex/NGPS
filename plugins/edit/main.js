@@ -211,27 +211,7 @@ loadAppCode("edit",function(data)
 		messages.onload = this.buildInterface;
 		document.head.appendChild(messages);
 		factory.dock.dockedApps = {};
-	}
-	this.run = function()	//called whenever the container is triggered
-	{
-		
-	}
-	this.suspend = function() //called whenever the container looses focus ( or gets out of view )
-	{
-
-	}
-	this.shutdown = function() //called only when app is unloaded from container
-	{
-
-	}
-	this.show = function() //shows app
-	{
-
-	}
-	this.hide = function() //hides app
-	{
-
-	}
+	};
 	this.fileDialog = function()
 	{
 		factory.dock.input.click();
@@ -412,18 +392,11 @@ loadAppCode("edit",function(data)
 		if(!factory.dock.node)
 			factory.dock.node = factory.root;
 
-		var x = ( factory.dock.node.getWidth() - factory.dock.possize.width ) / 2;
-		var y = ( factory.dock.node.getHeight() - factory.dock.possize.height ) / 2;
-		var dx = 0;
-		var dy = 0;
-
-		if(factory.dock.node.isCamera)
-		{
-			var cameraInfo = factory.dock.node.getContentPositioning();
-			dx = cameraInfo.x;
-			dy = cameraInfo.y;
-		}
-		var container = factory.newContainer(utils.merge({x:x-dx,y:y-dy,width:factory.dock.possize.width,height:factory.dock.possize.height},descriptor),factory.dock.tags[2],factory.dock.node);
+		var container = factory.newContainer(utils.merge({
+			x:(factory.dock.node.getWidth() - factory.dock.possize.width)/2,
+			y:(factory.dock.node.getHeight() - factory.dock.possize.height)/2,
+			width:factory.dock.possize.width,
+			height:factory.dock.possize.height},descriptor),factory.dock.tags[2],factory.dock.node,false,true);
 		
 		if(noEvent == true)
 			return container;

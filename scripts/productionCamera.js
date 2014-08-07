@@ -23,6 +23,7 @@
 
 //TODO: Add camera display object & adapt all actuators + adapt addChild
 //		Inspect camera move boundaries when scaled
+//		Make content pulling and content boundary monitoring
 this.Camera = {};
 
 Camera.cstart = function(interval)
@@ -81,7 +82,7 @@ Camera.cstart = function(interval)
 	this.DOMreference.style.overflow = "scroll";
 	//this.display.extend(Interactive);
 	//this.display.interactive(true);
-	this.addEventListener("addChild","maintainBoundaries");
+	this.addEventListener("addChild","maintainBoundaries"); // there is no more maintainBoundaries function
 	this.isCamera = true;
 	console.log(" Camera range:"+this.properties.range)
 	if( this.properties.range != "restricted")
@@ -101,9 +102,52 @@ Camera.cstart = function(interval)
 	this.DOMreference.onscroll = this.scrollHandler;
 }
 
-Camera.addChild = function(descriptor,addToFrame)
+Camera.maintainBoundaries = function(data)
 {
+	var target = data['child'];
+	console.log("t:"+utils.debug(target, " ")+" d:"+utils.debug(this.display," "));
+	var pos = target.getPos(0,0);
+	var hpos = target.getPos(1,1);
+	//extend downwards and rightwards
+	if( pos.x < 0)
+		this.pullContent(-pos.x,0);
+
+	if( pos.y < 0 )
+		this.pullContent(0,-pos.y);
+
+	if( this.properties.hasOwnProperty('onMoreContent') && this.properties['onMoreContent'] == "extend" )
+	{
+		console.log("hps:"+utils.debug(hpos," ")+" pw:"+this.display.getPureWidth()+" ph:"+this.display.getPureHeight())
+		if( hpos.x > this.display.getPureWidth())
+		{
+			this.display.setWidth(hpos.x);
+			console.log("EXTENDED Camera surface W:",hpos.x);
+		}
+		if( hpos.y > this.display.getPureHeight())
+		{
+			this.display.setHeight(hpos.y);
+			console.log("EXTENDED Camera surface H:",hpos.y)
+		}
+	}
+}
+Camera.screenToDisplayCoord = function(x,y)
+{
+	return {x:parseInt(x) + this.DOMreference.scrollLeft,
+			y:parseInt(y) + this.DOMreference.scrollTop}
+		
+}
+Camera.addChild = function(descriptor,addToFrame,translate) //translate is used to translate the given position ( which is in relation to the screen ) to actual camera position
+{
+	//alert("tra:"+translate);
 	var reff = 0;
+	if( translate )
+	{
+		var pos = this.screenToDisplayCoord(parseInt(descriptor['x']),parseInt(descriptor['y']));
+		descriptor['x'] = pos.x;
+		descriptor['y'] = pos.y;
+		console.log("Translated:"+utils.debug(descriptor," "))
+	}
+	//add to camera display
 	if(!addToFrame)
 	{
 		if(this.display)
@@ -118,7 +162,8 @@ Camera.addChild = function(descriptor,addToFrame)
 			return reff;
 		}
 	}
-	
+
+	//add to camera frame
 	this.children[ containerData.containerIndex ] = new container( descriptor );
 	reff = this.children[ containerData.containerIndex ] 
 	reff.load( this );
@@ -129,44 +174,23 @@ Camera.addChild = function(descriptor,addToFrame)
 
 	return reff;
 }
+
 Camera.setCameraRange = function ( w , h )
 {
 	this.display.setWidth(w);
 	this.display.setHeight(h);
 }
-//TODO: treat case when content is added outside the reference point of the camera div
-Camera.maintainBoundaries = function(data)
+
+Camera.reset = function()//brings camera back to origin
 {
-	var target = data['child'];
-	var pos = target.getPos(1,1);
-	var hpos = target.getPos(0,0);
-	var tpos = this.display.getPos();
-	//extend downwards and rightwards
-	if( pos.x > this.display.getPureWidth())
-		this.display.setWidth(pos.x);
-
-	if( pos.y > this.display.getPureHeight())
-		this.display.setHeight(pos.y);
-
-	/*
-	//inefficient but with no workaround
-	var dx = 0;
-	var dy = 0;
-	if( hpos.x < 0)
-		dx = -pos.x;
-	if( hpos.y < 0)
-	  	dy = -pos.y;
-	if(dx || dy)
-	{
-		console.log("Camera perspective extend:"+dx+" "+dy)
-		this.display.setWidth(this.display.getWidth() + dx);
-		this.display.setHeight(this.display.getHeight() + dy);
-		this.display.move(-dx,-dy);
-		for(k in this.display.children)
-			this.display.children[k].move(dx,dy);
-	}
-	*/
+	var sl = (this.display.getWidth() - this.getWidth())/2
+	var st = (this.display.getHeight() - this.getHeight())/2
+	
+	this.DOMreference.scrollLeft = sl;
+	this.DOMreference.scrollTop = st;
 }
+
+
 //GETTERS
 Camera.cgetPos = function(refX,refY)
 {
@@ -246,7 +270,8 @@ Camera.antiCrossReff = function(funcName,action)
 	}
 	return false;;
 }
-Camera.pullContent = function(dx,dy)
+
+Camera.pullContent = function(dx,dy) // works
 {
 	//pulls content from camera's edge to make it visible while keeping the camera's position at the same place
 	if(!dx)
@@ -254,12 +279,22 @@ Camera.pullContent = function(dx,dy)
 	if(!dy)
 		dy = 0;
 
-	console.log("PULLING CONTENT. dx:"+dx+" dy:"+dy)
-	
-	for( k in this.display.children )
-		this.display.children[k].move(dx,dy);
+	if(!dx && !dy)
+	{
+		console.log("PULLING CANCELED FROMT THE START!");
+		return;
+	}
 
-	this.cmove(-dx,-dy,true);
+	var result = this.cmove(-dx,-dy,true,true); 
+	console.log("PULLING CONTENT. dx:"+dx+" dy:"+dy+" r:"+result)
+	
+	if(result)
+	{
+		for( k in this.display.children )
+			this.display.children[k].move(dx,dy);
+	}
+	else
+		console.log("PULL CANCELED!");
 }
 //for content status updates
 Camera.getContentPositioning = function()
@@ -293,15 +328,19 @@ Camera.scrollHandler = function()
 	parent.antiCrossReff("cmove",0);
 }
 //TODO: calculate boundaries and add boundary limit enforcing
-Camera.cmove = function(dx,dy,norel)
+Camera.cmove = function(dx,dy,norel,ICR) //ICR ignore cross refference
 {
 	if(!this.callow)
-		return;
-
+	{
+		console.log("Operation denied!");
+		return false;
+	}
 	//check cross refference 
-	if(this.antiCrossReff("cmove",1))
-		return;
-
+	if(!ICR && this.antiCrossReff("cmove",1))
+	{
+		console.log("Cross reference prevented!");
+		return false;
+	}
 	//inertia buildup
 	if(this.c_allowInertia && this.allowInertia)
 	{
@@ -316,7 +355,12 @@ Camera.cmove = function(dx,dy,norel)
 	this.DOMreference.scrollLeft -= dx;
 
 	if(this.DOMreference.scrollTop == this.oldY && this.DOMreference.scrollLeft == this.oldX )
+	{
 		console.log("DID NOT MOVE! BITH DOES NOT WANT TO WORK:"+this.DOMreference.scrollTop+" "+this.DOMreference.scrollLeft+" w:"+this.getWidth()+" h:"+this.getHeight())
+		if(!ICR)
+			this.antiCrossReff("cmove",0);
+		return false;
+	}
 	//	this.display.move(dx,dy);
 	//TODO: investigate if moving a scaled camera needs any kind of adaptation: * (1/this.czoomLevel) , *(1/this.czoomLevel) 
 
@@ -325,7 +369,10 @@ Camera.cmove = function(dx,dy,norel)
 		for( k in this.crelations )
 			this.crelations[k]['root'].cmove(dx*this.crelations[k]['x'],dy*this.crelations[k]['y'])
 
-	this.antiCrossReff("cmove",0);
+	if(!ICR)
+		this.antiCrossReff("cmove",0);
+	
+	return true;
 }
 
 Camera.onMoveStart = function(ctx,e)
@@ -426,7 +473,7 @@ Camera.czoom = function(amount,ox,oy)
 	//
 	this.czoomLevel = next;
 	var torig = this.cgetTransformOrigin(ox,oy);
-	console.log("TORIG:"+utils.debug(torig," ")+" x:"+this.display.getWidth()*torig['ox']+" y:"+this.display.getHeight()*torig['oy']);
+	//console.log("TORIG:"+utils.debug(torig," ")+" x:"+this.display.getWidth()*torig['ox']+" y:"+this.display.getHeight()*torig['oy']);
 	this.display.scale(amount,torig['ox'],torig['oy'])
 
 	for( k in this.crelations )
@@ -503,7 +550,7 @@ Camera.cfocusOn = function(target,options)
 		var camPos = camera.cgetPos(0,0);
 		var targetPos = target.getPos(0.5,0.5);
 		
-		console.log("CX:"+camPos.x+" CY:"+camPos.y+" TX:"+targetPos.x+" TY:"+targetPos.y+" Dx:"+destination.x+" Dy:"+destination.y)
+		//console.log("CX:"+camPos.x+" CY:"+camPos.y+" TX:"+targetPos.x+" TY:"+targetPos.y+" Dx:"+destination.x+" Dy:"+destination.y)
 		targetPos.x -= camPos.x;
 		targetPos.y -= camPos.y;
 	
@@ -528,7 +575,7 @@ Camera.cfocusOn = function(target,options)
 			dx/=pace;
 			dy/=pace;
 			camera.cmove(dx,dy);
-			console.log("Dx:"+destination.x+" Dy:"+destination.y+" tx:"+targetPos.x+"ty:"+targetPos.y+" dx:"+dx+" dy:"+dy)
+			//console.log("Dx:"+destination.x+" Dy:"+destination.y+" tx:"+targetPos.x+"ty:"+targetPos.y+" dx:"+dx+" dy:"+dy)
 			//rotate
 			//var da = -target.angle /10;
 			//camera.crotate(da);
