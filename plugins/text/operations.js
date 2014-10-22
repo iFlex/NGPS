@@ -1,4 +1,3 @@
-
 keyboard.interface = {};
 keyboard.interface.originalHeight = 50;
 keyboard.interface.textSize = 12;

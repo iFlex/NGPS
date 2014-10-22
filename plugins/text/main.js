@@ -2,6 +2,8 @@
 *	NGPS Edit Interface
 *	Author: Milorad Liviu Felix
 *	28 Jun 2014  18:45 GMT
+*	Need:
+*		Need to be able to pup up editor same size regardless of zoom level
 */
 //TODO: Fix weird trigger ( with the start editor listener ) evend firing on factory.root even though it's not listened for.
 this.keyboard = {};
@@ -48,9 +50,10 @@ loadAppCode("text",function(data)
 		}
 		document.body.appendChild(s);
 		keyboard.editor.hide();
+
 		//enable keyboard
-		document.onkeydown = keyboard.onKeyDown;
-		document.onkeyup   = keyboard.onKeyUp;
+		//document.onkeydown = keyboard.onKeyDown;
+		//document.onkeyup   = keyboard.onKeyUp;
 	}
 	this.run = function()	//called whenever the container is triggered
 	{
@@ -74,28 +77,35 @@ loadAppCode("text",function(data)
 	}
 	keyboard.onKeyDown = function(evt)
 	{
+		/*
 		evt = evt || window.event;
 		console.log("."+evt.keyCode);
 		if(evt.keyCode == keyboard.keys.caps_lock || evt.keyCode == keyboard.keys.shift) // caps loc or shift
 			keyboard.uppercase = !keyboard.uppercase;
 		keyboard.addLetter(evt.keyCode);
+		*/
 	}
 	keyboard.onKeyUp = function(evt)
 	{
+		/*
 		evt = evt || window.event;
 		console.log("^"+evt.keyCode);
 		if(evt.keyCode == keyboard.keys.caps_lock || evt.keyCode == keyboard.keys.shift) // caps loc or shift
 			keyboard.uppercase = !keyboard.uppercase;
+		*/
 	}
 	keyboard.checkKeyOperation = function(key)
 	{
+		/*
 		if( key == keyboard.keys.enter )
 			keyboard.interface.subject.innerHTML += "<br>";
 		if( key == keyboard.keys.back_space)
 			keyboard.interface.subject.innerHTML = keyboard.interface.subject.innerHTML.slice(0,keyboard.interface.subject.innerHTML.length-1)
+		*/
 	}
 	keyboard.addLetter = function(code)
 	{
+		/*
 		var nc = String.fromCharCode(code);
 		
 		if(keyboard.interface.subject)
@@ -114,19 +124,25 @@ loadAppCode("text",function(data)
 				nc = nc.toLowerCase();
 			keyboard.interface.subject.innerHTML += nc;
 		}	
-		
+		*/
 	}
 	keyboard.focusEditor = function(target)
 	{
 		keyboard.interface.parent.show();
-		keyboard.interface.subject = target.DOMreference;
+		//assigns the editable DOM object
+		keyboard.interface.target = target;
+		keyboard.interface.subject = target.subject;
 		var pos = target.getPos();
 		//alert("c:"+utils.debug(pos))
 		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.interface.originalHeight);
+		target.interactive(false);
 	}
 	keyboard.hideEditor = function()
 	{
 		keyboard.interface.parent.hide();
+		if(keyboard.interface.target)
+			keyboard.interface.target.interactive(true);
+		
 		keyboard.interface.subject = 0;
 	}
 });

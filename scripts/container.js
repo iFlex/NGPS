@@ -373,6 +373,7 @@ this.container = function(properties)
 		if( this.events['hideContainer'] || ( GEM.events['hideContainer'] && GEM.events['hideContainer']['_global'] ) )
 			GEM.fireEvent({event:"hideContainer",target:this})
 	}
+	//NOT RELEVANT
 	this.redraw = function (){
 		this.hide();
 		this.show();
@@ -404,10 +405,12 @@ this.container = function(properties)
 		}
 		return ret;
 	}
+	
 	this.global2local = function(x,y){
 		var origin = this.local2global(0,0);
 		return { x: x - origin.x, y: y - origin.y};
 	}
+
 	//TODO: make it work for other browsers than chrome
 	this.getPos   = function(cx,cy,global)
 	{	

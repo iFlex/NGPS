@@ -49,8 +49,12 @@ factory.init = function(mode) // editor init
 	root.extend(Interactive);
 	root.extend(Camera);
 	root.interactive(true);
-	//root.DOMreference.addEventListener('mouseout' ,root.onMouseUp,  false);
 	root.cstart(10);
+
+	root.DOMreference.className = "zoomViewport exampleContainer zoomTarget selectedZoomTarget zoomNotClickable";
+	root.display.DOMreference.className = "zoomContainer zoomTarget selectedZoomTarget ";
+	//zoom must be included here
+
 	factory.root = root;
 	factory.initialised = true;
 	

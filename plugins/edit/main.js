@@ -225,6 +225,7 @@ loadAppCode("edit",function(data)
 		factory.dock.stopEditInterface();
 		factory.dock.EditUI.target = target;
 		factory.dock.node = target;
+		//$(target.DOMreference).zoomTo({targetsize:0.75, duration:600});
 		//add event listeners
 		target.addEventListener("changeWidth",this.focusEditInterface);
 		target.addEventListener("changeHeight",this.focusEditInterface);
@@ -460,6 +461,7 @@ loadAppCode("edit",function(data)
 	this.onAddText = function()
 	{
 		var container = factory.dock.onAddContainer(true,{border_size:"1px",border_type:"solid",background:"transparent",borders:["0px"]});
+		container.subject = container.addPrimitive({type:"textarea",content:{style:"width:100%;height:100%;border:none;resize: none;"}});
 		factory.dock.stopEditInterface();
 		container.addEventListener("triggered",function(data){ factory.dock.startSpecialEditInterface(data['target']);});
 		factory.dock.startSpecialEditInterface(container);

@@ -153,7 +153,9 @@ AppCtl.arun = function(ctx)
 
 	var host = this;
 	if(ctx)
-		host = ctx.parent
+		host = ctx.parent;
+
+	host.suspendInteraction();
 	host.cover.hide();
 	host.exit.show();
 	//app
@@ -175,6 +177,8 @@ AppCtl.asuspend = function(ctx)
 	var host = this;
 	if(ctx)
 		host = ctx.parent;
+	
+	host.resumeInteraction();
 	host.cover.show();
 	host.exit.hide();
 	//app
