@@ -8,12 +8,15 @@
 //initialise
 this.Descriptors = this.Descriptors || {}
 Descriptors.containers = Descriptors.containers || {};
+//CORE
+Descriptors.containers['root'] = {width:"100%",height:"100%",background:"white",surfaceWidth:50000,surfaceHeight:50000,CAMERA_type:"scroller"};
+Descriptors.containers['overlay'] = {width:"100%",height:"100%",background:"transparent",cssText:"position:fixed;top:0px;left:0px;z-index:100"};
 //default
-Descriptors.containers['simple_rect'] = {x:0,y:0,width:100,height:100,background:"blue",border_size:2,border_style:"solid",border_color:"0x000000"};
-Descriptors.containers['rounded_rect'] = {x:0,y:0,width:100,height:100,background:"blue",border_size:2,border_style:"solid",border_color:"0x000000",border_radius:["15px"]};
-Descriptors.containers['simple_dashed'] = {x:0,y:0,width:100,height:100,background:"blue",border_size:5,border_style:"dashed"};
+Descriptors.containers['simple_rect'] = {background:"blue",border_size:2,border_style:"solid",border_color:"0x000000"};
+Descriptors.containers['rounded_rect'] = {background:"blue",border_size:2,border_style:"solid",border_color:"0x000000",border_radius:["15px"]};
+Descriptors.containers['simple_dashed'] = {background:"blue",border_size:5,border_style:"dashed"};
 //custom
-Descriptors.containers['c000000'] = { name:"Simple" , x:0 , y:0 , width:100 , height:100 , cssText : "background: red;" };
-Descriptors.containers['c000001'] = { name:"Rounded" , x:0 , y:0 , width:100 , height:100 , cssText : "border-radius:15px;background: red;" };
-Descriptors.containers['c000002'] = { name:"Dashed" , x:0 , y:0 , width:100 , height:100 , cssText : "border-width:5px;border-style:dashed;background: red;" };
-Descriptors.containers['c000003'] = { name:"Dotted" , x:0 , y:0 , width:100 , height:100 , cssText : "border-width:5px;border-style:dotted;background: red;" };
+Descriptors.containers['c000000'] = { name:"Simple" , cssText : "background: red;" };
+Descriptors.containers['c000001'] = { name:"Rounded" , cssText : "border-radius:15px;background: red;" };
+Descriptors.containers['c000002'] = { name:"Dashed"  , cssText : "border-width:5px;border-style:dashed;background: red;" };
+Descriptors.containers['c000003'] = { name:"Dotted" , cssText : "border-width:5px;border-style:dotted;background: red;" };

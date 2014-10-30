@@ -761,10 +761,10 @@ this.container = function(properties)
 		if(! AppMgr.loadedApps[app] )
 		{
 			//lookup app
-			requirejs(['plugins/'+app+"/main.js"],function(){
+			requirejs(['plugins/'+app+"/main"],function(){
 				//AppMgr.loadedApps[app] = eval(app);
 				host.appName = app;
-				host.appPath = 'plugins/'+app;
+				host.appPath = 'plugins/'+app+'/';
 				ldApp(AppMgr.loadedApps[app]);
 			});
 		}

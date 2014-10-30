@@ -12,6 +12,8 @@
 *			This functionality enables themes ( a theme will therefore be an AMS combined with certain features )
 *		It also can decide what functions to link to the trigger events of containers depending on what mode it is initiated in ( Viewer or Editor )
 */
+
+//NGPS Factory creates 2 main objects: foot ( dymanic object holder ) overlay ( a static holder that allows headers or interfaces to be independent from the main camera)
 requirejs(['container',"descriptors/containers","descriptors/links","themes/default","regional/regionalLoader"]);
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
@@ -25,7 +27,7 @@ factory.init = function(mode) // editor init
 		factory.initialised = false;
 		factory.root.discard();
 	}
-	//
+	//global initalisation operations
 	factory.presentation = {};
 	factory.presentation.name = "Not Decided Yet";
 	//settings
@@ -34,30 +36,16 @@ factory.init = function(mode) // editor init
 	factory.settings.container = {}
 	factory.settings.container.width = 250;
 	factory.settings.container.height = 250;
-	factory.settings.mode = mode || "editor";
-	//
-	var descriptor = platform.getScreenSize();
-	//"#fAfAfA"
-	descriptor = utils.merge({x:0,y:0,background:"white",border_size:1,border_style:"solid"},descriptor);
-	//make a full screen camera object
-	factory.display = new container(descriptor);
-	factory.display.load();
-
-	descriptor['background'] = "transparent";
-	var root = new container(descriptor);
-	root.load(factory.display);
-	root.extend(Interactive);
-	root.extend(Camera);
-	root.interactive(true);
-	root.cstart(10);
-
-	root.DOMreference.className = "zoomViewport exampleContainer zoomTarget selectedZoomTarget zoomNotClickable";
-	root.display.DOMreference.className = "zoomContainer zoomTarget selectedZoomTarget ";
-	//zoom must be included here
-
-	factory.root = root;
-	factory.initialised = true;
+	//creating factory.root ( place where dynamic content is placed )
+	factory.root = new container(Descriptors.containers['root']);
+	factory.root.load();
+	factory.root.extend(Interactive);
+	factory.root.extend(Camera);
+	factory.root.interactive(true);
+	factory.root.cstart(10);
 	
+
+	factory.initialised = true;
 	if(factory.setup) //if custom setup is loaded, run it
 		factory.setup();
 

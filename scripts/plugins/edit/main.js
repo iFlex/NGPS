@@ -204,12 +204,8 @@ loadAppCode("edit",function(data)
 	this.init = function() //called only one when bound with container
 	{
 		//include language packs
-		//requirejs(['plugins/edit/messages']);
-		//manual inclusion
-		var messages = document.createElement("script");
-		messages.src = "plugins/edit/messages.js";
-		messages.onload = this.buildInterface;
-		document.head.appendChild(messages);
+		var ctx = this;
+		requirejs([this.parent.appPath+'messages'],function(){ctx.buildInterface();});
 		factory.dock.dockedApps = {};
 	};
 	this.fileDialog = function()
@@ -390,12 +386,20 @@ loadAppCode("edit",function(data)
 	}
 
 	this.onAddContainer = function(noEvent,descriptor){
+		var pos = {}
 		if(!factory.dock.node)
+		{
 			factory.dock.node = factory.root;
-
+			pos = factory.root.getViewportXY(0.5,0.5);
+		}
+		else
+		{
+			pos.x = (factory.dock.node.getWidth() - factory.dock.possize.width)/2;
+			pos.y = (factory.dock.node.getHeight() - factory.dock.possize.height)/2;
+		}
 		var container = factory.newContainer(utils.merge({
-			x:(factory.dock.node.getWidth() - factory.dock.possize.width)/2,
-			y:(factory.dock.node.getHeight() - factory.dock.possize.height)/2,
+			x:pos.x,
+			y:pos.y,
 			width:factory.dock.possize.width,
 			height:factory.dock.possize.height},descriptor),factory.dock.tags[2],factory.dock.node,false,true);
 		

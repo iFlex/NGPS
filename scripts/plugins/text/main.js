@@ -35,20 +35,11 @@ loadAppCode("text",function(data)
 		//include app
 		keyboard.editor = factory.newContainer({x:100,y:100,width:500,height:50,background:"transparent"},"simple_rect",factory.root);
 		var s = document.createElement('script');
-		s.src = this.rootDir+"/operations.js";
-		var rootDir = this.rootDir;
-		s.onload = function(){
-			var scr = document.createElement('script');
-			scr.src = rootDir + "/interface.js";
-			document.body.appendChild(scr);
-
-			scr.onload = function(){
-				keyboard.buildTextInterface(keyboard.editor.DOMreference);
-				keyboard.interface.init();
-				keyboard.interface.parent = keyboard.editor;
-			}
-		}
-		document.body.appendChild(s);
+		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface"],function(){
+			keyboard.buildTextInterface(keyboard.editor.DOMreference);
+			keyboard.interface.init();
+			keyboard.interface.parent = keyboard.editor;
+		})
 		keyboard.editor.hide();
 
 		//enable keyboard

@@ -178,8 +178,8 @@ cli.execute = function(str)
 	var result = 0;
 	if(cli.owner && cli.owner[cli.tocall])
 	{
-		try
-		{
+		//try
+		//{
 			result = cli.owner[cli.tocall](cli.params[0],cli.params[1],cli.params[2],cli.params[3],cli.params[4],cli.params[5]);
 			//process result
 			if(result)
@@ -188,11 +188,11 @@ cli.execute = function(str)
 				if(typeof(result) != "function")
 				 cli.UIout.innerHTML += "<br>"+result+":"+utils.debug(result,"<br>");
 			}
-		} 
-		catch ( err )
-		{
-			cli.UIout.innerHTML += "<br> ERROR:"+err;
-		} 
+		//} 
+		//catch ( err )
+		//{
+		//	cli.UIout.innerHTML += "<br> ERROR:"+err;
+		//} 
 	}
 	else
 	{
@@ -248,10 +248,8 @@ cli.shtree = function()
 		if( node.isLink == true )
 			type += "L"
 		if( node.isCamera == true)
-		{
 			type += "C";
-			type += utils.debug(node.getContentPositioning()); 
-		}
+		
 		if( node.isApp == true )
 			type += "A";
 
