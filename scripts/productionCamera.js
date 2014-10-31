@@ -80,7 +80,7 @@ Camera.cstart = function(interval)
 	//
 	this.boundaries = {};
 	// Built in Fast Callbacks
-	this.onMoved = this.cmove;//this.cmove;
+	this.onMoved = this.c_move;//this.cmove;
 	this.onMouseDown = this.onMoveStart;
 	this.onMouseUp   = this.onMoveEnd;
 
@@ -457,6 +457,7 @@ Camera.cmove = function(dx,dy,delay,norel) //ICR ignore cross refference, make t
 		this.ctargetX = pos.x + dx;
 	this.cmoveBound();
 
+	console.log("DX:"+dx+" DY:"+dy);
 	var ctx = this;
 	if(this.cameraType == 1)
 		TweenMax.to(this.DOMreference,1,{scrollTop:-this.ctargetY,scrollLeft:-this.ctargetX});

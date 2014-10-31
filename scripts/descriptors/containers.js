@@ -11,6 +11,7 @@ Descriptors.containers = Descriptors.containers || {};
 //CORE
 Descriptors.containers['root'] = {width:"100%",height:"100%",background:"white",surfaceWidth:50000,surfaceHeight:50000,CAMERA_type:"scroller"};
 Descriptors.containers['overlay'] = {width:"100%",height:"100%",background:"transparent",cssText:"position:fixed;top:0px;left:0px;z-index:100"};
+Descriptors.containers['link_dot'] = {border_size:1,border_style:"solid",border_radius:["50%"],border_color:"black",background:"red"}
 //default
 Descriptors.containers['simple_rect'] = {background:"blue",border_size:2,border_style:"solid",border_color:"0x000000"};
 Descriptors.containers['rounded_rect'] = {background:"blue",border_size:2,border_style:"solid",border_color:"0x000000",border_radius:["15px"]};

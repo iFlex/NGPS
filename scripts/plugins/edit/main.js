@@ -200,6 +200,7 @@ loadAppCode("edit",function(data)
 			factory.dock.tags.push(k);
 
 		factory.root.addEventListener("triggered",factory.dock.stopEditInterface);
+		factory.dock.dockApp('link');
 	}
 	this.init = function() //called only one when bound with container
 	{
@@ -401,7 +402,7 @@ loadAppCode("edit",function(data)
 			x:pos.x,
 			y:pos.y,
 			width:factory.dock.possize.width,
-			height:factory.dock.possize.height},descriptor),factory.dock.tags[2],factory.dock.node,false,true);
+			height:factory.dock.possize.height},descriptor),factory.dock.tags[3],factory.dock.node,false,true);
 		
 		if(noEvent == true)
 			return container;
@@ -464,7 +465,7 @@ loadAppCode("edit",function(data)
 
 	this.onAddText = function()
 	{
-		var container = factory.dock.onAddContainer(true,{border_size:"1px",border_type:"solid",background:"transparent",borders:["0px"]});
+		var container = factory.dock.onAddContainer(true,{});
 		container.subject = container.addPrimitive({type:"textarea",content:{style:"width:100%;height:100%;border:none;resize: none;"}});
 		factory.dock.stopEditInterface();
 		container.addEventListener("triggered",function(data){ factory.dock.startSpecialEditInterface(data['target']);});

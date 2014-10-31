@@ -160,7 +160,7 @@ Interactive.onMouseUp = function( e , ctx )
 					ctx.onTrigger( ctx , e);
 				
 				if( ctx.events['triggered'] || ( GEM.events['triggered'] && GEM.events['triggered']['_global'] ) )
-					GEM.fireEvent({event:"triggered",target:ctx,nativeEvent:e})
+					GEM.fireEvent({event:"triggered",target:ctx,original_event:e,nativeEvent:e})//TODO: delete nativeEvent after making sure it's not used
 				
 				ctx.triggerCount++;
 			}

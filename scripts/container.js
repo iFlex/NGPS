@@ -519,7 +519,7 @@ this.container = function(properties)
 		if( this.events['changeAngle'] || ( GEM.events['changeAngle'] && GEM.events['changeAngle']['_global'] ) )
 			GEM.fireEvent({event:"changeAngle",target:this})
 	}
-	this.putAt = function(	x, y, refX , refY,global)
+	this.putAt = function(	x, y, refX, refY, global)
 	{
 		//if(this.DOMreference.style.position != 'absolute')
 		//	this.DOMreference.style.position = 'absolute';
@@ -630,7 +630,7 @@ this.container = function(properties)
 			this.unlink(target);
 
 		//create container for link
-		var gcp = this.greatestCommonParent(target);
+		var gcp = factory.root;//this.greatestCommonParent(target);
 		var leLink = gcp.addChild( descriptor['container'] );
 		leLink.isLink = true;
 
@@ -732,6 +732,9 @@ this.container = function(properties)
 			var trg = this.incoming[t]['target'];
 			trg.maintainLink( this );
 		}
+
+		for( c in this.children )
+			this.children[c].maintainLinks();
 	}
 	//EVENTs support
 	this.addEventListener = function( event , handler , context )
@@ -765,6 +768,7 @@ this.container = function(properties)
 				//AppMgr.loadedApps[app] = eval(app);
 				host.appName = app;
 				host.appPath = 'plugins/'+app+'/';
+				host.appFullPath = requirejs.s.contexts._.config.baseUrl+host.appPath;
 				ldApp(AppMgr.loadedApps[app]);
 			});
 		}
