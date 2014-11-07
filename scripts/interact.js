@@ -12,6 +12,14 @@
 *		mouseUp
 *		mouseOut
 *		triggered
+
+*	Available callbacks:
+*		onMouseDown
+*		onMouseUp
+*		onMouseOut
+*		onMouseMove
+*		onTrigger
+*		onMoved
 */
 this.Interactive = {}
 //What to do with interaction events( In some cases it's necessary to pass them to the parent )
@@ -30,7 +38,7 @@ Interactive.triggerCount = 0;
 this.Interaction = {}
 Interaction.origin = 0;
 
-Interactive.onMouseDown = function( e , ctx )
+Interactive._onMouseDown = function( e , ctx )
 {
 	if(!ctx)
 		ctx = this.context;
@@ -70,11 +78,11 @@ Interactive.onMouseDown = function( e , ctx )
 	else
 	{
 		if(ctx.parent)
-			ctx.parent.onMouseDown( e , ctx.parent );
+			ctx.parent._onMouseDown( e , ctx.parent );
 	}
 }
 
-Interactive.onMouseMove = function(e, ctx)
+Interactive._onMouseMove = function(e, ctx)
 {
 	if(!ctx)
 		ctx = this.context;
@@ -86,7 +94,7 @@ Interactive.onMouseMove = function(e, ctx)
 	//smooth continuous interaction
 	if( Interaction.origin && ctx.UID != Interaction.origin.UID )
 	{
-		Interaction.origin.onMouseMove( e , Interaction.origin )
+		Interaction.origin._onMouseMove( e , Interaction.origin )
 		return;
 	}
 
@@ -137,10 +145,10 @@ Interactive.onMouseMove = function(e, ctx)
 	{
 		//console.log("Propagating:"+e.type +" to:"+ ctx.parent.UID)
 		if(ctx.parent)
-			ctx.parent.onMouseMove( e , ctx.parent );
+			ctx.parent._onMouseMove( e , ctx.parent );
 	}
 }
-Interactive.onMouseUp = function( e , ctx )
+Interactive._onMouseUp = function( e , ctx )
 {
 
 	if(!ctx)
@@ -181,12 +189,12 @@ Interactive.onMouseUp = function( e , ctx )
 		//propagate
 		ctx.hasMD = false;
 		if(ctx.parent)
-			ctx.parent.onMouseUp( e , ctx.parent );
+			ctx.parent._onMouseUp( e , ctx.parent );
 	}
 	Interaction.origin.hasMD = false;
 	Interaction.origin = 0;
 }
-Interactive.onMouseOut = function( e , ctx )
+Interactive._onMouseOut = function( e , ctx )
 {
 	if(!ctx)
 		ctx = this.context;
@@ -224,7 +232,7 @@ Interactive.cancelMouse = function( e, ctx)
 	{
 		ctx.hasMD = false;
 		if(ctx.parent)
-			ctx.parent.onMouseUp( e , ctx.parent );
+			ctx.parent._onMouseUp( e , ctx.parent );
 	}
 	Interaction.origin = null;
 }
@@ -240,7 +248,7 @@ Interactive.touchstart = function( e , ctx)
 	if( ctx.propagation == 1 )
 		return true;
     
-    ctx.onMouseDown(e,ctx);
+    ctx._onMouseDown(e,ctx);
     //NOT NEEDED AT THE MOMENT
 }
 //TODO: sort out propagation for this
@@ -294,7 +302,7 @@ Interactive.touchmoved = function( e , ctx)
 		}
 	}
     else
-        ctx.onMouseMove(e,ctx);
+        ctx._onMouseMove(e,ctx);
 }
 
 Interactive.touchend = function( e, ctx){
@@ -307,7 +315,7 @@ Interactive.touchend = function( e, ctx){
 
 	ctx.mLastDistance = 0;
 	ctx.mLastAngle = 0;
-    ctx.onMouseUp(e,ctx);
+    ctx._onMouseUp(e,ctx);
 }
 
 Interactive.enableMobile = function ( obj )
@@ -355,11 +363,11 @@ Interactive.interactive = function( d )
 	  			this.enableMobile ( this.DOMreference );
 	  		else
 	  		{
-	  			this.DOMreference.addEventListener('mousedown',this.onMouseDown, false);
-	  			this.DOMreference.addEventListener('mousemove',this.onMouseMove, false);
-	  			this.DOMreference.addEventListener('mouseover',this.onMouseMove, false);
-	  			this.DOMreference.addEventListener('mouseup'  ,this.onMouseUp,   false);
-	  			this.DOMreference.addEventListener('mouseout' ,this.onMouseOut,  false);
+	  			this.DOMreference.addEventListener('mousedown',this._onMouseDown, false);
+	  			this.DOMreference.addEventListener('mousemove',this._onMouseMove, false);
+	  			this.DOMreference.addEventListener('mouseover',this._onMouseMove, false);
+	  			this.DOMreference.addEventListener('mouseup'  ,this._onMouseUp,   false);
+	  			this.DOMreference.addEventListener('mouseout' ,this._onMouseOut,  false);
 	  		}
         }
   	}
@@ -373,12 +381,44 @@ Interactive.interactive = function( d )
 	  			this.disableMobile( this.DOMreference );
 	  		else
 	  		{
-	  			this.DOMreference.removeEventListener('mousedown',this.onMouseDown, false);
-		  		this.DOMreference.removeEventListener('mousemove',this.onMouseMove, false);
-		  		this.DOMreference.removeEventListener('mouseover',this.onMouseMove, false);
-		  		this.DOMreference.removeEventListener('mouseup'  ,this.onMouseUp,   false);
-		  		this.DOMreference.removeEventListener('mouseout' ,this.onMouseOut,  false);
+	  			this.DOMreference.removeEventListener('mousedown',this._onMouseDown, false);
+		  		this.DOMreference.removeEventListener('mousemove',this._onMouseMove, false);
+		  		this.DOMreference.removeEventListener('mouseover',this._onMouseMove, false);
+		  		this.DOMreference.removeEventListener('mouseup'  ,this._onMouseUp,   false);
+		  		this.DOMreference.removeEventListener('mouseout' ,this._onMouseOut,  false);
 		 	}
+		}
+  	}
+}
+Interactive.pauseInteraction = function( d )
+{
+	//TODO: think over what kind of functionaly this should offer
+	if( d )
+	{
+        if(	this.isInteractive )
+		{
+			this.savedFunctions = {};
+			this.savedFunctions.onMouseDown = this.onMouseDown;
+			this.savedFunctions.onMouseMove = this.onMouseMove;
+			this.savedFunctions.onMouseUp   = this.onMouseUp;
+			this.savedFunctions.onMouseOut  = this.onMouseOut;
+			this.savedFunctions.onTrigger   = this.onTrigger;
+			this.savedFunctions.onMoved     = this.onMoved;
+
+			this.onMouseDown = 0;
+			this.onMouseMove = 0;
+			this.onMouseUp = 0;
+			this.onMouseOut = 0;
+			this.onTrigger = 0;
+			this.onMoved = function(){};
+        }
+  	}
+  	else
+  	{
+  		if( this.isInteractive )
+  		{
+  			for( k in this.savedFunctions )
+  				this[k] = this.savedFunctions[k];
 		}
   	}
 }

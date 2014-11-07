@@ -95,3 +95,55 @@ benchmark.focusTest = function()
 		nextSector();
 	}
 }
+
+benchmark.link = function(nr,verbose){
+	var childrenList = [];
+	function getAllElements(node){
+		childrenList.push(node);
+		for( k in node.children )
+			getAllElements(node.children[k]);
+	}
+	getAllElements(factory.root);
+
+	linkData = {
+		left_container_xreff:0.5,
+		left_container_yreff:0.5,
+		right_container_xreff:0.5,
+		right_container_yreff:0.5,
+		left_link_xreff:0,
+		left_link_yreff:0.5,
+		right_link_xreff:1,
+		right_link_yreff:0.5,
+	}
+	console.log("Complete children list:"+utils.debug(childrenList));
+	var cDescriptor = Descriptors.containers["rounded_rect"];
+	cDescriptor['height'] = 5;
+	choices = {}
+	var left;
+	var right;
+	var ok = false;
+	while(nr)
+	{
+		ok = false;
+		while(!ok)
+		{
+			left = Math.floor((Math.random()*childrenList.length)%childrenList.length);
+			right = Math.floor((Math.random()*childrenList.length)%childrenList.length);
+			var key = left+" "+right;
+			ok = !choices[key];
+			choices[key] = true;
+		}
+		childrenList[left].link(
+			childrenList[right],{
+			container:cDescriptor,
+			anchors:linkData
+		});
+		if(verbose)
+		{
+			alert("pairing:"+key);
+			factory.root.cfocusOn(childrenList[left]);
+		}
+		nr--;
+	}
+
+}
