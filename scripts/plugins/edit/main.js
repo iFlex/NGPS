@@ -415,7 +415,7 @@ loadAppCode("edit",function(data)
 	this.addPictureFromFile = function(e)
 	{
 		var container = factory.dock.onAddContainer();
-		container.addPrimitive({type:"img",adapt_container:true,content:{src:e.target.result}});
+		var img = container.addPrimitive({type:"img",adapt_container:true,content:{src:e.target.result}});
 	}
 
 	this.addPicture = function(link,info)

@@ -21,35 +21,34 @@ utils.makeHTML = function(markup,parent)
 	{
 		var type = Object.keys(markup[i])[0];
 		var child = document.createElement(type);
-		keys = Object.keys(markup[i][type]);
-		//console.log("Key:"+type+" "+keys.length+" : "+utils.debug(keys));
-		
-		for( j = 0 ; j < keys.length ; ++j )
+		keys = markup[i][type];
+	
+		for( j in keys )
 		{
-			if(keys[j] != "children")
+			if(j != "children")
 			{
-				if(keys[j].indexOf("data-") > -1)
+				if(j.indexOf("data-") > -1)
 				{
-					var attrib = keys[j].slice(5, keys[j].length);
-					child.dataset[attrib] = markup[i][type][keys[j]]
+					var attrib = j.slice(5, j.length);
+					child.dataset[attrib] = markup[i][type][j]
 					continue;
 				}
-				if(keys[j] == "class")
+				if(j == "class")
 				{
-					child.className = markup[i][type][keys[j]];
+					child.className = markup[i][type][j];
 					continue;
 				}
 				//style
-				if(keys[j] == "style" || keys[j] == "cssText")
+				if(j == "style" || j == "cssText")
 				{
-					child.style.cssText = markup[i][type][keys[j]];
+					child.style.cssText = markup[i][type][j];
 					continue;
 				}
 				//normal properties
-				child[ keys[j] ] = markup[i][type][keys[j]];
+				child[ j ] = markup[i][type][j];
 			}
 			else
-				utils.makeHTML(markup[i][type][keys[j]],child); 
+				utils.makeHTML(markup[i][type][j],child); 
 		}
 		
 		if(!parent)
