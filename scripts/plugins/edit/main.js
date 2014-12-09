@@ -405,7 +405,7 @@ loadAppCode("edit",function(data)
 			x:pos.x,
 			y:pos.y,
 			width:factory.dock.possize.width,
-			height:factory.dock.possize.height},descriptor),factory.dock.tags[3],factory.dock.node,false,true);
+			height:factory.dock.possize.height},descriptor),factory.dock.tags[5],factory.dock.node,false,true);
 		
 		if(noEvent == true)
 			return container;
