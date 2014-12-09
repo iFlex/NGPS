@@ -1,6 +1,6 @@
 loadAppCode("zoom",function(data){
 	this.config = {interface:"none"};
-	this.parent = factory.root; //WARNING: this depends on the structure of the standard factory.js setup
+	this.parent = factory.base; //WARNING: this depends on the structure of the standard factory.js setup
 	this.buttonNames = ['zup','zdn'];
 	this.buttons = {};
 	this.buttonSize = 30;

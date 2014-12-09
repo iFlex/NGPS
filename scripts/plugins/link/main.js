@@ -1,6 +1,8 @@
 loadAppCode("link",function(data){
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
+	var startFrom = data['lastInterfaceContainer'] || 2 ;
+
 	this.temp = 0;
 	this.active = false;
 	
@@ -30,7 +32,7 @@ loadAppCode("link",function(data){
 		}
 
 		var target = data['target'];
-		if( target.UID == 0 || (linkParent && target.UID == linkParent.UID ) )//clicked on root
+		if( target.UID < startFrom || (linkParent && target.UID == linkParent.UID ) )//clicked on root
 		{
 			this.temp.hide();
 			return;

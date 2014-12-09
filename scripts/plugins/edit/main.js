@@ -2,8 +2,11 @@
 *	NGPS Edit Interface
 *	Author: Milorad Liviu Felix
 *	28 Jun 2014  18:45 GMT
+*	Requires:
+*		factory.base - attach potin for interface which is overlayed on the main camera
+*		factory.root - main camera
 */
-//TODO: Fix weird trigger ( with the start interface listener ) evend firing on factory.root even though it's not listened for.
+//TODO: Fix weird trigger ( with the start interface listener ) evend firing on factory.base even though it's not listened for.
 loadAppCode("edit",function(data)
 {
 	factory.dock = this;
@@ -200,7 +203,7 @@ loadAppCode("edit",function(data)
 			factory.dock.tags.push(k);
 
 		factory.root.addEventListener("triggered",factory.dock.stopEditInterface);
-		factory.dock.dockApp('link');
+		factory.dock.dockApp('link',{lastInterfaceContainer:5});
 	}
 	this.init = function() //called only one when bound with container
 	{
@@ -543,14 +546,14 @@ loadAppCode("edit",function(data)
 		factory.dock.EditUI['rotate'].lastEditAngle = angle;
 	}
 	//DOCK code
-	this.dockApp = function(app){
+	this.dockApp = function(app,passTo){
 		if(!factory.dock.dockedApps[app])
 		{
 			factory.dock.dockedApps[app] = {};
 			factory.dock.dockedApps[app].host = factory.newIsolatedContainer({type:"span"});
 			var parent = factory.dock.interfaces['main'].addCustom(factory.dock.dockedApps[app].host);
 			factory.dock.dockedApps[app].host.onMoved = function(){};//cancel movement
-			factory.dock.dockedApps[app].host.loadApp(app);
+			factory.dock.dockedApps[app].host.loadApp(app,passTo);
 		}
 	}
 	this.undockApp = function(app){

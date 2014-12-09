@@ -753,7 +753,7 @@ this.container = function(properties)
 	}
 	//App support
 	//TODO: read app descriptor and load accordingly
-	this.loadApp = function(app)
+	this.loadApp = function(app,passToApp)
 	{
 		//if loading over a previous app
 		if(this.isApp == true)
@@ -778,7 +778,7 @@ this.container = function(properties)
 		function ldApp(app)
 		{
 			host.extend(AppCtl);
-			host.ainit(app);
+			host.ainit(app,passToApp);
 
 			if(host.events["appLoaded"])
 				GEM.fireEvent({event:"appLoaded",target:host});

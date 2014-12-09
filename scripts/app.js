@@ -51,10 +51,14 @@ function loadAppCode(name,app)
 	AppMgr.loadedApps[name] = app;
 }
 
-AppCtl.ainit = function(app)
+AppCtl.ainit = function(app,params)
 {
+	if(!params)
+		params = {};
+	params = utils.merge(params,{parent:this,startWorker:this.requestWorker,stopWorker:this.stopWorker},"override");
+
 	this.isApp = true;
-	this.app = new app({parent:this,startWorker:this.requestWorker,stopWorker:this.stopWorker});
+	this.app = new app(params);
 	//unique identifiers for workers
 	this.aworkers = 0;
 	//

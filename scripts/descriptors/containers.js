@@ -9,6 +9,7 @@
 this.Descriptors = this.Descriptors || {}
 Descriptors.containers = Descriptors.containers || {};
 //CORE
+Descriptors.containers['base'] = {width:"100%",height:"100%",background:"white"};//not a camera
 Descriptors.containers['root'] = {width:"100%",height:"100%",background:"white",surfaceWidth:50000,surfaceHeight:50000,CAMERA_type:"scroller"};
 Descriptors.containers['overlay'] = {width:"100%",height:"100%",background:"transparent",cssText:"position:fixed;top:0px;left:0px;z-index:100"};
 Descriptors.containers['link_dot'] = {border_size:1,border_style:"solid",border_radius:["50%"],border_color:"black",background:"red"}

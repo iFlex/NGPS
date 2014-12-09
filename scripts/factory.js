@@ -37,13 +37,14 @@ factory.init = function(mode) // editor init
 	factory.settings.container.width = 250;
 	factory.settings.container.height = 250;
 	//creating factory.root ( place where dynamic content is placed )
-	factory.root = new container(Descriptors.containers['root']);
-	factory.root.load();
+	factory.base = new container(Descriptors.containers['base']);
+	factory.base.load();
+
+	factory.root = factory.base.addChild(Descriptors.containers['root']);
 	factory.root.extend(Interactive);
 	factory.root.extend(Camera);
 	factory.root.interactive(true);
 	factory.root.cstart(10);
-	
 
 	factory.initialised = true;
 	if(factory.setup) //if custom setup is loaded, run it
@@ -136,10 +137,10 @@ factory.newCamera = function (possize,tag,parent,interval,addToFrame,translate)
 	return obj;
 }
 //APPs
-factory.newGlobalApp = function ( app )
+factory.newGlobalApp = function ( app , passToApp )
 {
-	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"simple_rect",factory.display);
-	host.loadApp(app);
+	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"simple_rect",factory.base);
+	host.loadApp(app,passToApp);
 	return host;
 }
 //TODO: 
