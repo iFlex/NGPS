@@ -13,6 +13,9 @@ loadAppCode("edit",function(data)
 	factory.dock.clistatus = 0;
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
+	this.parent.permissions.save = false;
+	this.parent.permissions.connect = false;
+	
 	this.startWorker = data['startWorker'];
 	this.stopWorker = data['stopWorker'];
 	//

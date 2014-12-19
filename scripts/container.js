@@ -56,6 +56,8 @@ this.container = function(properties)
 	this.onMoved = 0; //this overrides the default container move function ( for camera use )
 	this.onMouseDown = 0;
 	this.onMouseUp  = 0;
+	//FLAGS
+	this.permissions = {save:true,connect:true};//savable, connectable, extend in future
 	//DOM manipulation
 	//TODO: Add possibility to  style with CSS
 	this.load = function(parent)
@@ -82,8 +84,9 @@ this.container = function(properties)
 		if(this.properties['class']) //custom CSS styling ()
 			this.DOMreference.setAttribute('class',this.properties['class']);
 		
-		if(this.properties['cssText']) // custom CSS styling ( works more efficient, only needs CSS )
-			this.DOMreference.style.cssText = this.properties['cssText'];
+		for( k in {cssText:true,style:true})
+			if(this.properties[k]) // custom CSS styling ( works more efficient, only needs CSS )
+				this.DOMreference.style.cssText = this.properties[k];
 
 		//Default Styling 
 		if(this.properties['width'])
@@ -188,6 +191,10 @@ this.container = function(properties)
 
 	this.addChild = function(properties)
 	{
+		//inherit permissions
+		if(!properties['permissions'])
+			properties['permissions'] = this.permissions;
+
 		this.children[ containerData.containerIndex ] = new container( properties );
 		var reff = this.children[ containerData.containerIndex ] 
 		reff.load( this );

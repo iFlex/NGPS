@@ -181,10 +181,10 @@ function test_new_containment()
 	};
 	div.extend(Camera);
 }
-//setTimeout(test_add_and_remove,1000);
-//setTimeout(test_move,500);
-//setTimeout(test_leaf,700);
-//setTimeout(test_show_hide,500);
-//setTimeout(test_event_listeners,500);
-//setTimeout(test_camera_extensions,500);
+setTimeout(test_add_and_remove,1000);
+setTimeout(test_move,500);
+setTimeout(test_leaf,700);
+setTimeout(test_show_hide,500);
+setTimeout(test_event_listeners,500);
+setTimeout(test_camera_extensions,500);
 setTimeout(test_new_containment,500);

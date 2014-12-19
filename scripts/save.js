@@ -5,12 +5,24 @@
 * 	This module reads the presentation configuration and saves in the form of a website
 */
 this.save = {};
-save.saveTree = {};
-save.nestCount = 0;
-save.ignore = {};
-//just for testing
-this.saveBuffer = 0;
+
+save.clear = function(){
+	for( k in save )
+		delete save[k];
+
+	save.saveTree = {};
+	save.requiredApps = [];
+	save.nestCount = 0;
+	save.ignore = {};
+	//just for testing
+	this.saveBuffer = 0;
+}
+
+//init
+save.clear();
+
 //TODO check if memory allows a ram save
+
 //if not do a step by step save
 save.proceed = function(){
 	//saves the presentation
@@ -19,6 +31,9 @@ save.proceed = function(){
 //builds the saved data in the ram then flushes it to the host
 save._unit = function(node,operation_mode)
 {
+	if(!node.permissions.save)
+		return;
+	
 	save.nestCount++;
 	var st = {};
 	st[node.UID] = {};
@@ -85,9 +100,13 @@ save.RAMsave = function(){
 	delete  save.saveTree;
 	save.saveTree = {};
 	//start save
-	save._unit(factory.root.display,{build:"continuous",iteration:"recursive"});
+	save._unit(factory.base,{build:"continuous",iteration:"recursive"});
 	//now stringify
 	saveBuffer = JSON.stringify(save.saveTree);
 
 	return saveBuffer;
+}
+
+save.toConsole = function(){
+	console.log(save.RAMsave());
 }

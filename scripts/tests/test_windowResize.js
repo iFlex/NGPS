@@ -1,1 +1,1 @@
-GEM.addEventListener("windowResize",0,function(){alert("bitch work!")});
+GEM.addEventListener('windowResize',0,function(){alert("WORKING")});
