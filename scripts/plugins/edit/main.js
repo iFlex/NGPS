@@ -15,7 +15,7 @@ loadAppCode("edit",function(data)
 	this.parent = data['parent'];
 	this.parent.permissions.save = false;
 	this.parent.permissions.connect = false;
-	
+
 	this.startWorker = data['startWorker'];
 	this.stopWorker = data['stopWorker'];
 	//
@@ -38,7 +38,7 @@ loadAppCode("edit",function(data)
 
 		this.parts['mainDiv'] = document.createElement('div');
 		this.parts['mainDiv'].className = "container-fluid";
-		
+
 		this.parts['title'] = document.createElement('a');
 		this.parts['title'].className = "navbar-brand";
 
@@ -47,14 +47,14 @@ loadAppCode("edit",function(data)
 		else
 			this.parts['title'].innerHTML =	info['title'];
 		Regional.inspectObject(this.parts['title']);
-				
+
 		this.parts['interfaceRight'] = document.createElement('ul');
 		this.parts['interfaceRight'].className = "nav navbar-nav navbar-right";
-		
-		
+
+
 		this.parts['mainDiv'].appendChild(this.parts['title']);
 		this.parts['mainDiv'].appendChild(this.parts['interfaceRight']);
-	
+
 		this.parts['root'].appendChild(this.parts['mainDiv']);
 		this.parent.DOMreference.appendChild(this.parts['root']);
 
@@ -63,15 +63,15 @@ loadAppCode("edit",function(data)
 			var li = document.createElement('li');
 			var a = document.createElement('a');
 			a.href = "#";
-			
+
 			if(properties && properties['no_anchor'])
 				a.style.color = "inherit";
 
 			a.onclick = handler;
-			
+
 			var span = document.createElement('span');
 			span.className = icon;
-			
+
 			var name = 0;
 			if(description)
 			{
@@ -80,7 +80,7 @@ loadAppCode("edit",function(data)
 				Regional.inspectObject(name);
 			}
 
-			
+
 			li.appendChild(a);
 			a.appendChild(span);
 			if(name)	a.appendChild(name);
@@ -90,10 +90,10 @@ loadAppCode("edit",function(data)
 		this.addCustom = function(element,style,events,properties)
 		{
 			var li = document.createElement('li');
-		
+
 			var a = document.createElement('a');
 			a.href = "#";
-			
+
 			var span = 0;
 			if(typeof(element) == "string")
 			{
@@ -147,9 +147,9 @@ loadAppCode("edit",function(data)
 			// assuming there is a file input with the ID `my-input`...
 			var files = this.files;
 			for (var i = 0; i < files.length; i++)
-	    		factory.dock.loadFromDataURL(files[i])		
+	    		factory.dock.loadFromDataURL(files[i])
 		};
-		
+
 		factory.dock.parent.DOMreference.appendChild(factory.dock.input);
 		//init interface
 		factory.dock.interfaces['main']	= new factory.dock.UI({parent:factory.dock.parent,title:"NGPS - "+factory.presentation.name});
@@ -160,45 +160,45 @@ loadAppCode("edit",function(data)
 		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-save',factory.dock.save)//,"#REG:EDIT_save:innerHTML");
 		factory.dock.interfaces['main'].addButton('glyphicon glyphicon-th',factory.dock.toggleCli);
 		//factory.dock.dockApp('link');
-		factory.newGlobalApp("text");
+		factory.newGlobalApp("text2");
 		//edit UI
 		var descriptor = {x:0,y:0,width:32,height:32,background:"white",border_size:"0px",cssText:"z-index:4;"};
 		factory.dock.EditUI['rotate']  = factory.newContainer(descriptor,"simple_rect",factory.root);
-		factory.dock.EditUI['rotate'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-share-alt'></span></center>"; 
+		factory.dock.EditUI['rotate'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-share-alt'></span></center>";
 		factory.dock.EditUI['rotate'].onMoved = factory.dock.onRotate;
 		factory.dock.EditUI['rotate'].hide();
-		
-		factory.dock.EditUI['enlarge'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		factory.dock.EditUI['enlarge'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-resize-full'></span></center>"; 
+
+		factory.dock.EditUI['enlarge'] = factory.newContainer(descriptor,"simple_rect",factory.root);
+		factory.dock.EditUI['enlarge'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-resize-full'></span></center>";
 		factory.dock.EditUI['enlarge'].onMoved = factory.dock.onEnlarge;
 		factory.dock.EditUI['enlarge'].hide();
 
-		factory.dock.EditUI['changeWidthLeft'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		factory.dock.EditUI['changeWidthLeft'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-left'></span></center>"; 
+		factory.dock.EditUI['changeWidthLeft'] = factory.newContainer(descriptor,"simple_rect",factory.root);
+		factory.dock.EditUI['changeWidthLeft'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-left'></span></center>";
 		factory.dock.EditUI['changeWidthLeft'].onMoved = factory.dock.onChangeWidthLeft;
 		factory.dock.EditUI['changeWidthLeft'].hide();
 
-		factory.dock.EditUI['changeWidthRight'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
+		factory.dock.EditUI['changeWidthRight'] = factory.newContainer(descriptor,"simple_rect",factory.root);
 		factory.dock.EditUI['changeWidthRight'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-right'></span></center>";
-		factory.dock.EditUI['changeWidthRight'].onMoved = factory.dock.onChangeWidthRight; 
+		factory.dock.EditUI['changeWidthRight'].onMoved = factory.dock.onChangeWidthRight;
 		factory.dock.EditUI['changeWidthRight'].hide();
 
-		factory.dock.EditUI['changeHeightBottom'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		factory.dock.EditUI['changeHeightBottom'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-down'></span></center>"; 
+		factory.dock.EditUI['changeHeightBottom'] = factory.newContainer(descriptor,"simple_rect",factory.root);
+		factory.dock.EditUI['changeHeightBottom'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-down'></span></center>";
 		factory.dock.EditUI['changeHeightBottom'].onMoved = factory.dock.onChangeHeightBottom;
 		factory.dock.EditUI['changeHeightBottom'].hide();
 
-		factory.dock.EditUI['changeHeightTop'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		factory.dock.EditUI['changeHeightTop'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-up'></span></center>"; 
+		factory.dock.EditUI['changeHeightTop'] = factory.newContainer(descriptor,"simple_rect",factory.root);
+		factory.dock.EditUI['changeHeightTop'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-up'></span></center>";
 		factory.dock.EditUI['changeHeightTop'].onMoved = factory.dock.onChangeHeightTop;
 		factory.dock.EditUI['changeHeightTop'].hide();
 
-		factory.dock.EditUI['delete'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		factory.dock.EditUI['delete'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-remove'></span></center>"; 
+		factory.dock.EditUI['delete'] = factory.newContainer(descriptor,"simple_rect",factory.root);
+		factory.dock.EditUI['delete'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-remove'></span></center>";
 		factory.dock.EditUI['delete'].hide();
 
-		factory.dock.EditUI['more'] = factory.newContainer(descriptor,"simple_rect",factory.root); 
-		factory.dock.EditUI['more'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-th-list'></span></center>"; 
+		factory.dock.EditUI['more'] = factory.newContainer(descriptor,"simple_rect",factory.root);
+		factory.dock.EditUI['more'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-th-list'></span></center>";
 		factory.dock.EditUI['more'].hide();
 
 		//read tags
@@ -264,7 +264,7 @@ loadAppCode("edit",function(data)
 				if( k != "target" )
 					factory.dock.EditUI[k].hide();
 
-			factory.dock.EditUI.target = 0;	
+			factory.dock.EditUI.target = 0;
 			factory.dock.node = 0;
 			factory.dock.isSpecialInterface = 0;
 		}
@@ -288,14 +288,14 @@ loadAppCode("edit",function(data)
 			for( k in factory.dock.EditUI )
 				if( k != "target" )
 					factory.dock.EditUI[k].hide();
-			factory.dock.EditUI.target = 0;	
+			factory.dock.EditUI.target = 0;
 			factory.dock.node = 0;
 			factory.dock.isSpecialInterface = 0;
 		}
 		keyboard.hideEditor();
-		
+
 	}
-	//TODO:NOT WORKING PORPERLY 
+	//TODO:NOT WORKING PORPERLY
 	this.setEditInterfaceAngle = function(angle)
 	{
 		angle *= Math.PI/180;
@@ -307,7 +307,7 @@ loadAppCode("edit",function(data)
 				var dx = tpos.x - pos.x;
 				var dy = tpos.y - pos.y;
 				var distance = Math.sqrt( dx*dx + dy*dy );
-				
+
 				angle += factory.dock.EditUI[k].originalAngle;
 				factory.dock.EditUI[k].putAt(tpos.x - distance*Math.cos(angle),tpos.y - distance*Math.sin(angle),0.5,0.5)
 				factory.dock.EditUI[k].setAngle(angle);
@@ -322,25 +322,25 @@ loadAppCode("edit",function(data)
 		}
 		var target =  factory.dock.EditUI.target;
 		var targetPos = target.getPos(0,0,true); //get global target pos
-		
+
 		factory.dock.EditUI['rotate'].show();
 		factory.dock.EditUI['rotate'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y - factory.dock.EditUI['rotate'].getHeight(),0,0,true)
-		
+
 		factory.dock.EditUI['enlarge'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight(),0,0,true)
 		factory.dock.EditUI['enlarge'].show();
 
 		factory.dock.EditUI['changeWidthLeft'].show();
-		factory.dock.EditUI['changeWidthLeft'].putAt( targetPos.x - factory.dock.EditUI['changeWidthLeft'].getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)	
+		factory.dock.EditUI['changeWidthLeft'].putAt( targetPos.x - factory.dock.EditUI['changeWidthLeft'].getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
 
 		factory.dock.EditUI['changeWidthRight'].show();
-		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)	
-	
+		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
+
 		factory.dock.EditUI['changeHeightBottom'].show();
 		factory.dock.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight(),0,0,true)
 
 		factory.dock.EditUI['changeHeightTop'].show();
-		factory.dock.EditUI['changeHeightTop'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y - factory.dock.EditUI['changeWidthLeft'].getHeight(),0,0,true)	
-		
+		factory.dock.EditUI['changeHeightTop'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y - factory.dock.EditUI['changeWidthLeft'].getHeight(),0,0,true)
+
 		factory.dock.EditUI['delete'].show();
 		factory.dock.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y - factory.dock.EditUI['rotate'].getHeight(),0,0,true)
 		factory.dock.EditUI['delete'].onTrigger = this.onDelete;
@@ -356,8 +356,8 @@ loadAppCode("edit",function(data)
 		var targetPos = target.getPos(0,0,true);
 		keyboard.focusEditor(target);
 		factory.dock.EditUI['changeWidthRight'].show();
-		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)	
-	
+		factory.dock.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - factory.dock.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
+
 		factory.dock.EditUI['changeHeightBottom'].show();
 		factory.dock.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - factory.dock.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight(),0,0,true)
 
@@ -368,7 +368,7 @@ loadAppCode("edit",function(data)
 
 		factory.dock.EditUI['more'].show();
 		factory.dock.EditUI['more'].putAt( targetPos.x - factory.dock.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight(),0,0,true)
-		
+
 		//factory.dock.setEditInterfaceAngle(target.angle);
 	}
 	this.loadFromDataURL = function(url)
@@ -377,7 +377,7 @@ loadAppCode("edit",function(data)
 		reader.onload = factory.dock.onLoadedFile;
 		reader.readAsDataURL(url);
 	}
-	
+
 	this.toggleCli = function()
 	{
 		if(!factory.dock.clistatus)
@@ -409,7 +409,7 @@ loadAppCode("edit",function(data)
 			y:pos.y,
 			width:factory.dock.possize.width,
 			height:factory.dock.possize.height},descriptor),factory.dock.tags[5],factory.dock.node,false,true);
-		
+
 		if(noEvent == true)
 			return container;
 
@@ -417,7 +417,7 @@ loadAppCode("edit",function(data)
 		factory.dock.startEditInterface(container);
 		return container;
 	}
-	
+
 	this.addPictureFromFile = function(e)
 	{
 		var container = factory.dock.onAddContainer();
@@ -426,19 +426,19 @@ loadAppCode("edit",function(data)
 
 	this.addPicture = function(link,info)
 	{
-		
+
 		//add image from link
 		var container = factory.dock.onAddContainer();
 		container.addPrimitive({type:"img",adapt_container:true,content:{src:link}});
-		
+
 	}
-	
+
 	this.onAddPicture = function()
 	{
 		factory.dock.interfaces['secondary'] = new factory.dock.UI({parent:factory.dock.parent,title:"#REG:EDIT_Add_Picture:innerHTML"})
 		factory.dock.interfaces['secondary'].type = "image";
 		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-link',0,0,{no_anchor:true});
-		
+
 		factory.dock.interfaces['secondary']['link'] = factory.dock.interfaces['secondary'].addCustom('input');
 		factory.dock.interfaces['secondary']['link'].id =  "#REG:EDIT_IMAGE_LINK:placeholder"
 		Regional.inspectObject(factory.dock.interfaces['secondary']['link']);
@@ -448,7 +448,7 @@ loadAppCode("edit",function(data)
 		factory.dock.interfaces['secondary'].addButton('glyphicon glyphicon-remove', factory.dock.cancelSecondaryInterface);
 
 		factory.dock.onLoadedFile = factory.dock.addPictureFromFile;
-		
+
 	}
 	this.succesSecondaryInterface = function()
 	{
@@ -456,7 +456,7 @@ loadAppCode("edit",function(data)
 		{
 			if(factory.dock.interfaces['secondary'].type == "image")
 				factory.dock.addPicture(factory.dock.interfaces['secondary']['link'].value);
-			
+
 			if(factory.dock.interfaces['secondary'].type == "video")
 				factory.dock.addVideo(factory.dock.interfaces['secondary']['link'].value);
 		}

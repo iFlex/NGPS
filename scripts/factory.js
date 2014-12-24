@@ -8,7 +8,7 @@
 *	Description: Generic method of creating containers and cameras
 *		Applies uniform settings to every container created ( color, size, style, etc ).
 *		In order to reduce monotony has plugin possibility for an AMS script (Anti Monotnony Script) Which will change
-*		the general container settings based on the previous settings applied (which will be provided as an argument to the AMS) 
+*		the general container settings based on the previous settings applied (which will be provided as an argument to the AMS)
 *			This functionality enables themes ( a theme will therefore be an AMS combined with certain features )
 *		It also can decide what functions to link to the trigger events of containers depending on what mode it is initiated in ( Viewer or Editor )
 */
@@ -36,19 +36,35 @@ factory.init = function(mode) // editor init
 	factory.settings.container = {}
 	factory.settings.container.width = 250;
 	factory.settings.container.height = 250;
-	//creating factory.root ( place where dynamic content is placed )
-	factory.base = new container(Descriptors.containers['base']);
-	factory.base.load();
 
-	factory.root = factory.base.addChild(Descriptors.containers['root']);
-	factory.root.extend(Interactive);
-	factory.root.extend(Camera);
-	factory.root.interactive(true);
-	factory.root.cstart(10);
+	if( mode == "editor" )
+	{
+		//creating factory.root ( place where dynamic content is placed )
+		factory.base = new container(Descriptors.containers['base']);
+		factory.base.load();
 
-	factory.initialised = true;
-	if(factory.setup) //if custom setup is loaded, run it
-		factory.setup();
+		factory.root = factory.base.addChild(Descriptors.containers['root']);
+		factory.root.extend(Interactive);
+		factory.root.extend(Camera);
+		factory.root.interactive(true);
+		factory.root.cstart(10);
+
+		//center camera
+		var s = factory.root.getSurface();
+		factory.root.c_move(-s['width']/2,-s['height']/2);
+
+		factory.initialised = true;
+
+		if(factory.setup) //if custom setup is loaded, run it
+			factory.setup();
+	}
+	if( mode == "view" )
+	{
+		//need to be manually set
+		factory.base = 0;
+		factory.root = 0;
+	}
+
 
 	if(factory.AMS && factory.AMS.init)
 		factory.AMS.init( factory.settings.container, factory.AMS);
@@ -63,7 +79,7 @@ factory.newContainer = function(possize,tag,parent,addToFrame,translate)
 
 	if(!parent)
 		parent = factory.root;
-	
+
 	//fetch descriptor
 	var descriptor = 0;
 	if(Descriptors.containers[tag])
@@ -72,7 +88,7 @@ factory.newContainer = function(possize,tag,parent,addToFrame,translate)
 		descriptor = factory.defaultDescriptor;
 
 	descriptor = utils.merge(descriptor,factory.settings.container,"override");
-	
+
 	var obj = parent.addChild( utils.merge(descriptor,possize,true) , addToFrame, translate );
 	obj.extend(Interactive); //make object interactive
 
@@ -81,7 +97,7 @@ factory.newContainer = function(possize,tag,parent,addToFrame,translate)
 		obj.load();
 		obj.interactive(true);
 	}
-	
+
 	if(factory.AMS && factory.AMS.tick)
 		factory.AMS.tick( utils.merge(descriptor,possize) , factory.settings.container, factory.AMS );
 
@@ -92,7 +108,7 @@ factory.createContainer = function(descriptor,parent,addToFrame,translate)
 {
 	if(!factory.initialised)
 		factory.init();
-	
+
 	if(!parent)
 		parent = factory.root;
 	var obj = parent.addChild(descriptor,addToFrame,translate);
@@ -128,10 +144,10 @@ factory.newCamera = function (possize,tag,parent,interval,addToFrame,translate)
 	{
 		//possibly fetch camera tag for camera configurations
 		obj.extend(Camera);
-		
+
 		if(!interval)
 			interval = 30;
-		
+
 		obj.cstart(interval);
 	}
 	return obj;
@@ -143,7 +159,7 @@ factory.newGlobalApp = function ( app , passToApp )
 	host.loadApp(app,passToApp);
 	return host;
 }
-//TODO: 
+//TODO:
 factory.newLink = function( a , b , type)
 {
 

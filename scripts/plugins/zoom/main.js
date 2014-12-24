@@ -9,17 +9,16 @@ loadAppCode("zoom",function(data){
 	this.zoomAmDn = 0.6
 	this.zoomAmUp = 1.4;
 	this.zoomTime = 50;
-	this.positionButtons = function()	
+	this.positionButtons = function()
 	{
 		var width = this.buttonNames.length*this.buttonSize;
 		var screen = platform.getScreenSize();
-		var offset = ( screen.width - width) / 2;
+		var offset = 0;//( screen.width - width) / 2;
 		for(i in this.buttonNames)
 			this.buttons[this.buttonNames[i]].putAt(offset + i*this.buttonSize , 55);
-		
 	}
 	this.init = function() //called only once when bound with container
-	{	
+	{
 		var ctx = this;
 		var btnSize = this.buttonSize;
 		for( i in this.buttonNames)
@@ -29,6 +28,7 @@ loadAppCode("zoom",function(data){
 			ctl.interactive(true);
 			ctl.onMoved = function(){};
 			ctl.DOMreference.type = "button";
+			ctl.permissions.save = false;
 
 			this.buttons[this.buttonNames[i]] = ctl;
 		}
@@ -37,7 +37,7 @@ loadAppCode("zoom",function(data){
 			factory.root.czoom(1.1);
 			console.log("ZUP");
 		}
-		
+
 		this.buttons['zdn'].addPrimitive({type:"i",content:{class:"glyphicon glyphicon-zoom-out"}});
 		this.buttons['zdn'].onTrigger = function(){
 			factory.root.czoom(0.9);

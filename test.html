@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head id="head">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <!-- Boot Strap -->
+        <link rel="stylesheet" href="style/bootstrap/css/bootstrap.min.css">    
+        <link rel="stylesheet" href="style/general.css">
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="style/bootstrap/js/jquery.js"></script>
+        <script src="style/bootstrap/js/bootstrap.min.js"></script>
+        <!-- Support -->
+        <script src="./scripts/support/TweenMax.min.js"/></script>
+        <script src="./scripts/support/plugins/CSSPlugin.min.js"></script>
+        <script src="./scripts/support/easing/EasePack.min.js"></script>
+        <script src="./scripts/support/TweenLite.min.js"></script>
+        <script src="./scripts/support/utils/Draggable.min.js"></script>
+        <script src="scripts/require.js"></script>
+        <script type="text/javascript">
+            requirejs.config({
+                baseUrl: 'scripts',
+            });
+            //include testing
+            requirejs(['cli']);
+            requirejs(['drivers','factory','load'],function(){
+                //iniialise editor mode
+                setTimeout(function(){
+                    requirejs(['../saved/testtext']);
+                    factory.init("view");
+                    cli.hide();
+                    }, 500);
+            });
+        </script>
+    </head>
+    <body id="body" class="unselectable">
+        <canvas id="canvas" style="position:fixed;width:100%;height:100%;min-height:100%;"></canvas>
+    </body>
+</html>

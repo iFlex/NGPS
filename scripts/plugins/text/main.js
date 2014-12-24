@@ -34,7 +34,6 @@ loadAppCode("text",function(data)
 	{
 		//include app
 		keyboard.editor = factory.newContainer({x:100,y:100,width:500,height:50,background:"transparent"},"simple_rect",factory.root);
-		var s = document.createElement('script');
 		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface"],function(){
 			keyboard.buildTextInterface(keyboard.editor.DOMreference);
 			keyboard.interface.init();

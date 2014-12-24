@@ -45,43 +45,52 @@ utils.merge = function(a,b,option){
 }
 utils.makeHTML = function(markup,parent)
 {
+	var child;
 	for( i in markup )
 	{
-		var type = Object.keys(markup[i])[0];
-		var child = document.createElement(type);
-		keys = markup[i][type];
-	
-		for( j in keys )
+		if(!markup[i]._noParse)
 		{
-			if(j != "children")
+			var type = Object.keys(markup[i])[0];
+			child = document.createElement(type);
+			keys = markup[i][type];
+		
+			for( j in keys )
 			{
-				if(j.indexOf("data-") > -1)
+				if(j != "children")
 				{
-					var attrib = j.slice(5, j.length);
-					child.dataset[attrib] = markup[i][type][j]
-					continue;
+					if(j.indexOf("data-") > -1)
+					{
+						var attrib = j.slice(5, j.length);
+						child.dataset[attrib] = markup[i][type][j]
+						continue;
+					}
+					if(j == "class")
+					{
+						child.className = markup[i][type][j];
+						continue;
+					}
+					//style
+					if(j == "style" || j == "cssText")
+					{
+						child.style.cssText = markup[i][type][j];
+						continue;
+					}
+					//normal properties
+					child[ j ] = markup[i][type][j];
 				}
-				if(j == "class")
-				{
-					child.className = markup[i][type][j];
-					continue;
-				}
-				//style
-				if(j == "style" || j == "cssText")
-				{
-					child.style.cssText = markup[i][type][j];
-					continue;
-				}
-				//normal properties
-				child[ j ] = markup[i][type][j];
+				else
+					utils.makeHTML(markup[i][type][j],child); 
 			}
-			else
-				utils.makeHTML(markup[i][type][j],child); 
 		}
+		else
+			child = markup[i];
 		
 		if(!parent)
+		{
+			child._noParse = true;
 			return child;
-		
+		}	
+
 		parent.appendChild(child);
 	}
 }
