@@ -15,7 +15,7 @@ loadAppCode("zoom",function(data){
 		var screen = platform.getScreenSize();
 		var offset = 0;//( screen.width - width) / 2;
 		for(i in this.buttonNames)
-			this.buttons[this.buttonNames[i]].putAt(offset + i*this.buttonSize , 55);
+			this.buttons[this.buttonNames[i]].putAt(offset + i*this.buttonSize , 48);
 	}
 	this.init = function() //called only once when bound with container
 	{
@@ -23,7 +23,7 @@ loadAppCode("zoom",function(data){
 		var btnSize = this.buttonSize;
 		for( i in this.buttonNames)
 		{
-			var ctl = this.parent.addChild({x:0,y:0,width:btnSize,height:btnSize,type:"button",class:"btn btn-danger btn-lg",cssText:"position:fixed;text-align: center;padding: 6px 0;font-size: 12px;line-height: 1.42;border-radius: 15px;"},true);
+			var ctl = this.parent.addChild({x:0,y:0,width:btnSize,height:btnSize,type:"button",class:"btn btn-danger btn-lg",cssText:"position:absolute;text-align: center;padding: 6px 0;font-size: 17px;line-height: 1.42;border-radius:0px"},true);
 			ctl.extend(Interactive);
 			ctl.interactive(true);
 			ctl.onMoved = function(){};

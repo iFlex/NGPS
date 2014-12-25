@@ -1,11 +1,11 @@
 
-loadAppCode('simple_connector',function(data)
+loadAppCode('edit/components/simple_connector',function(data)
 {
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
 	this.a = 0;
 	this.b = 0;
-	
+
 	this.trigger = function(data)
 	{
 		console.log("App event:"+utils.debug(data));
@@ -17,7 +17,7 @@ loadAppCode('simple_connector',function(data)
 
 		if( this.a && this.a.UID == factory.root.UID )
 			this.a = 0;
-		
+
 		if( this.b.UID == factory.root.UID )
 			this.b = 0;
 

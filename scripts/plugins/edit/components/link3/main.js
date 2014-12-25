@@ -1,4 +1,4 @@
-loadAppCode("link2",function(data){
+loadAppCode("edit/components/link3",function(data){
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
 	this.left = 0;
@@ -32,7 +32,7 @@ loadAppCode("link2",function(data){
 
 		var target = data['target']
 		var e = data['original_event'];
-		
+
 		this.temp.putAt(e.clientX,e.clientY,0.5,0.5);
 		if( (this.left && this.left.UID != target.UID) && (this.temp && this.temp.UID != target.UID) && (target.UID != factory.root.UID) )
 		{	this.right = target;
@@ -40,12 +40,12 @@ loadAppCode("link2",function(data){
 		}
 	}
 	this.onMouseUp = function(data)
-	{	
+	{
 		if(!this.isActive)
 			return;
 
 		var target = data['target'];
-		console.log(" luid:"+this.left.UID+" t:"+target.UID);	
+		console.log(" luid:"+this.left.UID+" t:"+target.UID);
 		if(!this.left || (this.left && this.left.UID == target.UID))
 			return;
 
@@ -115,7 +115,7 @@ loadAppCode("link2",function(data){
 
 		this.temp  = factory.root.addChild({x:0,y:0,width:10,height:10})
 		this.temp.hide();
-		
+
 		GEM.addEventListener("mouseDown",0,"onMouseDown",this);
 		GEM.addEventListener("mouseUp",0,"onMouseUp",this);
 		GEM.addEventListener("mouseMove",0,"onMouseMove",this);
@@ -125,11 +125,11 @@ loadAppCode("link2",function(data){
 	}
 	this.run = function()	//called whenever the container is triggered
 	{
-		
+
 	}
 	this.suspend = function() //called whenever the container looses focus ( or gets out of view )
 	{
-		
+
 	}
 	this.shutdown = function() //called only when app is unloaded from container
 	{

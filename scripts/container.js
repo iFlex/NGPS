@@ -77,38 +77,40 @@ this.container = function(properties)
 		for( key in {"width":0,"height":0,"x":0,"y":0,"border_size":0} )
 		{
 			if( typeof this.properties[key]  == "number" )
-				this.properties[key] += "px";	
+				this.properties[key] += "px";
 		}
 
 		//Custom Styling
 		if(this.properties['class']) //custom CSS styling ()
 			this.DOMreference.setAttribute('class',this.properties['class']);
-		
+
 		for( k in {cssText:true,style:true})
 			if(this.properties[k]) // custom CSS styling ( works more efficient, only needs CSS )
 				this.DOMreference.style.cssText = this.properties[k];
 
-		//Default Styling 
+		//Default Styling
 		if(this.properties['width'])
 			this.DOMreference.style.width 		= this.properties['width'];
 		if(this.properties['height'])
 			this.DOMreference.style.height 		= this.properties['height'];
 
-		if(!this.DOMreference.style.position)
+		if(!this.DOMreference.style.position && !this.properties['autopos'])
 			this.DOMreference.style.position 	= 'absolute';
-		
+
 		if(!this.DOMreference.style.overflow && this.properties['dynamic_size'] != true )
 			this.DOMreference.style.overflow 	= "hidden";
 
 		if(this.properties['x'])
 		{
-			this.DOMreference.style.position 	= 'absolute';
+			if(!this.properties['autopos'])
+				this.DOMreference.style.position 	= 'absolute';
 			this.DOMreference.style.left 		= this.properties['x'];
 		}
 
 		if(this.properties['y'])
 		{
-			this.DOMreference.style.position 	= 'absolute';
+			if(!this.properties['autopos'])
+				this.DOMreference.style.position 	= 'absolute';
 			this.DOMreference.style.top 		= this.properties['y'];
 		}
 
@@ -121,10 +123,10 @@ this.container = function(properties)
 		if(this.properties['left'])
 			this.DOMreference.style.left = this.properties['left'];
 
-		
+
 		if(this.properties['background']) //initial descriptor overrides cssText
 			this.DOMreference.style.background 	= this.properties['background'];
-		
+
 		//border props
 		if(!this.DOMreference.style.borderWidth)
 			this.DOMreference.style.borderWidth = (this.properties['border_size'] || "0px");
@@ -138,18 +140,18 @@ this.container = function(properties)
 		if(this.properties['border_radius'])
 		{
 			var borders = this.properties["border_radius"];
-			for( var i=0; i < 4; ++i )
+			for( var i=0; i < 4 && borders ; ++i )
 			{
 				switch(i)
 				{
-					case 0:this.DOMreference.style.borderTopLeftRadius 		= (( borders && borders[i%borders.length] ) || "0px");break;
-					case 1:this.DOMreference.style.borderTopRightRadius 	= (( borders && borders[i%borders.length] ) || "0px");break;
-					case 2:this.DOMreference.style.borderBottomRightRadius 	= (( borders && borders[i%borders.length] ) || "0px");break;
-					case 3:this.DOMreference.style.borderBottomLeftRadius 	= (( borders && borders[i%borders.length] ) || "0px");break;
+					case 0:this.DOMreference.style.borderTopLeftRadius 		= ( borders[i%borders.length] || "0px");break;
+					case 1:this.DOMreference.style.borderTopRightRadius 	= ( borders[i%borders.length] || "0px");break;
+					case 2:this.DOMreference.style.borderBottomRightRadius 	= ( borders[i%borders.length] || "0px");break;
+					case 3:this.DOMreference.style.borderBottomLeftRadius 	= ( borders[i%borders.length] || "0px");break;
 				}
 			}
 		}
-		//isolated containers do not get included in the standard container hierarchy 
+		//isolated containers do not get included in the standard container hierarchy
 		if(!this.properties['*isolated'])
 		{
 			if(parent)
@@ -189,6 +191,14 @@ this.container = function(properties)
 				delete this[k];
 	}
 
+	this.hasChildren = function()
+	{
+			var nrc = 0;
+			for( k in this.children )
+				return true;
+			return false;
+	}
+
 	this.addChild = function(properties)
 	{
 		//inherit permissions
@@ -196,7 +206,7 @@ this.container = function(properties)
 			properties['permissions'] = this.permissions;
 
 		this.children[ containerData.containerIndex ] = new container( properties );
-		var reff = this.children[ containerData.containerIndex ] 
+		var reff = this.children[ containerData.containerIndex ]
 		reff.load( this );
 
 		//EVENT
@@ -205,7 +215,7 @@ this.container = function(properties)
 
 		return reff;
 	}
-	
+
 	this.removeChild = function(UID)
 	{
 		if( this.children[UID] )
@@ -224,15 +234,15 @@ this.container = function(properties)
 		//discard all children
 		for( k in this.children )
 			this.children[k].discard();
-		
+
 		//unload app
 		if(this.adestroy)
 			this.adestroy();
-		
+
 		//discard all links related to this container
 		this.unlinkAll();
 
-		if(this.parent) 
+		if(this.parent)
 		{
 			this.parent.DOMreference.removeChild(this.DOMreference);
 			this.parent.removeChild( this.UID ); //remove from child reference of the parent
@@ -257,7 +267,7 @@ this.container = function(properties)
 			oldP = this.parent;
 			if( this.parent.DOMreference && this.DOMreference )
 				this.parent.DOMreference.removeChild(this.DOMreference);
-			
+
 			copy = this;
 			delete this.parent.children[this.UID];
 
@@ -282,7 +292,7 @@ this.container = function(properties)
 	{
 		if(!descriptor['type'])
 			return false;
-		
+
 		if(this.isLeaf == true)
 			this.removePrimitive();
 
@@ -316,12 +326,12 @@ this.container = function(properties)
 				var h = this.getHeight();
 				var child = this.child;
 				this.child.onload = function()
-				{	
+				{
 					//adapt content to container
-					var rapw = child.width / w; 
+					var rapw = child.width / w;
 					var raph = child.height / h;
 					var diff = 1;
-					
+
 					if( rapw > 1)
 						diff = 1/rapw;
 					if( raph > 1 && (1/raph < diff) )
@@ -332,13 +342,13 @@ this.container = function(properties)
 					child.width = nw;
 					child.height = nh;
 				}
-				 
+
 			}
 			else
 			{
 				if(descriptor['width'])
 					this.setWidth(descriptor['width'])
-		
+
 				if(descriptor['height'])
 					this.setHeight(descriptor['height'])
 			}
@@ -350,7 +360,7 @@ this.container = function(properties)
 		this.isLeaf = true;
 		return this.child;
 	}
-	
+
 	this.removePrimitive = function()
 	{
 		if(this.isLeaf)
@@ -412,7 +422,7 @@ this.container = function(properties)
 		}
 		return ret;
 	}
-	
+
 	this.global2local = function(x,y){
 		var origin = this.local2global(0,0);
 		return { x: x - origin.x, y: y - origin.y};
@@ -420,7 +430,7 @@ this.container = function(properties)
 
 	//TODO: make it work for other browsers than chrome
 	this.getPos   = function(cx,cy,global)
-	{	
+	{
 		if(!cx)
 			cx = 0;
 		if(!cy)
@@ -444,7 +454,7 @@ this.container = function(properties)
 		if(pure)
 			return w*this.scaleX;
 		return w;
-	} 
+	}
 
 	this.getHeight = function(pure)
 	{
@@ -460,7 +470,7 @@ this.container = function(properties)
 	this.getPureWidth = function()
 	{
 		return this.getWidth(true);
-	} 
+	}
 
 	this.getPureHeight = function()
 	{
@@ -492,7 +502,7 @@ this.container = function(properties)
 		//EVENT
 		if( this.events['changeWidth'] || ( GEM.events['changeWidth'] && GEM.events['changeWidth']['_global'] ) )
 			GEM.fireEvent({event:"changewidth",target:this})
-	} 
+	}
 
 	this.setHeight = function(h)
 	{
@@ -533,7 +543,7 @@ this.container = function(properties)
 
 		if(!refX)
 			refX = 0;
-		
+
 		if(!refY)
 			refY = 0;
 
@@ -574,7 +584,7 @@ this.container = function(properties)
 			ox = 0.5;
 		if(!oy)
 			oy = 0.5;
-		
+
 		this.scaleX *= amount;
 		this.scaleY *= amount;
 		TweenMax.to(this.DOMreference,0,{
@@ -589,7 +599,7 @@ this.container = function(properties)
         var oldH = this.getHeight()
 		var w = oldW * amount;
 		var h = oldH * amount;
-		
+
         this.setWidth(w);
 		this.setHeight(h);
         this.move((oldW-w)/2,(oldH-h)/2);
@@ -598,7 +608,7 @@ this.container = function(properties)
 
 	this.rotate = function(dangle,ox,oy)
 	{
-		this.setAngle(this.angle + dangle,ox,oy);	
+		this.setAngle(this.angle + dangle,ox,oy);
 	}
 	//CONNections
 	this.getAncestors = function( node )
@@ -609,11 +619,11 @@ this.container = function(properties)
 			response[0] = node;
 			return response;
 		}
-		
+
 		var response = this.getAncestors(node.parent);
 		response[response.length] = node;
 		return response;
-	} 
+	}
 	this.greatestCommonParent = function ( target )
 	{
 		var thisAncestors = this.getAncestors( this );
@@ -627,8 +637,11 @@ this.container = function(properties)
 				i--;
 				break;
 			}
-		
+
 		return thisAncestors[i];
+	}
+	this.tween = function(data,d){
+		TweenMax.to(this.DOMreference,d||0,data);
 	}
 	this.link = function (target,descriptor)
 	{
@@ -653,7 +666,7 @@ this.container = function(properties)
 		};
 		target.onMoved = function(dx,dy){
 			target.move(dx,dy);
-			target.maintainLinks();	
+			target.maintainLinks();
 		}
 
 		//EVENT
@@ -679,7 +692,7 @@ this.container = function(properties)
 	this.unlinkAll = function(){
 		for( k in this.outgoing )
 			this.unlink( this.outgoing[k]['target'] )
-			
+
 		for( t in this.incoming )
 		{
 			var trg = this.incoming[t]['target'];
@@ -704,13 +717,13 @@ this.container = function(properties)
 			//EVENT
 			if( this.events['linkChange'] || ( GEM.events['linkChange'] && GEM.events['linkChange']['_global'] ) )
 				GEM.fireEvent({event:"linkChange",target:ctx,old_owner:oldTarget,new_owner:newTarget,link:leLink})
-		}		
+		}
 	}
 	this.maintainLink = function(target)
 	{
 		if(this.outgoing[target.UID])
 		{
-			var leLink = this.outgoing[target.UID]['link'];	
+			var leLink = this.outgoing[target.UID]['link'];
 			var acPos = this.getPos(leLink.linkData['left_container_xreff'],leLink.linkData['left_container_yreff']);
 			var bcPos = target.getPos(leLink.linkData['right_container_xreff'],leLink.linkData['right_container_yreff']);
 			var alPos = leLink.getPos(leLink.linkData['left_link_xreff'],leLink.linkData['left_link_yreff']);
@@ -733,7 +746,7 @@ this.container = function(properties)
 	{
 		for( k in this.outgoing )
 			this.maintainLink( this.outgoing[k]['target'] )
-			
+
 		for( t in this.incoming )
 		{
 			var trg = this.incoming[t]['target'];
@@ -789,7 +802,7 @@ this.container = function(properties)
 
 			if(host.events["appLoaded"])
 				GEM.fireEvent({event:"appLoaded",target:host});
-			
+
 		}
 	}
 }
@@ -800,7 +813,7 @@ function maintainLinks(data)
 	var ctx = data['target'];
 	for( k in ctx.outgoing )
 		ctx.maintainLink( ctx.outgoing[k]['target'] )
-		
+
 	for( t in ctx.incoming )
 	{
 		var trg = ctx.incoming[t]['target'];

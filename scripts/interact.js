@@ -2,7 +2,7 @@
 *	NGPS Interactive System
 *	Author: Milorad Liviu Felix
 *	5 July 2014 18:17 GMT
-*	
+*
 *	Requirements:
 *		Must be applied to an existing Container Object
 *
@@ -23,9 +23,9 @@
 */
 this.Interactive = {}
 //What to do with interaction events( In some cases it's necessary to pass them to the parent )
-Interactive.propagation = 0; 
-// 0 no propagation; 
-// 1 Native propagation to parent ( Native Browser Propagation ); 
+Interactive.propagation = 0;
+// 0 no propagation;
+// 1 Native propagation to parent ( Native Browser Propagation );
 // 2 Manual propagation to parent ( Strict )
 //TODO: when mouse exits root area cancel Origin and hasMD ( so that when the mouse comes back does not resume the previous drag )
 //Classic Interaction
@@ -42,10 +42,10 @@ Interactive._onMouseDown = function( e , ctx )
 {
 	if(!ctx)
 		ctx = this.context;
-	
+
 	if( ctx.propagation == 1 )
 		return true;
-	
+
 	if(e.stopPropagation)
 		e.stopPropagation();
 	else
@@ -58,7 +58,7 @@ Interactive._onMouseDown = function( e , ctx )
 		ctx.ly = e.pageY;
 		ctx.dragDist = 0;
 		ctx.hasMD = true;
-		
+
 		var center = ctx.getCenter();
 		ctx.natAngle = Math.atan2(center.y - e.pageY,center.x - e.pageX);
 
@@ -86,7 +86,7 @@ Interactive._onMouseMove = function(e, ctx)
 {
 	if(!ctx)
 		ctx = this.context;
-	
+
 	//do not bring back, find workarounds if necessary
 	if(e.stopPropagation)
 		e.stopPropagation();
@@ -100,7 +100,7 @@ Interactive._onMouseMove = function(e, ctx)
 
 	if( ctx.propagation == 1 )
 		return true;
-	
+
 	if( ctx.propagation == 0)
 	{
 		if(ctx.hasMD)
@@ -164,15 +164,15 @@ Interactive._onMouseUp = function( e , ctx )
 			// if triggered then call handler
 			if( ctx.dragDist < 7 && ctx.allowTrigger ) // this is considered a tap / click
 			{
-				if(	ctx.onTrigger ) 
+				if(	ctx.onTrigger )
 					ctx.onTrigger( ctx , e);
-				
+
 				if( ctx.events['triggered'] || ( GEM.events['triggered'] && GEM.events['triggered']['_global'] ) )
 					GEM.fireEvent({event:"triggered",target:ctx,original_event:e,nativeEvent:e})//TODO: delete nativeEvent after making sure it's not used
-				
+
 				ctx.triggerCount++;
 			}
-			
+
 		}
 		//EVENT
 		if( ctx.events['mouseUp'] || ( GEM.events['mouseUp'] && GEM.events['mouseUp']['_global'] ) )
@@ -180,7 +180,7 @@ Interactive._onMouseUp = function( e , ctx )
 
 		ctx.hasMD = false;
 		delete ctx.natAngle;
-		
+
 		if(ctx.onMouseUp)
 			ctx.onMouseUp(ctx,e);
 	}
@@ -199,9 +199,9 @@ Interactive._onMouseOut = function( e , ctx )
 	if(!ctx)
 		ctx = this.context;
 
-	if( ctx.propagation == 1 ) 
+	if( ctx.propagation == 1 )
 		return true;
-	
+
 	/*
 	//determine if point is within boundaries ( if yes ignore )
 	var pos = ctx.getPos();
@@ -211,13 +211,13 @@ Interactive._onMouseOut = function( e , ctx )
 	if( e.pageX >= pos.x && e.pageX < pos.x + w )
 		if( e.pageY >= pos.y && e.pageY < pos.y + h )
 			return false;
-	
+
 	e.type = "mouseup";
 	ctx.onMouseUp( e , ctx );*/
 	//EVENT
 	if( ctx.events['mouseOut'] || ( GEM.events['mouseOut'] && GEM.events['mouseOut']['_global'] ) )
 		GEM.fireEvent({event:"mouseOut",target:ctx,original_event:e})
-} 
+}
 Interactive.cancelMouse = function( e, ctx)
 {
 	if(!ctx)
@@ -227,7 +227,7 @@ Interactive.cancelMouse = function( e, ctx)
 		return true;
 
 	ctx.hasMD = false;
-	
+
 	if( ctx.propagation != 0 )
 	{
 		ctx.hasMD = false;
@@ -244,10 +244,10 @@ Interactive.touchstart = function( e , ctx)
 {
 	if(!ctx)
 		ctx = this.context;
-	
+
 	if( ctx.propagation == 1 )
 		return true;
-    
+
     ctx._onMouseDown(e,ctx);
     //NOT NEEDED AT THE MOMENT
 }
@@ -256,7 +256,7 @@ Interactive.touchmoved = function( e , ctx)
 {
     if(!ctx)
         ctx = this.context;
-	
+
 	if( e.touches.length > 1 )
 	{
 		ctx.cancelMouse(e,ctx)
@@ -272,7 +272,7 @@ Interactive.touchmoved = function( e , ctx)
 		var dy = p1.pageY - p2.pageY;
 		var angle = Math.atan2(dy,dx);
 		var dist = Math.sqrt(Math.pow((dx),2) + Math.pow((dy),2));
-		
+
 		//ZOOM
 		if(!ctx.mLastDistance)
 			ctx.mLastDistance = dist;
@@ -282,7 +282,7 @@ Interactive.touchmoved = function( e , ctx)
 				ctx.onZoomed( dist / ctx.mLastDistance )
 			else
 				ctx.enlarge( dist / ctx.mLastDistance )
-			
+
 			ctx.mLastDistance = dist;
 		}
 		//ROTATE
@@ -295,9 +295,9 @@ Interactive.touchmoved = function( e , ctx)
 				ctx.onRotated( degAngle )
 			else
 				ctx.rotate( degAngle )
-			
+
 			ctx.mLastAngle = angle;
-			
+
 			ctx.mLastAngle = angle;
 		}
 	}
@@ -306,10 +306,10 @@ Interactive.touchmoved = function( e , ctx)
 }
 
 Interactive.touchend = function( e, ctx){
-	
+
 	if(!ctx)
 		ctx = this.context;
-	
+
 	if( ctx.propagation == 1 )
 		return true;
 

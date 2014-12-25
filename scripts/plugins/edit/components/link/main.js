@@ -1,4 +1,4 @@
-loadAppCode("link",function(data){
+loadAppCode("edit/components/link",function(data){
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
 	var startFrom = data['lastInterfaceContainer'] || 2 ;

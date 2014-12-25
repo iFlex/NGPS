@@ -2,7 +2,7 @@
 *	NGPS App Controler
 *	Authos:	Milorad Liviu Felix
 *	7 June 2014 	12:20 GMT
-*	
+*
 *	Available Events:
 *		appInitalised
 *		appDestroyed
@@ -10,7 +10,7 @@
 *		appHidden
 *		appRun
 *		appSuspend
-*	    
+*
 *	Conventions:
 *		App must all the loadAppCode function with it's name as the first argument and it's code as the second ( function as class )
 *		App constructor function will get a object {} with parent: startWorker: and stopWorker properties and other initial required information
@@ -20,7 +20,7 @@
 *	NGPS App Controler
 *	Authos:	Milorad Liviu Felix
 *	7 June 2014 	12:20 GMT
-*	
+*
 *	Available Events:
 *		appInitalised
 *		appDestroyed
@@ -28,7 +28,7 @@
 *		appHidden
 *		appRun
 *		appSuspend
-*	    
+*
 *	Conventions:
 *		App must all the loadAppCode function with it's name as the first argument and it's code as the second ( function as class )
 *		App constructor function will get a object {} with parent: startWorker: and stopWorker properties and other initial required information
@@ -71,18 +71,16 @@ AppCtl.ainit = function(app,params)
 		if(data && data['cover'])
 			this.cover = this.addChild(data['cover'])
 		else
-			this.cover = this.addChild({x:"0%",y:"0%",width:this.getWidth(),height:this.getHeight(),background:"transparent"});
-		
+			this.cover = this.addChild({x:"0%",y:"0%",width:"100%",height:"100%",background:"transparent"});
+
 		if(data && data['exit'])
 			this.exit = this.addChild(data['exit'])
 		else
 		{
-			var d = this.getWidth()*0.1;
-			var h = this.getHeight()*0.1;
-			if(d>h)
-				d=h;
-			if( d > 64 )
-				d = 64;
+			d = (this.getWidth()>this.getHeight())?this.getHeight():this.getWidth();
+			d *= 0.2
+			if( d < 20 )
+				d = 20;
 			this.exit = this.addChild({x:"0%",y:"0%",width:d,height:d,background:"red",border_radius:["15px"]})
 		}
 		//configure for interaction
@@ -91,18 +89,18 @@ AppCtl.ainit = function(app,params)
 
 		this.exit.extend(Interactive);
 		this.exit.interactive(true);
-		
+
 		this.cover.DOMreference.style.zIndex = 1;
 		this.exit.DOMreference.style.zIndex = 2;
 
 		this.exit.addPrimitive({type:"div"});
 		this.exit.child.innerHTML = '<center><span class="glyphicon glyphicon-ok"></span></center>'
-		
+
 		//Configure triggers and propagation
 		this.cover.onMoved = function(dx,dy,ctx){ctx.parent.move(dx,dy);}
 		this.cover.onTrigger = this.arun;
 		this.exit.onTrigger = this.asuspend;
-		
+
 		//prepare for run
 		this.cover.show();
 		this.exit.hide();
@@ -126,7 +124,7 @@ AppCtl.adestroy = function() // completely remove app from container
 		this.app.shutdown();
 	//stop all of the apps workers
 	this.stopWorker();
-	
+
 	//EVENT
 	if( this.events['appDestroyed'] || ( GEM.events['appDestroyed'] && GEM.events['appDestroyed']['_global'] ) )
 		GEM.fireEvent({event:"appDestroyed",target:this})
@@ -159,7 +157,7 @@ AppCtl.arun = function(ctx)
 	if(ctx)
 		host = ctx.parent;
 
-	host.suspendInteraction();
+	host.pauseInteraction(true);
 	host.cover.hide();
 	host.exit.show();
 	//app
@@ -177,12 +175,12 @@ AppCtl.asuspend = function(ctx)
 	{
 		AppMgr.running_app_parent = 0;
 		AppMgr.status = "idle";
-	} 
+	}
 	var host = this;
 	if(ctx)
 		host = ctx.parent;
-	
-	host.resumeInteraction();
+
+	host.pauseInteraction(false);
 	host.cover.show();
 	host.exit.hide();
 	//app
@@ -215,7 +213,7 @@ AppCtl.requestWorker = function( worker, interval )
 	function tick(){
 		//pass the context of the app to the worker
 		worker(context);
-	} 
+	}
 
 	if( nrWorkers == 0 ) //every app has the right to at least one worker
 	{
@@ -251,7 +249,7 @@ AppCtl.stopWorker = function( id )
 			}
 		if(!id)
 			return true;
-	} 
+	}
 	return false;
 }
 /*
@@ -289,7 +287,7 @@ AppCtl.ainit = function(app)
 			this.cover = this.addChild(data['cover'])
 		else
 			this.cover = this.addChild({x:"0%",y:"0%",width:this.getWidth(),height:this.getHeight(),background:"transparent"});
-		
+
 		if(data && data['exit'])
 			this.exit = this.addChild(data['exit'])
 		else
@@ -308,18 +306,18 @@ AppCtl.ainit = function(app)
 
 		this.exit.extend(Interactive);
 		this.exit.interactive(true);
-		
+
 		this.cover.DOMreference.style.zIndex = 1;
 		this.exit.DOMreference.style.zIndex = 2;
 
 		this.exit.addPrimitive({type:"div"});
 		this.exit.child.innerHTML = '<center><span class="glyphicon glyphicon-ok"></span></center>'
-		
+
 		//Configure triggers and propagation
 		this.cover.onMoved = function(dx,dy,ctx){ctx.parent.move(dx,dy);}
 		this.cover.onTrigger = this.arun;
 		this.exit.onTrigger = this.asuspend;
-		
+
 		//prepare for run
 		this.cover.show();
 		this.exit.hide();
@@ -343,7 +341,7 @@ AppCtl.adestroy = function() // completely remove app from container
 		this.app.shutdown();
 	//stop all of the apps workers
 	this.stopWorker();
-	
+
 	//EVENT
 	if( this.events['appDestroyed'] || ( GEM.events['appDestroyed'] && GEM.events['appDestroyed']['_global'] ) )
 		GEM.fireEvent({event:"appDestroyed",target:this})
@@ -392,7 +390,7 @@ AppCtl.asuspend = function(ctx)
 	{
 		AppMgr.running_app_parent = 0;
 		AppMgr.status = "idle";
-	} 
+	}
 	var host = this;
 	if(ctx)
 		host = ctx.parent;
@@ -461,7 +459,7 @@ AppCtl.stopWorker = function( id )
 			}
 		if(!id)
 			return true;
-	} 
+	}
 	return false;
 }
 //SCHEDULER CONTROLLERS
@@ -472,7 +470,7 @@ AppMgr.SC = 0; //Scheduler Controller
 AppMgr.tuneSchedulerFrequency = function(interval)
 {
 	if(!AppMgr.SS)
-	{	
+	{
 		AppMgr.SC = setInterval(AppMgr.scheduler,interval);
 		AppMgr.SS  = 1;
 	}
@@ -488,7 +486,7 @@ AppMgr.tuneSchedulerFrequency = function(interval)
 }
 
 AppMgr.scheduler = function(){
-	
+
 	for( k in AppMgr.workers )
 	{
 		var aw = AppMgr.workers[k];

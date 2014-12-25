@@ -35,16 +35,16 @@ loadAppCode("text2",function(data)
 									}
 								}]
 							}
-						}]	
-					} 
-				}],document.body);	
+						}]
+					}
+				}],document.body);
 			})
 		})
-		
+
 	}
 	this.run = function()	//called whenever the container is triggered
 	{
-		
+
 	}
 	this.suspend = function() //called whenever the container looses focus ( or gets out of view )
 	{
@@ -62,17 +62,17 @@ loadAppCode("text2",function(data)
 	{
 
 	}
-	
-	keyboard.focusEditor = function(target)
+
+	keyboard.focus = function(target)
 	{
 		console.log(utils.debug(target.subject));
 		$(target.subject).toolbar({
-			content: '#text-toolbar', 
+			content: '#text-toolbar',
 			position: 'top',
 		});
 		target.interactive(false);
 	}
-	keyboard.hideEditor = function()
+	keyboard.hide = function()
 	{
 
 	}
