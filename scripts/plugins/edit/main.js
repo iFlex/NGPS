@@ -147,6 +147,7 @@ loadAppCode("edit",function(data)
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-th',Editor.dock.toggleCli);
 
 		//Editor.dock.dockApp('link');
+		factory.newGlobalApp("_pchange");
 		factory.newGlobalApp("edit/components/text");
 		factory.newGlobalApp("edit/components/sizer");
 		factory.newGlobalApp("edit/components/addImage");
@@ -200,7 +201,8 @@ loadAppCode("edit",function(data)
 			x:pos.x,
 			y:pos.y,
 			width:Editor.dock.possize.width,
-			height:Editor.dock.possize.height},descriptor),Editor.dock.tags[5],Editor.sizer.target,false,true);
+			height:Editor.dock.possize.height,
+			permissions:{track:true}},descriptor),Editor.dock.tags[5],Editor.sizer.target,false,true);
 
 		if(noEvent == true)
 			return container;

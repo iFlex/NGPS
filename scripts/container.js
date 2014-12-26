@@ -65,6 +65,11 @@ this.container = function(properties)
 		if(this.parent)
 			return false;
 
+		//inherit permissions
+		if(properties['permissions'])
+			this.permissions = utils.merge(this.permissions,properties['permissions'],true);
+		properties['permissions'] = this.permissions;
+
 		this.UID = containerData.containerIndex++;
 		var DOMtype = "div";
 		if(typeof(this.properties['type']) == "string")
@@ -573,6 +578,8 @@ this.container = function(properties)
 		this.DOMreference.style.top  = this.DOMreference.offsetTop  + dy + "px";
 
 		this.maintainLinks();
+		//debug
+		console.log("container.move:: firing event...");
 		//EVENT
 		if( this.events['changePosition'] || ( GEM.events['changePosition'] && GEM.events['changePosition']['_global'] ) )
 			GEM.fireEvent({event:"changePosition",target:this})
@@ -761,15 +768,23 @@ this.container = function(properties)
 	{
 		if(!context)
 			context = this;
-		this.events[event] = true;
+
+		if(!this.events[event])
+			this.events[event] = 1;
+		else
+			this.events[event]++;
+
 		GEM.addEventListener( event, this, handler, context );
 	}
 	this.removeEventListener = function( event , handler , context )
 	{
 		if(!context)
 			context = this;
-		delete this.events[event];
-		GEM.removeEventListener( event, this, handler, context );
+
+		if(this.events[event])
+			this.events[event]--;
+
+		GEM.removeEventListener( event, context, handler );
 	}
 	//App support
 	//TODO: read app descriptor and load accordingly

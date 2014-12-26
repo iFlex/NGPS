@@ -6,7 +6,7 @@
 this.utils = {};
 var HTTPrequest = function(method,url,params,oncomplete,pass_to_listener)
 {
-	
+
 	if(method == "GET")
 	{
 		var aux = "";
@@ -20,7 +20,7 @@ var HTTPrequest = function(method,url,params,oncomplete,pass_to_listener)
 	else
 		if(typeof(params)!="string")
 			params = JSON.stringify(params);
-		
+
 	var http = new XMLHttpRequest();
 	http.open(method, url, true);
 	http.setRequestHeader("Content-type", "application/JSON"); //WARNING: This encoding will replace all base64 '+' with ' ' so PHP needs to deal with that
@@ -38,7 +38,7 @@ utils.merge = function(a,b,option){
 		if(a.hasOwnProperty(k))
 			if( !option )
 				continue;
-		
+
 		a[k] = b[k];
 	}
 	return a;
@@ -53,7 +53,7 @@ utils.makeHTML = function(markup,parent)
 			var type = Object.keys(markup[i])[0];
 			child = document.createElement(type);
 			keys = markup[i][type];
-		
+
 			for( j in keys )
 			{
 				if(j != "children")
@@ -79,17 +79,17 @@ utils.makeHTML = function(markup,parent)
 					child[ j ] = markup[i][type][j];
 				}
 				else
-					utils.makeHTML(markup[i][type][j],child); 
+					utils.makeHTML(markup[i][type][j],child);
 			}
 		}
 		else
 			child = markup[i];
-		
+
 		if(!parent)
 		{
 			child._noParse = true;
 			return child;
-		}	
+		}
 
 		parent.appendChild(child);
 	}
@@ -130,14 +130,14 @@ utils.debug = function(elem,newline,verbose)
 
 	if(typeof(elem) == "string")
 		return "";
-	
+
 	var str = "{"+newline;
 	if(typeof(elem) == "object" && elem.hasOwnProperty('UID'))
 		str+= " NGPS Container #"+elem.UID+newline+"}";
 	else
 	{
 		for( k in elem )
-		{	
+		{
 			str += k + ":";
 			if(typeof(elem[k]) != "function" )
 			{
@@ -145,7 +145,7 @@ utils.debug = function(elem,newline,verbose)
 				if(verbose)
 					str += utils.debug(elem[k],verbose)+" ";
 				else
-				{	
+				{
 					if(elem[k] && elem[k].hasOwnProperty("UID"))
 						str += "("+elem[k].UID+")";
 				}

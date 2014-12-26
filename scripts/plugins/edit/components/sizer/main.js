@@ -66,9 +66,9 @@ loadAppCode("edit/components/sizer",function(data)
     Editor.sizer.node = target;
     //$(target.DOMreference).zoomTo({targetsize:0.75, duration:600});
     //add event listeners
-    target.addEventListener("changeWidth",this.focus);
-    target.addEventListener("changeHeight",this.focus);
-    target.addEventListener("changePosition",this.focus);
+    target.addEventListener("changeWidth",Editor.sizer.focus);
+    target.addEventListener("changeHeight",Editor.sizer.focus);
+    target.addEventListener("changePosition",Editor.sizer.focus);
     //target.addEventListener("changeAngle",this.focus);
     //shot interface
     this.focus();
@@ -82,7 +82,7 @@ loadAppCode("edit/components/sizer",function(data)
       Editor.sizer.target.removeEventListener("changeWidth",Editor.sizer.focus);
       Editor.sizer.target.removeEventListener("changeHeight",Editor.sizer.focus);
       Editor.sizer.target.removeEventListener("changePosition",Editor.sizer.focus);
-      Editor.sizer.target.removeEventListener("changeAngle",Editor.sizer.focus);
+      //Editor.sizer.target.removeEventListener("changeAngle",Editor.sizer.focus);
       //hide interface
       for( k in Editor.sizer.EditUI )
         if( k != "target" )
@@ -115,37 +115,39 @@ loadAppCode("edit/components/sizer",function(data)
   }
   //TODO: Not working properly for nested object
   this.focus = function(e){
+      if(Editor.sizer.target)
+      {
+        var target =  Editor.sizer.target;
+        var targetPos = target.getPos(0,0,true); //get global target pos
 
-      var target =  Editor.sizer.target;
-      var targetPos = target.getPos(0,0,true); //get global target pos
+        Editor.sizer.EditUI['rotate'].show();
+        Editor.sizer.EditUI['rotate'].putAt( targetPos.x - Editor.sizer.EditUI['rotate'].getWidth(), targetPos.y - Editor.sizer.EditUI['rotate'].getHeight(),0,0,true)
 
-      Editor.sizer.EditUI['rotate'].show();
-      Editor.sizer.EditUI['rotate'].putAt( targetPos.x - Editor.sizer.EditUI['rotate'].getWidth(), targetPos.y - Editor.sizer.EditUI['rotate'].getHeight(),0,0,true)
+        Editor.sizer.EditUI['enlarge'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight(),0,0,true)
+        Editor.sizer.EditUI['enlarge'].show();
 
-      Editor.sizer.EditUI['enlarge'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight(),0,0,true)
-      Editor.sizer.EditUI['enlarge'].show();
+        Editor.sizer.EditUI['changeWidthLeft'].show();
+        Editor.sizer.EditUI['changeWidthLeft'].putAt( targetPos.x - Editor.sizer.EditUI['changeWidthLeft'].getWidth(), targetPos.y + (target.getHeight() - Editor.sizer.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
 
-      Editor.sizer.EditUI['changeWidthLeft'].show();
-      Editor.sizer.EditUI['changeWidthLeft'].putAt( targetPos.x - Editor.sizer.EditUI['changeWidthLeft'].getWidth(), targetPos.y + (target.getHeight() - Editor.sizer.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
+        Editor.sizer.EditUI['changeWidthRight'].show();
+        Editor.sizer.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - Editor.sizer.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
 
-      Editor.sizer.EditUI['changeWidthRight'].show();
-      Editor.sizer.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - Editor.sizer.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
+        Editor.sizer.EditUI['changeHeightBottom'].show();
+        Editor.sizer.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - Editor.sizer.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight(),0,0,true)
 
-      Editor.sizer.EditUI['changeHeightBottom'].show();
-      Editor.sizer.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - Editor.sizer.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight(),0,0,true)
+        Editor.sizer.EditUI['changeHeightTop'].show();
+        Editor.sizer.EditUI['changeHeightTop'].putAt( targetPos.x + (target.getWidth() - Editor.sizer.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y - Editor.sizer.EditUI['changeWidthLeft'].getHeight(),0,0,true)
 
-      Editor.sizer.EditUI['changeHeightTop'].show();
-      Editor.sizer.EditUI['changeHeightTop'].putAt( targetPos.x + (target.getWidth() - Editor.sizer.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y - Editor.sizer.EditUI['changeWidthLeft'].getHeight(),0,0,true)
+        Editor.sizer.EditUI['delete'].show();
+        Editor.sizer.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y - Editor.sizer.EditUI['rotate'].getHeight(),0,0,true)
+        Editor.sizer.EditUI['delete'].onTrigger = this.onDelete;
+        Editor.sizer.EditUI['delete'].onMoved = function(){};
 
-      Editor.sizer.EditUI['delete'].show();
-      Editor.sizer.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y - Editor.sizer.EditUI['rotate'].getHeight(),0,0,true)
-      Editor.sizer.EditUI['delete'].onTrigger = this.onDelete;
-      Editor.sizer.EditUI['delete'].onMoved = function(){};
-
-      Editor.sizer.EditUI['more'].show();
-      Editor.sizer.EditUI['more'].putAt( targetPos.x - Editor.sizer.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight(),0,0,true)
-      Editor.sizer.EditUI['rotate'].lastEditAngle = "none";
-      //Editor.sizer.setEditInterfaceAngle(target.angle);
+        Editor.sizer.EditUI['more'].show();
+        Editor.sizer.EditUI['more'].putAt( targetPos.x - Editor.sizer.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight(),0,0,true)
+        Editor.sizer.EditUI['rotate'].lastEditAngle = "none";
+        //Editor.sizer.setEditInterfaceAngle(target.angle);
+      }
   }
   this.focusSpecialEditInterface = function(e){
       var target =  Editor.sizer.target;
@@ -216,39 +218,3 @@ loadAppCode("edit/components/sizer",function(data)
     Editor.sizer.EditUI['rotate'].lastEditAngle = angle;
   }
 });
-/*
-
-this.startSpecialEditInterface = function(target)
-{
-Editor.sizer.hide();
-Editor.sizer.EditUI.target = target;
-Editor.sizer.node = target;
-//add event listeners
-target.addEventListener("changeWidth",this.focus);
-target.addEventListener("changeHeight",this.focus);
-target.addEventListener("changePosition",this.focus);
-//target.addEventListener("changeAngle",this.focus);
-//shot interface
-Editor.sizer.isSpecialInterface = true;
-this.focusSpecialEditInterface();
-}
-this.stopSpecialEditInterface = function()
-{
-if(Editor.sizer.EditUI.target)
-{
-//remove event listeners
-Editor.sizer.EditUI.target.removeEventListener("changeWidth",Editor.sizer.focus);
-Editor.sizer.EditUI.target.removeEventListener("changeHeight",Editor.sizer.focus);
-Editor.sizer.EditUI.target.removeEventListener("changePosition",Editor.sizer.focus);
-//hide interface
-for( k in Editor.sizer.EditUI )
-if( k != "target" )
-Editor.sizer.EditUI[k].hide();
-
-Editor.sizer.EditUI.target = 0;
-Editor.sizer.node = 0;
-Editor.sizer.isSpecialInterface = 0;
-}
-keyboard.hideEditor();
-}
-*/

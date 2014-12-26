@@ -2,44 +2,48 @@
 *	NGPS General Event Manager system
 *	Author: Milorad Liviu Felix
 *	15 Jun 2014  10:43 GMT
-*	
+*
 *	Specifications:
 *		a run_context can be passed to GEM so that each event listener runs in an appropriate context
 *		 inside the handler the context can be retireved with: this.context
 */
-//TODO: investigate strange additional null handlers appearing after loaiding "simple_connector" app on factory.root
-//		problems with identifying anonymous handlers
+//TODO: problems with identifying anonymous handlers
+//			removeListener removes everything
+//			investigate strange additional null handlers appearing after loaiding "simple_connector" app on factory.root
+
 this.GEM = {};
 GEM.events = {};
 GEM.debug = false;
 GEM.fireEvent = function(data)
 {
+	if(GEM.debug)
+		console.log("GEM_event:"+utils.debug(data));
+
 	function _fireEvent(event,ctx)
 	{
 		if( GEM.events[event] && GEM.events[event][ctx] )
 			for(k in GEM.events[event][ctx])
 			{
-				//console.log(" passing through listeners:"+k+" >"+utils.debug(GEM.events[event][ctx][k]) )
-				if( GEM.events[event][ctx][k]['handler'] )
+				if(GEM.events[event][ctx][k]['handler'] )
 				{
-					var type = typeof(GEM.events[event][ctx][k]['handler']);
+					var type = typeof( GEM.events[event][ctx][k]['handler']);
 					//running with global context
 					if( type == "function")
 						GEM.events[event][ctx][k]['handler'](data);
-				
-					else 	if( GEM.events[event][ctx][k]['context'] && 
-						        type == "string" && 
+
+					else 	if( GEM.events[event][ctx][k]['context'] &&
+						        type == "string" &&
 						        typeof(GEM.events[event][ctx][k]['context']) == "object" ){
 									GEM.events[event][ctx][k]['context'][ GEM.events[event][ctx][k]['handler'] ] (data);
 							}
 				}
-			}	
+			}
 	}
 
 	if(!data['isGlobal'])
 		_fireEvent(data['event'],data['target'].UID);
-	_fireEvent(data['event'],"_global");	
-	
+	_fireEvent(data['event'],"_global");
+
 	if(GEM.debug)
 		cli.showPrompt("<br> ** NGPS_GEM_EVENT<br>"+utils.debug(data));
 }
@@ -50,19 +54,19 @@ GEM.addEventListener = function(event,ctx,handler,run_context)
 
 	if(!ctx)
 		ctx = {UID:"_global"};
-	
+
 	if(!GEM.events[event])
 		GEM.events[event] = {};
-	
+
 	if(!GEM.events[event][ctx.UID])
 		GEM.events[event][ctx.UID] = [];
-	
+
 	//check if this listening context is already present
 	for( i in GEM.events[event][ctx.UID])
 		if(	GEM.events[event][ctx.UID][i]['handler'] == handler &&
 			GEM.events[event][ctx.UID][i]['context'] == run_context)
 			return;
-	
+
 	GEM.events[event][ctx.UID][ GEM.events[event][ctx.UID].length ] = {"handler":handler,"context":run_context};
 	//console.log("Adding event("+event+") listener:"+handler+" context:"+run_context)
 	if(GEM.debug )
@@ -80,11 +84,13 @@ GEM.removeEventListener = function(event,ctx,handler)
 	if( GEM.events[event] && GEM.events[event][ctx.UID] )
 	{
 		//handler = JSON.stringify(handler);
+		//console.log("checking contex:"+ctx.UID+" event:"+event);
 		for( h in GEM.events[event][ctx.UID] )
 		{
 			//console.log(typeof(GEM.events[event][ctx.UID][h]['handler']) + " == " + typeof(handler)+ " ? "+ (GEM.events[event][ctx.UID][h]['handler'] == handler) )
 			if( GEM.events[event][ctx.UID][h]['handler'] == handler )
 			{
+				//console.log("Deleting handler:"+handler);
 				if(GEM.debug)
 					cli.showPrompt("<br> * NGPS_GEM_LISTENER-<br>"+event+"("+ctx+" > "+ctx.UID+")="+utils.debug(handler));
 
@@ -93,29 +99,32 @@ GEM.removeEventListener = function(event,ctx,handler)
 				break;
 			}
 		}
-		
+
 		if(GEM.events[event][ctx.UID].length == 0)
 			delete GEM.events[event][ctx.UID];
 	}
 	return success;
 }
-GEM.list = function(verbose)
+GEM.list = function(verbose,separator)
 {
 	str = "NGPS_GEM:[";
+	if(!separator)
+		separator = "<br>"
+
 	for( i in GEM.events )
 	{
-		str += "<br>(event):"+i+":";
+		str += separator+i+":";
 		for( j in GEM.events[i] )
 		{
-			str += "<br>(event_context):"+j+" handlers:"+GEM.events[i][j].length;
+			str += separator+">>context:"+j+" handlers:"+GEM.events[i][j].length;
 			for( h in GEM.events[i][j])
 			{
 				if(verbose == true)
-					str +="<br>(event_handler):"+utils.debug(GEM.events[i][j][h],"<br>");
+					str +=separator+">>>>handler:"+GEM.events[i][j][h]['handler'];
 			}
 		}
 	}
-	str += "<br>]";
+	str += separator+"]";
 	return str;
 }
 GEM.cancelAll = function()

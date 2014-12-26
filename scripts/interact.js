@@ -69,7 +69,7 @@ Interactive._onMouseDown = function( e , ctx )
 		if(!Interaction.origin)
 		{
 			Interaction.origin = ctx;
-			console.log("origin:"+utils.debug(Interaction.origin));
+			//console.log("origin:"+utils.debug(Interaction.origin));
 		}
 		//EVENT
 		if( ctx.events['mouseDown'] || ( GEM.events['mouseDown'] && GEM.events['mouseDown']['_global'] ) )
