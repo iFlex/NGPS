@@ -14,11 +14,13 @@ loadAppCode("video",function(data)
   }
 
   this.run = function(){
-
+    if( Editor && Editor.sizer )
+      Editor.sizer.hide();
   }
 
   this.suspend = function(){
-
+    if( Editor && Editor.sizer )
+      Editor.sizer.show(this.parent);
   }
 
   this.shutdown = function(){

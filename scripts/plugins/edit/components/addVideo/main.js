@@ -17,6 +17,7 @@ loadAppCode("edit/components/addVideo",function(data)
       vCTL.loadApp('video',{url:link});
       vCTL.src = link;
       //primitiveCTL = container.addPrimitive({type:'iframe',width:420,height:345,content:{src:link,width:"420",height:"345"}});
+      Editor.sizer.show(Editor.sizer.target);
     }
     else
       if(vCTL.src != link)
@@ -26,6 +27,7 @@ loadAppCode("edit/components/addVideo",function(data)
   {
     var container = mountPoint || Editor.dock.onAddContainer();
     var img = container.addPrimitive({type:"iframe",adapt_container:true,content:{src:e.target.result}});
+    Editor.sizer.show(container);
   }
 
   var fileDialog = function()
