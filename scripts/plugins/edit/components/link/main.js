@@ -81,7 +81,7 @@ loadAppCode("edit/components/link",function(data){
 
 			linkData['right_container_xreff'] = localPos.x / target.getWidth();
 			linkData['right_container_yreff'] = localPos.y / target.getHeight();
-			var cDescriptor = Descriptors.links["l000000"];
+			var cDescriptor = Descriptors.links["l000001"];
 
 			var l = linkParent.link(target,{
 				container:cDescriptor,
