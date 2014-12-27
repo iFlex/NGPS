@@ -2,7 +2,7 @@
 
 this.Editor = this.Editor || {};
 
-loadAppCode("_pchange",function(data)
+loadAppCode("edit/components/pchange",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
@@ -80,7 +80,7 @@ loadAppCode("_pchange",function(data)
     target = e.target;
     if(target.isLink)
       return;
-      
+
     var ch = target.parent.children;
     //console.log("_pchange::mv:"+utils.debug(target));
     var overlapList = [];

@@ -147,7 +147,7 @@ loadAppCode("edit",function(data)
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-th',Editor.dock.toggleCli);
 
 		//Editor.dock.dockApp('link');
-		factory.newGlobalApp("_pchange");
+		factory.newGlobalApp("edit/components/pchange");
 		factory.newGlobalApp("edit/components/text");
 		factory.newGlobalApp("edit/components/sizer");
 		factory.newGlobalApp("edit/components/addImage");
