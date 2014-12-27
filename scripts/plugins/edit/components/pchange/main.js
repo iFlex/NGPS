@@ -8,7 +8,6 @@ loadAppCode("edit/components/pchange",function(data)
   this.parent = data['parent'];
   this.active = true;
 
-  var levelsMap = {};
   var interfaces = [];
   var interfSize = 32;
   this.target = 0;
@@ -145,25 +144,17 @@ loadAppCode("edit/components/pchange",function(data)
     }
   }
 
-  var addToLevel = function(level,e){
-    if(!levelsMap[level])
-      levelsMap[level] = [];
-    levelsMap[level].push(e);
-  }
-
   var onAddedChild = function(e){
     var c = e.child;
     if(c.permissions.track)
     {
       //console.log("_pchange:: Added child:"+utils.debug(c));
-      addToLevel(c.parent.UID,c);
       c.addEventListener('changePosition',track);
     }
   }
 
   this.init = function()
   {
-    levelsMap[factory.root.UID] = [];
     GEM.addEventListener("addChild",0,onAddedChild,this);
   }
 

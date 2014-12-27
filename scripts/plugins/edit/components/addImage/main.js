@@ -9,12 +9,50 @@ loadAppCode("edit/components/addImage",function(data)
   var link = 0;
   var mountPoint = 0;
   var primitiveCTL = 0;
+  var _target = false;
+
+  function resizeToFit(c){
+    var parent = 0;
+    var dw = 0;
+    var dh = 0;
+    if(!_target){
+      dw = c.getWidth()/factory.base.getWidth();
+      dh = c.getHeight()/factory.base.getHeight();
+    }
+    else
+    {
+      dw = c.getWidth()/_target.getWidth();
+      dh = c.getHeight()/_target.getHeight();
+    }
+
+    if(dw > 1 || dh > 1)
+    {
+      var r = 1/((dw > dh)?dw:dh);
+      c.setWidth(c.getWidth()*r);
+      c.setHeight(c.getHeight()*r);
+
+      //now center it
+      var cpos = {};
+      if(!_target){
+        cpos = factory.base.getPos(0.5,0.5);
+        cpos = factory.root.viewportToSurface(cpos.x,cpos.y);
+      }
+      else{
+        cpos.x = _target.getWidth()/2;
+        cpos.y = _target.getHeight()/2;
+      }
+
+      c.putAt(cpos.x,cpos.y,0.5,0.5);
+    }
+
+  }
+
   var addFromURL = function(link,info)
   {
     if(!primitiveCTL)
     {
-      var container = mountPoint || Editor.dock.onAddContainer();
-      primitiveCTL = container.addPrimitive({type:"img",adapt_container:true,content:{src:link}});
+      var container = Editor.dock.onAddContainer();//mountPoint || Editor.dock.onAddContainer();
+      primitiveCTL = container.addPrimitive({type:"img",adapt_container:true,content:{src:link}},function(){resizeToFit(container)});
     }
     else
       if(primitiveCTL.src != link)
@@ -25,8 +63,8 @@ loadAppCode("edit/components/addImage",function(data)
 
   var addFromFile = function(e)
   {
-    var container = mountPoint || Editor.dock.onAddContainer();
-    var img = container.addPrimitive({type:"img",adapt_container:true,content:{src:e.target.result}});
+    var container = Editor.dock.onAddContainer();//mountPoint || Editor.dock.onAddContainer();
+    var img = container.addPrimitive({type:"img",adapt_container:true,content:{src:e.target.result}},function(){resizeToFit(container)});
     //Editor.images.hide();
   }
 
@@ -73,9 +111,13 @@ loadAppCode("edit/components/addImage",function(data)
     {
       if(!target.hasChildren())
         mountPoint = target;
+      _target = target;
     }
     else
+    {
       target = factory.base;
+      _target = 0;
+    }
 
     this.hide();
     Editor.images.container = factory.newContainer({width:"100%",height:"64px",background:"black"},"none",target);

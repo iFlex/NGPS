@@ -1,7 +1,7 @@
 //TODO: Fix weird trigger ( with the start interface listener ) evend firing on factory.base even though it's not listened for.
 this.Editor = this.Editor || {};
 //hardcoded for now
-z_apps = [{name:"D3",local:true},{name:"histo",local:true},{name:"collision",local:true},{name:"fps",local:true,global:true}];
+z_apps = [{name:"collision",local:true},{name:"debug",local:false,global:true}];
 //TODO: needs to get apps from server infrastructure
 //      needs to be able to save usage of apps and preferences
 loadAppCode("edit/components/appChoice",function(data)

@@ -87,7 +87,8 @@ factory.newContainer = function(possize,tag,parent,addToFrame,translate)
 	if(!descriptor)
 		descriptor = factory.defaultDescriptor;
 
-	descriptor = utils.merge(descriptor,factory.settings.container,"override");
+	if(!descriptor['ignoreTheme'])
+		descriptor = utils.merge(descriptor,factory.settings.container,"override");
 
 	var obj = parent.addChild( utils.merge(descriptor,possize,true) , addToFrame, translate );
 	obj.extend(Interactive); //make object interactive

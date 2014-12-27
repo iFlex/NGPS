@@ -309,7 +309,7 @@ this.container = function(properties)
 	}
 	//TODO: add styling and event enabling and disablig for child
 	//		add event dispatching for apps that run inside in case that is needed
-	this.addPrimitive = function(descriptor)
+	this.addPrimitive = function(descriptor,onready)
 	{
 		if(!descriptor['type'])
 			return false;
@@ -324,8 +324,7 @@ this.container = function(properties)
 				this.child.setAttribute(k, descriptor['content'][k]);
 
 		if(descriptor['style'])
-			for( k in descriptor['style'] )
-				this.child.style.k = descriptor['style'][k];
+				this.child.style.cssText = descriptor['style'];
 
 		//size the container to the image
 		if(descriptor['adapt_container'] == true)
@@ -336,6 +335,9 @@ this.container = function(properties)
 			{
 				container.setWidth( child.clientWidth );
 				container.setHeight( child.clientHeight	);
+
+				if(onready)
+					onready();
 			}
 		}
 		else
@@ -362,6 +364,9 @@ this.container = function(properties)
 					var nh = child.clientHeight * diff;
 					child.width = nw;
 					child.height = nh;
+
+					if(onready)
+						onready();
 				}
 
 			}
@@ -392,7 +397,6 @@ this.container = function(properties)
 				this.DOMreference.removeChild(this.child);
 				delete this.child;
 			}
-			console.log(" remove primitive called ");
 		}
 	}
 

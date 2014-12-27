@@ -3,7 +3,7 @@ loadAppCode("edit/components/link",function(data){
 	this.parent = data['parent'];
 	var startFrom = data['lastInterfaceContainer'] || 2 ;
 
-	this.temp = 0;
+	var temp = 0;
 	this.active = false;
 
 	this.cDescriptor = {};
@@ -22,12 +22,16 @@ loadAppCode("edit/components/link",function(data){
 		else
 			ctx.DOMreference.innerHTML = "<img src='"+app.parent.appFullPath+"resources/1.png"+"' style='width:16px;height:16px'></img>";
 	}
-
+  function cancel(){
+		if(temp)
+			temp.hide();
+		linkParent = 0;
+	}
 	this.trigger = function(data)
 	{
 		if(!this.isActive)
 		{
-			this.temp.hide();
+			temp.hide();
 			return;
 		}
 
@@ -37,7 +41,7 @@ loadAppCode("edit/components/link",function(data){
 
 		if( target.UID < startFrom || (linkParent && target.UID == linkParent.UID ) )//clicked on root
 		{
-			this.temp.hide();
+			temp.hide();
 			return;
 		}
 		var e = data['original_event'];
@@ -62,14 +66,14 @@ loadAppCode("edit/components/link",function(data){
 			//linkData['left_container_xreff'] = localPos.x / target.getWidth();
 			//linkData['left_container_yreff'] = localPos.y / target.getHeight();
 
-			this.temp.changeParent(target);
-			this.temp.show();
-			this.temp.putAt(localPos.x,localPos.y,0.5,0.5);
+			temp.changeParent(target);
+			temp.show();
+			temp.putAt(localPos.x,localPos.y,0.5,0.5);
 
 		}
 		else
 		{
-			oldPos = this.temp.getPos(0.5,0.5);
+			oldPos = temp.getPos(0.5,0.5);
 			linkData['left_container_xreff'] = oldPos.x / target.getWidth();
 			linkData['left_container_yreff'] = oldPos.y / target.getHeight();
 
@@ -84,7 +88,7 @@ loadAppCode("edit/components/link",function(data){
 			});
 
 			linkParent = 0;
-			this.temp.hide();
+			temp.hide();
 		}
 	}
 
@@ -92,12 +96,13 @@ loadAppCode("edit/components/link",function(data){
 	{
 		this.parent.onTrigger = this.toggle;
 
-		this.temp  = factory.newContainer({x:0,y:0,width:32,height:32},'link_dot',factory.root);
-		var g = this.temp.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-record"}});//<span class="glyphicon glyphicon-record"></span>
+		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true},'link_dot',factory.root);
+		var g = temp.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-record"}});//<span class="glyphicon glyphicon-record"></span>
 		g.style.cssText = "font-size:32px";
-		this.temp.hide();
+		temp.hide();
 
 		GEM.addEventListener("triggered",0,"trigger",this);
+		factory.root.addEventListener("triggered",cancel);
 
 		this.toggle(this.parent);
 	}

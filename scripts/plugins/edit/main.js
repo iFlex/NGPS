@@ -159,6 +159,7 @@ loadAppCode("edit",function(data)
 			Editor.dock.tags.push(k);
 
 		Editor.dock.dockApp('edit/components/link',{lastInterfaceContainer:5});
+		Editor.dock.dockApp('edit/components/aligner',{lastInterfaceContainer:5});
 	}
 	this.init = function() //called only one when bound with container
 	{
