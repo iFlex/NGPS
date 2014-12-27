@@ -77,6 +77,7 @@ loadAppCode("edit/components/addImage",function(data)
     else
       target = factory.base;
 
+    this.hide();
     Editor.images.container = factory.newContainer({width:"100%",height:"64px",background:"black"},"none",target);
     if(!sp)
       sp = (target.getHeight() - Editor.images.container.getHeight())/2;
