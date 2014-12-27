@@ -1,3 +1,4 @@
+//TODO: fix linker issues with large containers ( it links with absurd positions)
 loadAppCode("edit/components/link",function(data){
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
@@ -46,7 +47,7 @@ loadAppCode("edit/components/link",function(data){
 		}
 		var e = data['original_event'];
 		var localPos = target.global2local(e.clientX,e.clientY);
-		//console.log("cx:"+e.clientX+" cy:"+e.clientY+" lp:"+localPos.x+"|"+localPos.y);
+		console.log("cx:"+e.clientX+" cy:"+e.clientY+" lp:"+localPos.x+"|"+localPos.y);
 		//console.log("Link maker:"+utils.debug(target)+" last:"+linkParent);
 
 		if(!linkParent)
@@ -74,12 +75,12 @@ loadAppCode("edit/components/link",function(data){
 		else
 		{
 			oldPos = temp.getPos(0.5,0.5);
-			linkData['left_container_xreff'] = oldPos.x / target.getWidth();
-			linkData['left_container_yreff'] = oldPos.y / target.getHeight();
+
+			linkData['left_container_xreff'] = oldPos.x / temp.parent.getWidth();
+			linkData['left_container_yreff'] = oldPos.y / temp.parent.getHeight();
 
 			linkData['right_container_xreff'] = localPos.x / target.getWidth();
 			linkData['right_container_yreff'] = localPos.y / target.getHeight();
-
 			var cDescriptor = Descriptors.links["l000000"];
 
 			var l = linkParent.link(target,{
