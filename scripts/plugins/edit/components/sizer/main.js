@@ -1,4 +1,4 @@
-//TODO: needs to be made configurable: buttons should be able to be hidden, swapped, etc
+//TODO: add configuration for text editor and adapt to angle of object
 this.Editor = this.Editor || {};
 
 loadAppCode("edit/components/sizer",function(data)
@@ -6,51 +6,41 @@ loadAppCode("edit/components/sizer",function(data)
   this.config = {interface:"none"};
   this.parent = data['parent'];
   this.target = 0;
+  this.fastAccess = {};
+  var interfaceSize = 32;
+  var sizeCoef = 0.75;
+  var buttons = [];
   var mountPoint = factory.root;
   Editor.sizer = this;
-
+  this.configure = function(data){
+    if(Editor.sizer.EditUI> 0)
+    {
+      for(k in Editor.sizer.EditUI)
+        Editor.sizer.EditUI.discard();
+      Editor.sizer.EditUI = [];
+      buttons = [];
+    }
+    buttons = data;
+    Editor.sizer.fastAccess = {};
+  }
   this.init = function(){
+    this.configure(this.interfaces.basic);
     //edit UI
-    var descriptor = {x:0,y:0,width:32,height:32,background:"white",border_size:"0px",cssText:"z-index:4;"};
-    Editor.sizer.EditUI = {};
-    Editor.sizer.EditUI['rotate'] = factory.newContainer(descriptor,"simple_rect",mountPoint);
-    Editor.sizer.EditUI['rotate'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-share-alt'></span></center>";
-    Editor.sizer.EditUI['rotate'].onMoved = Editor.sizer.onRotate;
-    Editor.sizer.EditUI['rotate'].hide();
-
-    Editor.sizer.EditUI['enlarge'] = factory.newContainer(descriptor,"simple_rect",mountPoint);
-    Editor.sizer.EditUI['enlarge'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-resize-full'></span></center>";
-    Editor.sizer.EditUI['enlarge'].onMoved = Editor.sizer.onEnlarge;
-    Editor.sizer.EditUI['enlarge'].hide();
-
-    Editor.sizer.EditUI['changeWidthLeft'] = factory.newContainer(descriptor,"simple_rect",mountPoint);
-    Editor.sizer.EditUI['changeWidthLeft'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-left'></span></center>";
-    Editor.sizer.EditUI['changeWidthLeft'].onMoved = Editor.sizer.onChangeWidthLeft;
-    Editor.sizer.EditUI['changeWidthLeft'].hide();
-
-    Editor.sizer.EditUI['changeWidthRight'] = factory.newContainer(descriptor,"simple_rect",mountPoint);
-    Editor.sizer.EditUI['changeWidthRight'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-right'></span></center>";
-    Editor.sizer.EditUI['changeWidthRight'].onMoved = Editor.sizer.onChangeWidthRight;
-    Editor.sizer.EditUI['changeWidthRight'].hide();
-
-    Editor.sizer.EditUI['changeHeightBottom'] = factory.newContainer(descriptor,"simple_rect",mountPoint);
-    Editor.sizer.EditUI['changeHeightBottom'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-down'></span></center>";
-    Editor.sizer.EditUI['changeHeightBottom'].onMoved = Editor.sizer.onChangeHeightBottom;
-    Editor.sizer.EditUI['changeHeightBottom'].hide();
-
-    Editor.sizer.EditUI['changeHeightTop'] = factory.newContainer(descriptor,"simple_rect",mountPoint);
-    Editor.sizer.EditUI['changeHeightTop'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-arrow-up'></span></center>";
-    Editor.sizer.EditUI['changeHeightTop'].onMoved = Editor.sizer.onChangeHeightTop;
-    Editor.sizer.EditUI['changeHeightTop'].hide();
-
-    Editor.sizer.EditUI['delete'] = factory.newContainer(descriptor,"simple_rect",mountPoint);
-    Editor.sizer.EditUI['delete'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-remove'></span></center>";
-    Editor.sizer.EditUI['delete'].hide();
-
-    Editor.sizer.EditUI['more'] = factory.newContainer(descriptor,"simple_rect",mountPoint);
-    Editor.sizer.EditUI['more'].DOMreference.innerHTML = "<center><span class='glyphicon glyphicon-th-list'></span></center>";
-    Editor.sizer.EditUI['more'].hide();
-
+    var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:["20%"],border_size:0,cssText:"z-index:4;"};
+    Editor.sizer.EditUI = [];
+    console.log("buttons:"+buttons.length)
+    for(var k = 0 ; k < buttons.length; ++k)
+    {
+      console.log("building sizer interface:"+k);
+      var cnt = factory.newContainer(descriptor,"simple_rect",mountPoint);
+      cnt.DOMreference.innerHTML = buttons[k]['innerHTML'] || "";
+      for( e in buttons[k].callbacks)
+        cnt[e] = buttons[k].callbacks[e];
+      cnt.hide();
+      cnt.lastEditAngle = 0;
+      Editor.sizer.EditUI.push(cnt);
+      this.fastAccess[buttons[k].name] = cnt;
+    }
     factory.root.addEventListener("triggered",Editor.sizer.hide);
   }
 
@@ -118,56 +108,24 @@ loadAppCode("edit/components/sizer",function(data)
       if(Editor.sizer.target)
       {
         var target =  Editor.sizer.target;
-        var targetPos = target.getPos(0,0,true); //get global target pos
+        var targetPos = target.local2global(); //get global target pos
+        targetPos = factory.root.viewportToSurface(targetPos.x,targetPos.y);
+        var bsz = 32;
+        var w = target.getWidth();
+        var h = target.getHeight();
+        var difx = [-bsz,( w - bsz)/2,w,w,w,( w - bsz)/2,-bsz,-bsz];
+        var dify = [-bsz,-bsz,-bsz,( h - bsz)/2,h,h,h,( h - bsz)/2];
+        var i = 0;
+        for(k in Editor.sizer.EditUI)
+        {
+          Editor.sizer.EditUI[k].show();
+          Editor.sizer.EditUI[k].putAt(targetPos.x+difx[i],targetPos.y+dify[i]);
+          i++;
+        }
 
-        Editor.sizer.EditUI['rotate'].show();
-        Editor.sizer.EditUI['rotate'].putAt( targetPos.x - Editor.sizer.EditUI['rotate'].getWidth(), targetPos.y - Editor.sizer.EditUI['rotate'].getHeight(),0,0,true)
-
-        Editor.sizer.EditUI['enlarge'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight(),0,0,true)
-        Editor.sizer.EditUI['enlarge'].show();
-
-        Editor.sizer.EditUI['changeWidthLeft'].show();
-        Editor.sizer.EditUI['changeWidthLeft'].putAt( targetPos.x - Editor.sizer.EditUI['changeWidthLeft'].getWidth(), targetPos.y + (target.getHeight() - Editor.sizer.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
-
-        Editor.sizer.EditUI['changeWidthRight'].show();
-        Editor.sizer.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - Editor.sizer.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
-
-        Editor.sizer.EditUI['changeHeightBottom'].show();
-        Editor.sizer.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - Editor.sizer.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight(),0,0,true)
-
-        Editor.sizer.EditUI['changeHeightTop'].show();
-        Editor.sizer.EditUI['changeHeightTop'].putAt( targetPos.x + (target.getWidth() - Editor.sizer.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y - Editor.sizer.EditUI['changeWidthLeft'].getHeight(),0,0,true)
-
-        Editor.sizer.EditUI['delete'].show();
-        Editor.sizer.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y - Editor.sizer.EditUI['rotate'].getHeight(),0,0,true)
-        Editor.sizer.EditUI['delete'].onTrigger = this.onDelete;
-        Editor.sizer.EditUI['delete'].onMoved = function(){};
-
-        Editor.sizer.EditUI['more'].show();
-        Editor.sizer.EditUI['more'].putAt( targetPos.x - Editor.sizer.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight(),0,0,true)
-        Editor.sizer.EditUI['rotate'].lastEditAngle = "none";
+        Editor.sizer.fastAccess['rotate'].lastEditAngle = "none";
         //Editor.sizer.setEditInterfaceAngle(target.angle);
       }
-  }
-  this.focusSpecialEditInterface = function(e){
-      var target =  Editor.sizer.target;
-      var targetPos = target.getPos(0,0,true);
-      keyboard.focusEditor(target);
-      Editor.sizer.EditUI['changeWidthRight'].show();
-      Editor.sizer.EditUI['changeWidthRight'].putAt( targetPos.x + target.getWidth(), targetPos.y + (target.getHeight() - Editor.sizer.EditUI['changeWidthLeft'].getHeight())/2,0,0,true)
-
-      Editor.sizer.EditUI['changeHeightBottom'].show();
-      Editor.sizer.EditUI['changeHeightBottom'].putAt( targetPos.x + (target.getWidth() - Editor.sizer.EditUI['changeWidthLeft'].getWidth())/2, targetPos.y + target.getHeight(),0,0,true)
-
-      Editor.sizer.EditUI['delete'].show();
-      Editor.sizer.EditUI['delete'].putAt( targetPos.x + target.getWidth(), targetPos.y + target.getHeight(),0,0,true)
-      Editor.sizer.EditUI['delete'].onTrigger = this.onDelete;
-      Editor.sizer.EditUI['delete'].onMoved = function(){};
-
-      Editor.sizer.EditUI['more'].show();
-      Editor.sizer.EditUI['more'].putAt( targetPos.x - Editor.sizer.EditUI['rotate'].getWidth(), targetPos.y + target.getHeight(),0,0,true)
-
-      //Editor.sizer.setEditInterfaceAngle(target.angle);
   }
   //edit interface functions
   this.onEnlarge = function(dx,dy)
@@ -206,15 +164,42 @@ loadAppCode("edit/components/sizer",function(data)
   }
   this.onRotate = function(dx,dy)
   {
-    Editor.sizer.EditUI['rotate'].move(dx,dy)
+    Editor.sizer.fastAccess['rotate'].move(dx,dy)
     var center = Editor.sizer.target.getPos(0.5,0.5,true);
-    var ctl   = Editor.sizer.EditUI['rotate'].getPos(0.5,0.5,true);
+    var ctl   = Editor.sizer.fastAccess['rotate'].getPos(0.5,0.5,true);
     var angle = Math.atan2( center.y - ctl.y , center.x - ctl.x )
-    if(Editor.sizer.EditUI['rotate'].lastEditAngle && typeof(Editor.sizer.EditUI['rotate'].lastEditAngle)!="string")
+    if(Editor.sizer.fastAccess['rotate'].lastEditAngle && typeof(Editor.sizer.fastAccess['rotate'].lastEditAngle)!="string")
     {
-      var dif = ( angle - Editor.sizer.EditUI['rotate'].lastEditAngle )*180/Math.PI;
+      var dif = ( angle - Editor.sizer.fastAccess['rotate'].lastEditAngle )*180/Math.PI;
       Editor.sizer.target.rotate(dif);
     }
-    Editor.sizer.EditUI['rotate'].lastEditAngle = angle;
+    Editor.sizer.fastAccess['rotate'].lastEditAngle = angle;
+  }
+  this.interfaces = {
+    basic:
+    [{
+      name:"rotate",
+      tag:"simple_rect",
+      innerHTML:"<center><span class='glyphicon glyphicon-share-alt' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+      callbacks:{onMoved:Editor.sizer.onRotate}
+    },
+    {
+      name:"changeHeightTop",
+      tag:"simple_rect",
+      innerHTML:"<center><span class='glyphicon glyphicon-arrow-up' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+      callbacks:{onMoved:Editor.sizer.onChangeHeightTop}
+    },
+    {
+      name:"delete",tag:"simple_rect",
+      innerHTML:"<center><span class='glyphicon glyphicon-remove' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+      callbacks:{onMoved:function(){},onTrigger:Editor.sizer.onDelete}
+    },
+  {name:"changeWidthRight",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-right' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onChangeWidthRight}},
+    {name:"enlarge",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-resize-full' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onEnlarge}},
+    {name:"changeHeightBottom",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-down' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onChangeHeightBottom}},
+    {name:"more",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-th-list' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onRotate}},
+    {name:"changeWidthLeft",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-left' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onChangeWidthLeft}},
+    ],
+    text:[]
   }
 });

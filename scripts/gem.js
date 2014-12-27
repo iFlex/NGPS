@@ -7,13 +7,14 @@
 *		a run_context can be passed to GEM so that each event listener runs in an appropriate context
 *		 inside the handler the context can be retireved with: this.context
 */
-//TODO: problems with identifying anonymous handlers
-//			removeListener removes everything
+//TODO: Bubble events to all children
+//      problems with identifying anonymous handlers
 //			investigate strange additional null handlers appearing after loaiding "simple_connector" app on factory.root
 
 this.GEM = {};
 GEM.events = {};
 GEM.debug = false;
+GEM.bubble = true;
 GEM.fireEvent = function(data)
 {
 	if(GEM.debug)
@@ -44,6 +45,18 @@ GEM.fireEvent = function(data)
 		_fireEvent(data['event'],data['target'].UID);
 	_fireEvent(data['event'],"_global");
 
+	/*
+	if(GEM.bubble){
+		var node = data['target'];
+		var d = data;
+		for( c in node.children)
+		{
+			d.target = node.children[c];
+			GEM.fireEvent(d);
+		}
+
+	}
+	*/
 	if(GEM.debug)
 		cli.showPrompt("<br> ** NGPS_GEM_EVENT<br>"+utils.debug(data));
 }

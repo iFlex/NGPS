@@ -91,6 +91,7 @@ Camera.cstart = function(interval)
 		bkg = "yellow";
 
 	this.display = this.addChild( { x:0, y:0 ,width: this.getWidth() , height: this.getHeight(), background:bkg},true);
+	this.display.isDisplay = true;
 	this.display.DOMreference.style.overflow = "hidden";
 	if(this.properties.autopos)
 		this.display.DOMreference.style.position = "relative";
@@ -276,8 +277,10 @@ Camera.cgetTransformOrigin = function(ox,oy){
 Camera.viewportToSurface = function(x,y){
 	//TODO: make sure it works properly
 	var v = this.getSurfaceXY(0,0);
-	v.x = -v.x-x;
-	v.y = -v.y-y;
+	v.x = -v.x;
+	v.y = -v.y;
+	v.x += x;
+	v.y += y;
 	return v;
 }
 Camera.surfaceToViewport = function(x,y){

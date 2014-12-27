@@ -153,11 +153,12 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp("edit/components/addImage");
 		factory.newGlobalApp("edit/components/addVideo");
 		factory.newGlobalApp("edit/components/appChoice");
+		factory.newGlobalApp("edit/components/linkEdit");
 		//read tags
 		for( k in Descriptors.containers)
 			Editor.dock.tags.push(k);
 
-		//Editor.dock.dockApp('link',{lastInterfaceContainer:5});
+		Editor.dock.dockApp('edit/components/link',{lastInterfaceContainer:5});
 	}
 	this.init = function() //called only one when bound with container
 	{
@@ -202,7 +203,7 @@ loadAppCode("edit",function(data)
 			y:pos.y,
 			width:Editor.dock.possize.width,
 			height:Editor.dock.possize.height,
-			permissions:{track:true}},descriptor),Editor.dock.tags[5],Editor.sizer.target,false,true);
+			permissions:{track:true,connect:true}},descriptor),Editor.dock.tags[5],Editor.sizer.target,false,true);
 
 		if(noEvent == true)
 			return container;

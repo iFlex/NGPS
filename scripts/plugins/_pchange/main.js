@@ -1,26 +1,32 @@
-//TODO: needs to be made configurable: buttons should be able to be hidden, swapped, etc
+//TODO: need to fix where the button appears
+
 this.Editor = this.Editor || {};
 
 loadAppCode("_pchange",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
+  this.active = true;
+
   var levelsMap = {};
   var interfaces = [];
+  var interfSize = 32;
   this.target = 0;
   Editor.track = this;
   //debug:
   factory._pchangecheck = function(){
-    console.log("::"+utils.debug(levelsMap));
+    //console.log("::"+utils.debug(levelsMap));
   }
 
-  function makeTrigger(obj){
-    var pos = obj.getPos(0.5,0.5);
-    console.log("pos:"+utils.debug(pos));
-    pos = factory.root.surfaceToViewport(pos.x,pos.y);
-    console.log("pss:"+utils.debug(pos));
-    var c = factory.newContainer({x:pos.x,y:pos.y,width:32,height:32,background:"blue"},"none",factory.base);
-    c.target = obj;
+  function makeTrigger(obj,pos,last)
+  {
+    pos = factory.root.viewportToSurface(pos.x,pos.y);
+    var c = factory.newContainer({x:pos.x,y:pos.y,width:interfSize,height:interfSize,background:"white",border_radius:["10%"],style:"text-align: center;"},"none",factory.root);//factory.base);
+    var g = c.addPrimitive({type:"span",content:{class:(last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in"}});
+    g.style.cssText = "font-size:"+interfSize*0.9+"px";
+    c.destination = obj;
+    c.permissions.save = false;
+    c.permissions.connect = false;
     c.addEventListener("triggered",trigger);
     return c;
   }
@@ -29,9 +35,10 @@ loadAppCode("_pchange",function(data)
       interfaces[i].discard();
     interfaces = [];
   }
-  function showTriggers(selection){
-    for(i in selection)
-      interfaces.push(makeTrigger(selection[i]));
+  function showTriggers(selection,poslist){
+    for(i in selection){
+      interfaces.push(makeTrigger(selection[i],poslist[i],poslist[i].isexit));
+    }
   }
 
   function areOverlapping(a,b){
@@ -45,55 +52,95 @@ loadAppCode("_pchange",function(data)
         (ap.x > bp.x && ap.x < b_p.x ) ) // b|  a|  a|  b|  a|
       if( (ap.y < bp.y && a_p.y > bp.y) ||  // a|   b|  a|   b|   a|
           (ap.y > bp.y && ap.y < b_p.y ) ) // b|  a|  a|  b|  a|
-          return true;
-    return false;
+          {
+              var p = b.local2global();
+              var mid = {x:p.x,y:p.y};
+              if( ap.x > bp.x && ap.x < b_p.x )
+              {
+                var d = ap.x - bp.x;
+                if( a_p.x < b_p.x && d < (b_p.x - a_p.x))
+                  d = (a_p.x - bp.x);
+                mid.x += d;
+              }
+              if( ap.y > bp.y && ap.y < b_p.y )
+              {
+                var d = ap.y - bp.y;
+                if( a_p.y < b_p.y && d < ( b_p.y - a_p.y))
+                  d = (a_p.y - bp.y);
+                  mid.y += d;
+                }
+              return mid;
+          }
+    return 0;
 
   }
 
   var track = function(e)
   {
     target = e.target;
+    if(target.isLink)
+      return;
+      
     var ch = target.parent.children;
-    console.log("_pchange::mv:"+utils.debug(target));
+    //console.log("_pchange::mv:"+utils.debug(target));
     var overlapList = [];
+    var poslist = [];
     //check kids on same level
     for( k in ch )
     {
       if( ch[k].permissions.track && ch[k].UID != target.UID )
-        if( areOverlapping(target,ch[k]) )
+      {
+        var pos = areOverlapping(target,ch[k]);
+        if( pos )
         {
-          console.log("OVERLAP::"+utils.debug(ch[k]));
+          //console.log("OVERLAP::"+utils.debug(ch[k]));
           overlapList.push(ch[k]);
+          poslist.push(pos);
         }
+      }
     }
-    //check parent
-    var top = target.getPos(0,0);
-    var bottom = target.getPos(1,1);
-    var w = target.parent.getWidth();
-    var h = target.parent.getHeight();
-    if(top.x < 0 || top.y < 0 || bottom.x > w || bottom.y>h)
-      overlapList.push(target.parent);
 
-    if(overlapList.length < 1)
-        hideTriggers();
-    else
-        showTriggers(overlapList);
+    function checkOverlap(parent,node){
+      if(parent.UID != factory.root.display.UID)
+      {
+        //check parent
+        var pt = parent.local2global(0,0);
+        var pb = parent.local2global(1,1);
+        var nt = node.local2global(0,0);
+        var nb = node.local2global(1,1);
+        //console.log("Cheking parent:"+utils.debug(parent)+" pt:"+pt.x+"|"+pt.y+" pb:"+pb.x+"|"+pb.y+" nt:"+nt.x+"|"+nt.y+" nb:"+nb.x+"|"+nb.y);
+        var w = parent.getWidth();
+        var h = parent.getHeight();
+        if(nt.x < pt.x || nt.y < pt.y || nb.x > pb.x || nb.y > pb.y )
+          return checkOverlap(parent.parent,node) || {
+            node:parent.parent,
+            pos:{
+              x:(-nt.x > ( nb.x - w )) ? nt.x : nb.x,
+              y:(-nt.y > ( nb.y - h)) ? nt.y : nb.y
+            }
+          };
+      }
+      return 0;
+    }
+
+    var prnt = checkOverlap( target.parent, target );
+    if(prnt)
+    {
+      prnt.pos.isexit = true;
+      overlapList.push(prnt.node);
+      poslist.push(prnt.pos);
+    }
+
+    hideTriggers();
+    if(overlapList.length > 0)
+      showTriggers(overlapList,poslist);
 
   }
 
   var trigger = function(e){
-    console.log("moving to :"+utils.debug(e.target.target));
-    if(target){
-      var parent = e.target.target;
-      var spos = target.getPos();
-      var dpos = parent.getPos();
-      console.log("spos:"+utils.debug(spos)+" dpos:"+utils.debug(dpos));
-      dpos.x = spos.x - dpos.x;
-      dpos.y -= spos.y;
-      console.log("new pos:"+utils.debug(dpos));
-      target.changeParent(parent);
-      target.putAt(dpos.x,dpos.y);
-
+    //console.log(utils.debug(e.target.destination));
+    if(target && e.target.destination ){
+      target.changeParent(e.target.destination);
       hideTriggers();
     }
   }
@@ -108,7 +155,7 @@ loadAppCode("_pchange",function(data)
     var c = e.child;
     if(c.permissions.track)
     {
-      console.log("_pchange:: Added child:"+utils.debug(c));
+      //console.log("_pchange:: Added child:"+utils.debug(c));
       addToLevel(c.parent.UID,c);
       c.addEventListener('changePosition',track);
     }
@@ -117,7 +164,7 @@ loadAppCode("_pchange",function(data)
   this.init = function()
   {
     levelsMap[factory.root.UID] = [];
-    factory.root.addEventListener("addChild",onAddedChild);
+    GEM.addEventListener("addChild",0,onAddedChild,this);
   }
 
 });

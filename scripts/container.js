@@ -57,7 +57,7 @@ this.container = function(properties)
 	this.onMouseDown = 0;
 	this.onMouseUp  = 0;
 	//FLAGS
-	this.permissions = {save:true,connect:true};//savable, connectable, extend in future
+	this.permissions = {save:true,connect:false}//connect:true};//savable, connectable, extend in future
 	//DOM manipulation
 	//TODO: Add possibility to  style with CSS
 	this.load = function(parent)
@@ -69,6 +69,12 @@ this.container = function(properties)
 		if(properties['permissions'])
 			this.permissions = utils.merge(this.permissions,properties['permissions'],true);
 		properties['permissions'] = this.permissions;
+
+		if(properties['isLink'])
+			this.isLink = true;
+
+		if(properties['isCamera'])
+			this.isCamera = true;
 
 		this.UID = containerData.containerIndex++;
 		var DOMtype = "div";
@@ -268,6 +274,13 @@ this.container = function(properties)
 		var oldP = 0;
 		if( parent && this.parent )
 		{
+			//calculate new position
+			var spos = this.local2global(0,0);
+			var dpos = parent.local2global(0,0);
+
+			spos.x -= dpos.x;
+			spos.y -= dpos.y;
+
 			//handle old parent
 			oldP = this.parent;
 			if( this.parent.DOMreference && this.DOMreference )
@@ -279,6 +292,9 @@ this.container = function(properties)
 			//handle new parent
 			copy.parent = parent;
 			copy.parent.children[copy.UID] = copy;
+			copy.putAt(spos.x,spos.y);
+
+			//fire event
 			if( copy.parent.DOMreference && copy.DOMreference )
 				copy.parent.DOMreference.appendChild(copy.DOMreference);
 			//WARNING: think about position when changing parents
@@ -400,32 +416,25 @@ this.container = function(properties)
 		this.hide();
 		this.show();
 	}
-
 	//getters
-	this.local2global = function(x,y){
-		function getGlobalPos(node)
-		{
-			if(node)
-			{
-				var before = getGlobalPos(node.parent);
-				var now = node.getPos(0,0,false);
-				if(before)
-				{
-					now.x += before.x;
-					now.y += before.y;
-				}
-				return now;
-			}
-			return 0;
+	this.local2global = function(cx,cy,stopAt){
+		var p;
+		var node = this;
+		var pos = {x:0,y:0};
+		while(node){
+			if(node.UID == stopAt)
+				break;
+			if(node.isDisplay)
+				p = node.parent.getSurfaceXY(cx,cy);
+			else
+				p = node.getPos(cx,cy);
+			pos.x += p.x;
+			pos.y += p.y;
+			node = node.parent;
+			cx = 0;
+			cy = 0;
 		}
-		var pos = getGlobalPos(this.parent);
-		var ret = {x:x,y:y};
-		if(pos)
-		{
-			ret.x+=pos.x;
-			ret.y+=pos.y;
-		}
-		return ret;
+		return pos;
 	}
 
 	this.global2local = function(x,y){
@@ -485,13 +494,6 @@ this.container = function(properties)
 	this.getCenter = function() //deprecated, don't use
 	{
 		return this.getPos(0.5,0.5);
-	}
-
-	this.getLocalPos = function(x,y)
-	{
-		var pos = this.getPos();
-		console.log("Getting local pos ID:"+this.UID+" x:"+x+" y:"+y+" px:"+pos.x+" py:"+pos.y)
-		return {x: x - pos.x, y: y - pos.y};
 	}
 	//setters
 	this.setWidth = function(w)
@@ -578,8 +580,6 @@ this.container = function(properties)
 		this.DOMreference.style.top  = this.DOMreference.offsetTop  + dy + "px";
 
 		this.maintainLinks();
-		//debug
-		console.log("container.move:: firing event...");
 		//EVENT
 		if( this.events['changePosition'] || ( GEM.events['changePosition'] && GEM.events['changePosition']['_global'] ) )
 			GEM.fireEvent({event:"changePosition",target:this})
@@ -658,15 +658,15 @@ this.container = function(properties)
 
 		//create container for link
 		var gcp = factory.root;//this.greatestCommonParent(target);
+		descriptor['container'].isLink = true;
 		var leLink = gcp.addChild( descriptor['container'] );
-		leLink.isLink = true;
 
 		this.outgoing[target.UID] = {link:leLink,target:target};
 		target.incoming[this.UID] = {link:leLink,target:this};
 		//do positioning
 		leLink.linkData = descriptor['anchors'];
 		this.maintainLink(target);
-		//add listeners
+		//add callbacks //could use GEM events but it will make it slower
 		this.onMoved = function(dx,dy){
 			this.move(dx,dy);
 			this.maintainLinks();
@@ -679,6 +679,8 @@ this.container = function(properties)
 		//EVENT
 		if( this.events['link'] || ( GEM.events['link'] && GEM.events['link']['_global'] ) )
 			GEM.fireEvent({event:"link",target:this,other:target,link:leLink})
+
+		return leLink;//warning deleting link manually messes up the link records of the containers
 	}
 	this.unlink = function (target)
 	{
@@ -726,16 +728,20 @@ this.container = function(properties)
 				GEM.fireEvent({event:"linkChange",target:ctx,old_owner:oldTarget,new_owner:newTarget,link:leLink})
 		}
 	}
+//WARNING: this code assumes the structure of the presentation has a base and a root camera
 	this.maintainLink = function(target)
 	{
 		if(this.outgoing[target.UID])
 		{
 			var leLink = this.outgoing[target.UID]['link'];
-			var acPos = this.getPos(leLink.linkData['left_container_xreff'],leLink.linkData['left_container_yreff']);
-			var bcPos = target.getPos(leLink.linkData['right_container_xreff'],leLink.linkData['right_container_yreff']);
-			var alPos = leLink.getPos(leLink.linkData['left_link_xreff'],leLink.linkData['left_link_yreff']);
-			var blPos = leLink.getPos(leLink.linkData['right_link_xreff'],leLink.linkData['right_link_yreff']);
 
+			var acPos = this.local2global(leLink.linkData['left_container_xreff'],leLink.linkData['left_container_yreff'],2);
+			var bcPos = target.local2global(leLink.linkData['right_container_xreff'],leLink.linkData['right_container_yreff'],2);
+			var alPos = leLink.local2global(leLink.linkData['left_link_xreff'],leLink.linkData['left_link_yreff'],2);
+			var blPos = leLink.local2global(leLink.linkData['right_link_xreff'],leLink.linkData['right_link_yreff'],2);
+
+			var bps = target.local2global(0,0,2);
+			//console.log("connecting: A"+acPos.x+"|"+acPos.y+" B:"+bcPos.x+"|"+bcPos.y+" bps:"+bps.x+"|"+bps.y+" ldata"+utils.debug(leLink.linkData));
 			var dx = bcPos.x - acPos.x;
 			var dy = bcPos.y - acPos.y;
 			var dist = Math.sqrt(dx*dx + dy*dy);

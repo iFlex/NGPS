@@ -5,7 +5,7 @@ loadAppCode("edit/components/link",function(data){
 
 	this.temp = 0;
 	this.active = false;
-	
+
 	this.cDescriptor = {};
 	var linkParent = 0;
 	var linkData = {};
@@ -22,9 +22,9 @@ loadAppCode("edit/components/link",function(data){
 		else
 			ctx.DOMreference.innerHTML = "<img src='"+app.parent.appFullPath+"resources/1.png"+"' style='width:16px;height:16px'></img>";
 	}
-	
+
 	this.trigger = function(data)
-	{	
+	{
 		if(!this.isActive)
 		{
 			this.temp.hide();
@@ -32,16 +32,19 @@ loadAppCode("edit/components/link",function(data){
 		}
 
 		var target = data['target'];
+		if(!target.permissions.connect)
+			return;
+
 		if( target.UID < startFrom || (linkParent && target.UID == linkParent.UID ) )//clicked on root
 		{
 			this.temp.hide();
 			return;
 		}
 		var e = data['original_event'];
-		var actualPos = factory.root.screenToDisplayCoord(e.clientX,e.clientY);
-		var localPos = target.getLocalPos(actualPos.x,actualPos.y);
-		console.log("Link maker:"+utils.debug(target)+" last:"+linkParent);
-		
+		var localPos = target.global2local(e.clientX,e.clientY);
+		//console.log("cx:"+e.clientX+" cy:"+e.clientY+" lp:"+localPos.x+"|"+localPos.y);
+		//console.log("Link maker:"+utils.debug(target)+" last:"+linkParent);
+
 		if(!linkParent)
 		{
 			linkData = {
@@ -56,24 +59,30 @@ loadAppCode("edit/components/link",function(data){
 			}
 
 			linkParent = target;
-			linkData['left_container_xreff'] = localPos.x / target.getWidth();
-			linkData['left_container_yreff'] = localPos.y / target.getHeight();
-			
+			//linkData['left_container_xreff'] = localPos.x / target.getWidth();
+			//linkData['left_container_yreff'] = localPos.y / target.getHeight();
+
 			this.temp.changeParent(target);
+			this.temp.show();
 			this.temp.putAt(localPos.x,localPos.y,0.5,0.5);
-			this.temp.show(); 
+
 		}
 		else
 		{
+			oldPos = this.temp.getPos(0.5,0.5);
+			linkData['left_container_xreff'] = oldPos.x / target.getWidth();
+			linkData['left_container_yreff'] = oldPos.y / target.getHeight();
+
 			linkData['right_container_xreff'] = localPos.x / target.getWidth();
-			linkData['right_container_yreff'] = localPos.y / target.getHeight();	
-			
-			var cDescriptor = Descriptors.containers["rounded_rect"];
-			cDescriptor['height'] = 5;
-			linkParent.link(target,{
+			linkData['right_container_yreff'] = localPos.y / target.getHeight();
+
+			var cDescriptor = Descriptors.links["l000000"];
+
+			var l = linkParent.link(target,{
 				container:cDescriptor,
 				anchors:linkData
 			});
+
 			linkParent = 0;
 			this.temp.hide();
 		}
@@ -84,10 +93,12 @@ loadAppCode("edit/components/link",function(data){
 		this.parent.onTrigger = this.toggle;
 
 		this.temp  = factory.newContainer({x:0,y:0,width:32,height:32},'link_dot',factory.root);
+		var g = this.temp.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-record"}});//<span class="glyphicon glyphicon-record"></span>
+		g.style.cssText = "font-size:32px";
 		this.temp.hide();
-		
+
 		GEM.addEventListener("triggered",0,"trigger",this);
-		
+
 		this.toggle(this.parent);
 	}
 	this.shutdown = function() //called only when app is unloaded from container
