@@ -1,4 +1,4 @@
-//TODO: add configuration for text editor and adapt to angle of object
+//TODO: figure out why text interface is not showing up all the time when clicking on a text object
 this.Editor = this.Editor || {};
 
 loadAppCode("edit/components/sizer",function(data)
@@ -62,6 +62,7 @@ loadAppCode("edit/components/sizer",function(data)
     Editor.sizer.hide();
     Editor.sizer.target = target;
     console.log("Showing interface for:"+utils.debug(target)+" prefered interface:"+target.editInterface);
+    //debug
     if( target.editInterface && target.editInterface != currentInterface )
     {
       currentInterface = target.editInterface;
@@ -101,43 +102,21 @@ loadAppCode("edit/components/sizer",function(data)
 
     Editor.sizer.target = 0;
   }
-  //TODO:NOT WORKING PORPERLY
-  this.setEditInterfaceAngle = function(angle)
-  {
-    angle *= Math.PI/180;
-    var tpos = Editor.sizer.target.getCenter();
-    for( k in Editor.sizer.EditUI)
-    {
-      var pos = Editor.sizer.EditUI[k].object.getCenter();
-      var dx = tpos.x - pos.x;
-      var dy = tpos.y - pos.y;
-      var distance = Math.sqrt( dx*dx + dy*dy );
 
-      angle += Editor.sizer.EditUI[k].object.originalAngle;
-      Editor.sizer.EditUI[k].object.putAt(tpos.x - distance*Math.cos(angle),tpos.y - distance*Math.sin(angle),0.5,0.5)
-      Editor.sizer.EditUI[k].object.setAngle(angle);
-    }
-  }
   //TODO: Not working properly for nested object
   this.focus = function(e){
       if(Editor.sizer.target)
       {
         var target =  Editor.sizer.target;
-        var targetPos = target.local2global(); //get global target pos
-        targetPos = factory.root.viewportToSurface(targetPos.x,targetPos.y);
-        var bsz = 32;
-        var w = target.getWidth();
-        var h = target.getHeight();
-        var i = 0;
         for(k in Editor.sizer.EditUI)
         {
+          var targetPos = target.local2global(Editor.sizer.EditUI[k].descriptor.anchors['px'], Editor.sizer.EditUI[k].descriptor.anchors['py']);
+          targetPos = factory.root.viewportToSurface(targetPos.x,targetPos.y);
           Editor.sizer.EditUI[k].object.show();
-          Editor.sizer.EditUI[k].object.putAt(
-            targetPos.x + Editor.sizer.EditUI[k].descriptor.anchors['px']*w,
-            targetPos.y + Editor.sizer.EditUI[k].descriptor.anchors['py']*h,
+          Editor.sizer.EditUI[k].object.putAt(targetPos.x,targetPos.y,
             Editor.sizer.EditUI[k].descriptor.anchors['bx'],
             Editor.sizer.EditUI[k].descriptor.anchors['by']);
-          i++;
+          Editor.sizer.EditUI[k].object.setAngle(target.angle);
         }
         Editor.sizer.target.lastEditAngle = undefined;
       }
@@ -284,6 +263,14 @@ loadAppCode("edit/components/sizer",function(data)
       },
       rotate:{
         anchors:{bx:1,by:-1,px:0,py:0},
+      }
+    },
+    test:{
+      move:{
+        anchors:{bx:0.5,by:0.5,px:0.5,py:0.5},
+      },
+      brsz:{
+        anchors:{bx:1,by:1,px:1,py:1},
       }
     }
   }

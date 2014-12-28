@@ -204,7 +204,7 @@ loadAppCode("edit",function(data)
 			y:pos.y,
 			width:Editor.dock.possize.width,
 			height:Editor.dock.possize.height,
-			permissions:{track:true,connect:true}},descriptor),Editor.dock.tags[5],Editor.sizer.target,false,true);
+			permissions:{track:true,connect:true}},descriptor),"c000000",Editor.sizer.target,false,true);
 
 		if(noEvent == true)
 			return container;

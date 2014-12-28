@@ -455,12 +455,23 @@ this.container = function(properties)
 			cy = 0;
 
 		var pos = { x: (this.DOMreference.offsetLeft + this.getWidth()*cx), y: (this.DOMreference.offsetTop + this.getHeight()*cy) };
-		if(global)
+		if( this.angle && (cx != 0.5 || cy != 0.5) ){ //adapt for angle
+			var center = this.getPos(0.5,0.5);
+
+			var a = this.angle*Math.PI/180; //radians
+			var dx = (pos.x - center.x);
+			var dy = (pos.y - center.y);
+			a = Math.atan2(dy,dx) + a;
+			var r = Math.sqrt( Math.pow(dx,2) + Math.pow(dy,2) );
+			pos = {x: (center.x + Math.cos(a)*r), y: (center.y + Math.sin(a)*r) }
+
+		}
+		/*if(global)
 		{
 			var l2g = this.local2global(0,0);
 			pos.x += l2g.x;
 			pos.y += l2g.y;
-		}
+		}*/
 		return pos;
 	}
 	this.getWidth = function(pure)
