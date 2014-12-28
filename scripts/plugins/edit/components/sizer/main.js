@@ -6,41 +6,49 @@ loadAppCode("edit/components/sizer",function(data)
   this.config = {interface:"none"};
   this.parent = data['parent'];
   this.target = 0;
-  this.fastAccess = {};
+  var currentInterface = 0;
+  var defaultInterface = "basic";
   var interfaceSize = 32;
   var sizeCoef = 0.75;
-  var buttons = [];
   var mountPoint = factory.root;
   Editor.sizer = this;
+
   this.configure = function(data){
-    if(Editor.sizer.EditUI> 0)
-    {
       for(k in Editor.sizer.EditUI)
-        Editor.sizer.EditUI.discard();
-      Editor.sizer.EditUI = [];
-      buttons = [];
-    }
-    buttons = data;
-    Editor.sizer.fastAccess = {};
+      {
+        Editor.sizer.EditUI[k].object.discard();
+        delete Editor.sizer.EditUI[k];
+      }
+
+      Editor.sizer.EditUI = {};
+      console.log("Interface descriptor:"+utils.debug(data));
+      for( k in data )
+      {
+        if( Object.keys(data[k]).length == 1 && data[k].anchors ) //simplify making the same interface with buttons in different places
+          Editor.sizer.EditUI[k] = {descriptor:utils.merge(Editor.sizer.interfaces[defaultInterface][k],data[k],true)};
+        else
+          Editor.sizer.EditUI[k] = {descriptor:data[k]};
+      }
+
+      var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:["20%"],border_size:0,cssText:"z-index:4;"};
+      for( B in Editor.sizer.EditUI )
+      {
+        //console.log("building sizer interface:"+B+utils.debug(Editor.sizer.EditUI[B].descriptor));
+        var cnt = factory.newContainer(descriptor,"simple_rect",mountPoint);
+        cnt.DOMreference.innerHTML = Editor.sizer.EditUI[B].descriptor['innerHTML'] || "";
+        for( e in Editor.sizer.EditUI[B].descriptor.callbacks)
+          cnt[e] = Editor.sizer.EditUI[B].descriptor.callbacks[e];
+          cnt.hide();
+          cnt.lastEditAngle = 0;
+
+          Editor.sizer.EditUI[B].object = cnt;
+        }
   }
+
   this.init = function(){
-    this.configure(this.interfaces.basic);
-    //edit UI
-    var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:["20%"],border_size:0,cssText:"z-index:4;"};
-    Editor.sizer.EditUI = [];
-    console.log("buttons:"+buttons.length)
-    for(var k = 0 ; k < buttons.length; ++k)
-    {
-      console.log("building sizer interface:"+k);
-      var cnt = factory.newContainer(descriptor,"simple_rect",mountPoint);
-      cnt.DOMreference.innerHTML = buttons[k]['innerHTML'] || "";
-      for( e in buttons[k].callbacks)
-        cnt[e] = buttons[k].callbacks[e];
-      cnt.hide();
-      cnt.lastEditAngle = 0;
-      Editor.sizer.EditUI.push(cnt);
-      this.fastAccess[buttons[k].name] = cnt;
-    }
+    console.log("Initialising sizer, default interface:"+defaultInterface);
+    this.configure(this.interfaces[defaultInterface]);
+    currentInterface = defaultInterface;
     factory.root.addEventListener("triggered",Editor.sizer.hide);
   }
 
@@ -53,7 +61,17 @@ loadAppCode("edit/components/sizer",function(data)
   {
     Editor.sizer.hide();
     Editor.sizer.target = target;
-    Editor.sizer.node = target;
+    console.log("Showing interface for:"+utils.debug(target)+" prefered interface:"+target.editInterface);
+    if( target.editInterface && target.editInterface != currentInterface )
+    {
+      currentInterface = target.editInterface;
+      this.configure(this.interfaces[currentInterface]);
+    }
+    else if( currentInterface != defaultInterface )
+    {
+      currentInterface = defaultInterface;
+      this.configure(this.interfaces[currentInterface]);
+    }
     //$(target.DOMreference).zoomTo({targetsize:0.75, duration:600});
     //add event listeners
     target.addEventListener("changeWidth",Editor.sizer.focus);
@@ -75,11 +93,9 @@ loadAppCode("edit/components/sizer",function(data)
       //Editor.sizer.target.removeEventListener("changeAngle",Editor.sizer.focus);
       //hide interface
       for( k in Editor.sizer.EditUI )
-        if( k != "target" )
-          Editor.sizer.EditUI[k].hide();
+        Editor.sizer.EditUI[k].object.hide();
 
       Editor.sizer.target = 0;
-      Editor.sizer.node = 0;
       Editor.sizer.isSpecialInterface = 0;
     }
 
@@ -91,17 +107,16 @@ loadAppCode("edit/components/sizer",function(data)
     angle *= Math.PI/180;
     var tpos = Editor.sizer.target.getCenter();
     for( k in Editor.sizer.EditUI)
-      if( k != "target" )
-      {
-        var pos = Editor.sizer.EditUI[k].getCenter();
-        var dx = tpos.x - pos.x;
-        var dy = tpos.y - pos.y;
-        var distance = Math.sqrt( dx*dx + dy*dy );
+    {
+      var pos = Editor.sizer.EditUI[k].object.getCenter();
+      var dx = tpos.x - pos.x;
+      var dy = tpos.y - pos.y;
+      var distance = Math.sqrt( dx*dx + dy*dy );
 
-        angle += Editor.sizer.EditUI[k].originalAngle;
-        Editor.sizer.EditUI[k].putAt(tpos.x - distance*Math.cos(angle),tpos.y - distance*Math.sin(angle),0.5,0.5)
-        Editor.sizer.EditUI[k].setAngle(angle);
-      }
+      angle += Editor.sizer.EditUI[k].object.originalAngle;
+      Editor.sizer.EditUI[k].object.putAt(tpos.x - distance*Math.cos(angle),tpos.y - distance*Math.sin(angle),0.5,0.5)
+      Editor.sizer.EditUI[k].object.setAngle(angle);
+    }
   }
   //TODO: Not working properly for nested object
   this.focus = function(e){
@@ -113,18 +128,18 @@ loadAppCode("edit/components/sizer",function(data)
         var bsz = 32;
         var w = target.getWidth();
         var h = target.getHeight();
-        var difx = [-bsz,( w - bsz)/2,w,w,w,( w - bsz)/2,-bsz,-bsz];
-        var dify = [-bsz,-bsz,-bsz,( h - bsz)/2,h,h,h,( h - bsz)/2];
         var i = 0;
         for(k in Editor.sizer.EditUI)
         {
-          Editor.sizer.EditUI[k].show();
-          Editor.sizer.EditUI[k].putAt(targetPos.x+difx[i],targetPos.y+dify[i]);
+          Editor.sizer.EditUI[k].object.show();
+          Editor.sizer.EditUI[k].object.putAt(
+            targetPos.x + Editor.sizer.EditUI[k].descriptor.anchors['px']*w,
+            targetPos.y + Editor.sizer.EditUI[k].descriptor.anchors['py']*h,
+            Editor.sizer.EditUI[k].descriptor.anchors['bx'],
+            Editor.sizer.EditUI[k].descriptor.anchors['by']);
           i++;
         }
-
-        Editor.sizer.fastAccess['rotate'].lastEditAngle = "none";
-        //Editor.sizer.setEditInterfaceAngle(target.angle);
+        Editor.sizer.target.lastEditAngle = undefined;
       }
   }
   //edit interface functions
@@ -164,42 +179,112 @@ loadAppCode("edit/components/sizer",function(data)
   }
   this.onRotate = function(dx,dy)
   {
-    Editor.sizer.fastAccess['rotate'].move(dx,dy)
+    Editor.sizer.EditUI['rotate'].object.move(dx,dy)
     var center = Editor.sizer.target.getPos(0.5,0.5,true);
-    var ctl   = Editor.sizer.fastAccess['rotate'].getPos(0.5,0.5,true);
+    var ctl   = Editor.sizer.EditUI['rotate'].object.getPos(0.5,0.5,true);
     var angle = Math.atan2( center.y - ctl.y , center.x - ctl.x )
-    if(Editor.sizer.fastAccess['rotate'].lastEditAngle && typeof(Editor.sizer.fastAccess['rotate'].lastEditAngle)!="string")
+    if(Editor.sizer.target.lastEditAngle == undefined)
+      Editor.sizer.target.lastEditAngle = angle;
+    else if(Editor.sizer.target.lastEditAngle)
     {
-      var dif = ( angle - Editor.sizer.fastAccess['rotate'].lastEditAngle )*180/Math.PI;
+      var dif = ( angle - Editor.sizer.target.lastEditAngle )*180/Math.PI;
       Editor.sizer.target.rotate(dif);
     }
-    Editor.sizer.fastAccess['rotate'].lastEditAngle = angle;
+    Editor.sizer.target.lastEditAngle = angle;
   }
   this.interfaces = {
-    basic:
-    [{
-      name:"rotate",
-      tag:"simple_rect",
-      innerHTML:"<center><span class='glyphicon glyphicon-share-alt' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+    old_first:{
+    rotate:{
+      anchors:{bx:1,by:1,px:0,py:0},
+      tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-share-alt' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
       callbacks:{onMoved:Editor.sizer.onRotate}
     },
-    {
-      name:"changeHeightTop",
-      tag:"simple_rect",
-      innerHTML:"<center><span class='glyphicon glyphicon-arrow-up' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+    changeHeightTop:{
+      anchors:{bx:0.5,by:1,px:0.5,py:0},
+      tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-up' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
       callbacks:{onMoved:Editor.sizer.onChangeHeightTop}
     },
-    {
-      name:"delete",tag:"simple_rect",
-      innerHTML:"<center><span class='glyphicon glyphicon-remove' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+    "delete":{
+      anchors:{bx:0,by:1,px:1,py:0},
+      tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-remove' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
       callbacks:{onMoved:function(){},onTrigger:Editor.sizer.onDelete}
     },
-  {name:"changeWidthRight",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-right' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onChangeWidthRight}},
-    {name:"enlarge",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-resize-full' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onEnlarge}},
-    {name:"changeHeightBottom",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-down' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onChangeHeightBottom}},
-    {name:"more",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-th-list' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onRotate}},
-    {name:"changeWidthLeft",tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-left' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",callbacks:{onMoved:Editor.sizer.onChangeWidthLeft}},
-    ],
-    text:[]
+    changeWidthRight:{
+      anchors:{bx:0,by:0.5,px:1,py:0.5},
+      tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-right' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+      callbacks:{onMoved:Editor.sizer.onChangeWidthRight}
+    },
+    enlarge:{
+      anchors:{bx:0,by:0,px:1,py:1},
+      tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-resize-full' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+      callbacks:{onMoved:Editor.sizer.onEnlarge}
+    },
+    changeHeightBottom:{
+      anchors:{bx:0.5,by:0,px:0.5,py:1},
+      tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-down' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+      callbacks:{onMoved:Editor.sizer.onChangeHeightBottom}
+    },
+    more:{
+      anchors:{bx:1,by:0,px:0,py:1},
+      tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-th-list' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+      callbacks:{onMoved:Editor.sizer.onRotate}
+    },
+    changeWidthLeft:{
+      anchors:{bx:1,by:0.5,px:0,py:0.5},
+      tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-arrow-left' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>",
+      callbacks:{onMoved:Editor.sizer.onChangeWidthLeft}
+      },
+    },
+    basic:{
+      ulsz:{
+        anchors:{bx:0,by:0,px:0,py:0},
+        callbacks:{onMoved:function(dx,dy,ctx){ ctx.move(dx,dy); Editor.sizer.onChangeWidthLeft(dx,dy); Editor.sizer.onChangeHeightTop(dx,dy); }},
+        tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-chevron-up' style='font-size:"+interfaceSize*sizeCoef+"px;transform: rotate(-45deg);display: block'></span></center>"
+      },
+      ursz:{
+        anchors:{bx:1,by:0,px:1,py:0},
+        callbacks:{onMoved:function(dx,dy,ctx){ ctx.move(dx,dy); Editor.sizer.onChangeWidthRight(dx,dy); Editor.sizer.onChangeHeightTop(dx,dy); }},
+        tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-chevron-up' style='font-size:"+interfaceSize*sizeCoef+"px;transform: rotate(45deg);display: block'></span></center>"
+      },
+      blsz:{
+        anchors:{bx:0,by:1,px:0,py:1},
+        callbacks:{onMoved:function(dx,dy,ctx){ ctx.move(dx,dy); Editor.sizer.onChangeWidthLeft(dx,dy); Editor.sizer.onChangeHeightBottom(dx,dy); }},
+        tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-chevron-up' style='font-size:"+interfaceSize*sizeCoef+"px;transform: rotate(-135deg);display: block'></span></center>"
+      },
+      brsz:{
+        anchors:{bx:1,by:1,px:1,py:1},
+        callbacks:{onMoved:function(dx,dy,ctx){ ctx.move(dx,dy); Editor.sizer.onChangeWidthRight(dx,dy); Editor.sizer.onChangeHeightBottom(dx,dy); }},
+        tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-chevron-up' style='font-size:"+interfaceSize*sizeCoef+"px;transform: rotate(135deg);display: block'></span></center>"
+      },
+      move:{
+        anchors:{bx:0.5,by:0.5,px:0.5,py:0.5},
+        callbacks:{onMoved:function(dx,dy,ctx){ ctx.move(dx,dy); Editor.sizer.target.move(dx,dy); }},
+        tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-move' style='font-size:"+interfaceSize*sizeCoef+"px;'></span></center>"
+      },
+      del:{
+        anchors:{bx:0.5,by:1,px:0.5,py:0},
+        callbacks:{onMoved:function(){},onTrigger:function(){Editor.sizer.onDelete();}},
+        tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-trash' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>"
+      },
+      rotate:{
+        anchors:{bx:0,by:0.5,px:0,py:0.5},
+        callbacks:{onMoved:Editor.sizer.onRotate},
+        tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-repeat' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>"
+      }
+    },
+    text:{
+      move:{
+        anchors:{bx:0.5,by:0,px:0.5,py:1},
+      },
+      brsz:{
+        anchors:{bx:1,by:1,px:1,py:1},
+      },
+      del:{
+        anchors:{bx:1,by:0,px:0,py:0},
+      },
+      rotate:{
+        anchors:{bx:1,by:-1,px:0,py:0},
+      }
+    }
   }
 });

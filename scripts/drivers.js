@@ -33,15 +33,19 @@ var HTTPrequest = function(method,url,params,oncomplete,pass_to_listener)
 }
 
 utils.merge = function(a,b,option){
+	var nw = {}
+	for( k in a)
+		nw[k] = a[k];
+
 	for( k in b )
 	{
-		if(a.hasOwnProperty(k))
+		if(nw.hasOwnProperty(k))
 			if( !option )
 				continue;
 
-		a[k] = b[k];
+		nw[k] = b[k];
 	}
-	return a;
+	return nw;
 }
 utils.makeHTML = function(markup,parent)
 {
@@ -184,7 +188,7 @@ platform.detectOS = function(){
 			platform.isMobile = true;
 	}
 	detect(navigator.userAgent||navigator.vendor||window.opera);
-	alert("IsMobile:"+platform.isMobile);
+	console.log("IsMobile:"+platform.isMobile);
 }
 
 platform.detectOS();
