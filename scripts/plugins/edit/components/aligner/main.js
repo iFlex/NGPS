@@ -7,6 +7,9 @@ loadAppCode("edit/components/aligner",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
+  this.parent.permissions.save = false;
+  this.parent.permissions.connect = false;
+
   this.active = true;
 
   var enabled = true;
@@ -98,7 +101,7 @@ loadAppCode("edit/components/aligner",function(data)
   function showLines(lines){
     //format {x,y,w,h} where x and y are at the middle
     for( l in lines ){
-      var ln = factory.newContainer({x:lines[l].x - lines[l].width/2,y:lines[l].y - lines[l].height/2,width:lines[l].width,height:lines[l].height,style:"border-width:2px;border-style:dashed;background: grey;opacity:0.5",ignoreTheme:true},"none",factory.root);
+      var ln = factory.newContainer({x:lines[l].x - lines[l].width/2,y:lines[l].y - lines[l].height/2,width:lines[l].width,height:lines[l].height,style:"border-width:2px;border-style:dashed;background: grey;opacity:0.5",ignoreTheme:true,permissions:{save:false,connect:false}},"none",factory.root);
       ln.interactive(false);
       Editor.align.lines.push(ln);
     }

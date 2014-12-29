@@ -156,7 +156,7 @@ factory.newCamera = function (possize,tag,parent,interval,addToFrame,translate)
 //APPs
 factory.newGlobalApp = function ( app , passToApp )
 {
-	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"simple_rect",factory.base);
+	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"global_app",factory.base);
 	host.loadApp(app,passToApp);
 	return host;
 }

@@ -2,6 +2,9 @@
 loadAppCode("edit/components/link",function(data){
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
+	this.parent.permissions.save = false;
+	this.parent.permissions.connect = false;
+
 	var startFrom = data['lastInterfaceContainer'] || 2 ;
 
 	var temp = 0;
@@ -97,7 +100,7 @@ loadAppCode("edit/components/link",function(data){
 	{
 		this.parent.onTrigger = this.toggle;
 
-		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true},'link_dot',factory.root);
+		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true,permissions:{save:false,connect:false}},'link_dot',factory.root);
 		var g = temp.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-record"}});//<span class="glyphicon glyphicon-record"></span>
 		g.style.cssText = "font-size:32px";
 		temp.hide();

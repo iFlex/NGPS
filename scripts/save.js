@@ -5,7 +5,7 @@
 * 	This module reads the presentation configuration and saves in the form of a website
 ToDo:
 Save link information
-Save camera relations info 
+Save camera relations info
 Save any functionality that has to reference other containers
 Make sure inner content is saved
 (ISSUE: images are only saved if they are visible on the screen
@@ -84,7 +84,7 @@ save._unit = function(node,operation_mode)
 		st[node.UID].child.type = "div";//TODO: store type of child in div
 		st[node.UID].child.css = node.child.style.cssText;
 		//testing
-		st[node.UID].child.innerHTML = node.child.innerHTML;
+		//st[node.UID].child.innerHTML = node.child.innerHTML;
 	}
 	//now look for apps
 	if(node.isApp)
@@ -113,13 +113,13 @@ save._unit = function(node,operation_mode)
 	{
 		//do somethign with saved chunk st
 	}
-	
+
 	var nrc = 0;
 	for(k in node.children)
 	{
 		nrc++;
 		st[node.UID].children.push(node.children[k].UID);
-		
+
 		if(operation_mode['iteration'] == "recursive")
 			save._unit(node.children[k],operation_mode);
 		if(operation_mode['iteration'] == "asynchronous")
@@ -132,7 +132,7 @@ save._unit = function(node,operation_mode)
 	//if terminal container then save inner content
 	if(!nrc)
 		st[node.UID].innerHTML = encodeURIComponent(node.DOMreference.innerHTML);
-	
+
 
 	save.nestCount--;
 	if(save.nestCount == 0 && operation_mode['iteration'] == 'asynchronous')
@@ -142,7 +142,7 @@ save._unit = function(node,operation_mode)
 	}
 }
 save.RAMsave = function(stringify){
-	
+
 	//clean save tree
 	delete  save.saveTree;
 	save.saveTree = {};
@@ -162,4 +162,8 @@ save.toConsole = function(_alert){
 		alert(pack());
 	else
 		console.log(pack());
+}
+
+save.jsonTree = function(){
+	console.log( JSON.stringify(factory.base));
 }

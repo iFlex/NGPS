@@ -4,6 +4,9 @@ loadAppCode("edit/components/addVideo",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
+  this.parent.permissions.save = false;
+  this.parent.permissions.connect = false;
+
   Editor.videos = this;
   var midBody = 0;
   var link = 0;
@@ -78,7 +81,7 @@ loadAppCode("edit/components/addVideo",function(data)
         target = factory.base;
 
       this.hide();
-      Editor.videos.container = factory.newContainer({width:"100%",height:"64px",background:"black"},"none",target);
+      Editor.videos.container = factory.newContainer({width:"100%",height:"64px",background:"black",permissions:{save:false,connect:false}},"none",target);
       if(!sp)
         sp = (target.getHeight() - Editor.videos.container.getHeight())/2;
       Editor.videos.container.putAt(0,sp);

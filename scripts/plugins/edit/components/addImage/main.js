@@ -4,6 +4,8 @@ loadAppCode("edit/components/addImage",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
+  this.parent.permissions.save = false;
+  this.parent.permissions.connect = false;
   Editor.images = this;
   var midBody = 0;
   var link = 0;
@@ -121,7 +123,7 @@ loadAppCode("edit/components/addImage",function(data)
     }
 
     this.hide();
-    Editor.images.container = factory.newContainer({width:"100%",height:"65px",background:"black"},"none",target);
+    Editor.images.container = factory.newContainer({width:"100%",height:"65px",background:"black",permissions:{save:false,connect:false}},"none",target);
     if(!sp)
       sp = (target.getHeight() - Editor.images.container.getHeight())/2;
     Editor.images.container.putAt(0,sp);

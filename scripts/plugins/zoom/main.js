@@ -9,13 +9,14 @@ loadAppCode("zoom",function(data){
 	this.zoomAmDn = 0.6
 	this.zoomAmUp = 1.4;
 	this.zoomTime = 50;
+	var offsetTop = data['offsetY'] || 0;
 	this.positionButtons = function()
 	{
 		var width = this.buttonNames.length*this.buttonSize;
 		var screen = platform.getScreenSize();
 		var offset = 0;//( screen.width - width) / 2;
 		for(i in this.buttonNames)
-			this.buttons[this.buttonNames[i]].putAt(offset + i*this.buttonSize , 48);
+			this.buttons[this.buttonNames[i]].putAt(offset + i*this.buttonSize , offsetTop);
 	}
 	this.init = function() //called only once when bound with container
 	{

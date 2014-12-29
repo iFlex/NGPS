@@ -26,6 +26,9 @@ loadAppCode("edit/components/text",function(data)
 {
 	this.config = {};
 	this.parent = data['parent'];
+	this.parent.permissions.save = false;
+	this.parent.permissions.connect = false;
+
 	this.startWorker = data['startWorker'];
 	this.stopWorker = data['stopWorker'];
 	this.rootDir = "plugins/text";
@@ -34,7 +37,7 @@ loadAppCode("edit/components/text",function(data)
 	this.init = function() //called only one when bound with container
 	{
 		//include app
-		keyboard.editor = factory.newContainer({x:100,y:100,width:500,height:50,background:"transparent"},"simple_rect",factory.base);
+		keyboard.editor = factory.newContainer({x:100,y:100,width:500,height:50,background:"transparent",permissions:{save:false,connect:false}},"simple_rect",factory.base);
 		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface"],function(){
 			keyboard.buildTextInterface(keyboard.editor.DOMreference);
 			keyboard.interface.init();

@@ -5,6 +5,9 @@ loadAppCode("edit/components/sizer",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
+  this.parent.permissions.save = false;
+  this.parent.permissions.connect = false;
+
   this.target = 0;
   var currentInterface = 0;
   var defaultInterface = "basic";
@@ -30,7 +33,7 @@ loadAppCode("edit/components/sizer",function(data)
           Editor.sizer.EditUI[k] = {descriptor:data[k]};
       }
 
-      var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:["20%"],border_size:0,cssText:"z-index:4;"};
+      var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:["20%"],border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
       for( B in Editor.sizer.EditUI )
       {
         //console.log("building sizer interface:"+B+utils.debug(Editor.sizer.EditUI[B].descriptor));

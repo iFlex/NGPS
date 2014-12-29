@@ -1,20 +1,22 @@
 //TODO: Fix weird trigger ( with the start interface listener ) evend firing on factory.base even though it's not listened for.
 this.Editor = this.Editor || {};
 //hardcoded for now
-z_apps = [{name:"collision",local:true},{name:"debug",local:false,global:true}];
+z_apps = [{name:"collision",local:true},{name:"debug",local:false,global:true},{name:"fps",local:false,global:true}];
 //TODO: needs to get apps from server infrastructure
 //      needs to be able to save usage of apps and preferences
 loadAppCode("edit/components/appChoice",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
+  this.parent.permissions.save = false;
+  this.parent.permissions.connect = false;
   var root = 0;
   var popular = 0;
   var all = 0;
   Editor.apps = this;
 
   this.init = function(){
-    root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["15px","15px","0px","0px"],background:"grey",style:"padding-left:5px;padding-right:5px"});
+    root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["15px","15px","0px","0px"],background:"grey",style:"padding-left:5px;padding-right:5px",permissions:{save:false,connect:false}});
     utils.makeHTML([{
       h4:{
         innerHTML:"Your Favourite",
