@@ -244,7 +244,7 @@ loadAppCode("edit/components/sizer",function(data)
         tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-move' style='font-size:"+interfaceSize*sizeCoef+"px;'></span></center>"
       },
       del:{
-        anchors:{bx:0.5,by:1,px:0.5,py:0},
+        anchors:{bx:0,by:1,px:0.5,py:0},
         callbacks:{onMoved:function(){},onTrigger:function(){Editor.sizer.onDelete();}},
         tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-trash' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>"
       },
@@ -252,7 +252,18 @@ loadAppCode("edit/components/sizer",function(data)
         anchors:{bx:0,by:0.5,px:0,py:0.5},
         callbacks:{onMoved:Editor.sizer.onRotate},
         tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-repeat' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>"
-      }
+      },
+      config:{
+        anchors:{bx:1,by:1,px:0.5,py:0},
+        callbacks:{onMoved:function(){},onTrigger:function(){
+          if(Editor.configureContainer){
+            Editor.configureContainer.setTarget(Editor.sizer.target);
+            Editor.configureContainer.show();
+            factory.root.cfocusOn(Editor.sizer.target);
+          }
+          Editor.sizer.hide();}},
+        tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-wrench' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>"
+      },
     },
     text:{
       move:{

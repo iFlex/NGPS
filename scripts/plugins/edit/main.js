@@ -154,6 +154,7 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp("edit/components/addVideo");
 		factory.newGlobalApp("edit/components/appChoice");
 		factory.newGlobalApp("edit/components/linkEdit");
+		factory.newGlobalApp("edit/components/configureContainer");
 		//read tags
 		for( k in Descriptors.containers)
 			Editor.dock.tags.push(k);

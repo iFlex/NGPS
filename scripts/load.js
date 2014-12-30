@@ -3,6 +3,7 @@
 *	Author: Milorad Liviu Felix
 *	3 Jun 2014  00:33 GMT
 * 	This module reads the index.html, builds the object tree and renders the presentation
+	WARNING: the UID of the LOADcontent will not tally with the UIDs created when building the tree
 */
 this.pLOAD = {}
 pLOAD.root = 0;
@@ -10,6 +11,7 @@ var LOADtree = {};
 var LOADreferences = {};
 pLOAD._unit = function(node,root)
 {
+	console.log("adding:"+utils.debug(node)+" to:"+utils.debug(root));
 	var croot = 0;
 	if(root)
 		croot = root.addChild({cssText:node.css});
@@ -31,6 +33,14 @@ pLOAD._unit = function(node,root)
 		croot.extend(Interactive);
 		croot.interactive(true);
 		croot.cstart(node.camera.interval);
+		//immediately instantiate the display object and replace the display of the above camera
+		var _node = LOADcontent[node.children[0]];
+		node.children.splice(0,1);
+		console.log("Creating display:"+utils.debug(_node));
+		var display = new container({cssText:_node.css,_DOMreference:croot.display.DOMreference})
+		display.load();
+		croot.display = display;
+		node = _node;
 	}
 	//add content
 	if(node.innerHTML)
@@ -73,7 +83,7 @@ pLOAD.proceed = function(jsn)
 	else
 		LOADtree = jsn;
 	function waitForJson()
-	{	
+	{
 		if(LOADtree)
 		{
 			//prepare the references for containers needing apps
@@ -84,6 +94,7 @@ pLOAD.proceed = function(jsn)
 					LOADreferences[LOADtree.requirements.apps[app][j]] = true;
 			//
 			LOADcontent = LOADtree.content;
+			console.log(utils.debug(LOADcontent));
 			var k = Object.keys(LOADcontent)[0];
 			pLOAD._unit(LOADcontent[k]);
 
@@ -96,4 +107,3 @@ pLOAD.proceed = function(jsn)
 	}
 	waitForJson();
 }
-

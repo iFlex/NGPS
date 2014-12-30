@@ -15,13 +15,13 @@ loadAppCode("edit/components/linkEdit",function(data){
   var icsz  = 32;
   //var rdel   = 0;
   function makeDel(mount){
-    var c = factory.newContainer({x:0,y:0,width:icsz,height:icsz,ignoreTheme:true,opacity:0.5,background:"white",style:"text-align:center",permissions:uiPerm},'link_dot',mount);
+    var c = factory.newContainer({x:0,y:0,width:icsz,height:icsz,ignoreTheme:true,opacity:0.85,background:"white",style:"text-align:center",permissions:uiPerm},'link_dot',mount);
     var g = c.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-trash"}});//<span class="glyphicon glyphicon-record"></span>
     g.style.cssText = "font-size:"+(icsz-4)+"px";
     return c;
   }
   function makeDot(mount){
-    var c = factory.newContainer({x:0,y:0,width:icsz,height:icsz,ignoreTheme:true,opacity:0.5,background:"white",permissions:uiPerm},'link_dot',mount);
+    var c = factory.newContainer({x:0,y:0,width:icsz,height:icsz,ignoreTheme:true,opacity:0.85,background:"white",permissions:uiPerm},'link_dot',mount);
     var g = c.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-record"}});//<span class="glyphicon glyphicon-record"></span>
     g.style.cssText = "font-size:"+icsz+"px";
     return c;

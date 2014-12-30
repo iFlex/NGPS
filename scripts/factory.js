@@ -122,11 +122,11 @@ factory.createContainer = function(descriptor,parent,addToFrame,translate)
 	return obj;
 }
 
-factory.newIsolatedContainer = function(descriptor)
+factory.newIsolatedContainer = function(descriptor,parent)
 {
 	descriptor['*isolated'] = true;
 	var obj = new container(descriptor);
-	obj.load();
+	obj.load(parent);
 	obj.extend(Interactive);
 	obj.interactive(true);
 	//safety

@@ -674,9 +674,7 @@ Camera.cfocusOn = function(target,options)
 	if(!this.callow)
 		return;
 
-	//calculate distance to target
-	var tpos = target.getPos(0.5,0.5);
-	tpos = target.local2global(tpos.x,tpos.y);
+	var tpos = target.local2global(0.5,0.5,this.display.UID);
 	console.log("tx:"+tpos.x+" ty:"+tpos.y)
 	this.cXYmove(tpos.x,tpos.y,0.5,0.5,1);
 	//calculate zoom difference

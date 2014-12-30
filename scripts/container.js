@@ -25,7 +25,7 @@
 */
 //include dependencies
 //requirejs(['TweenMax.min',"interact","app","camera","gem"]);
-requirejs(['TweenMax.min',"interact","app","productionCamera","gem"]);
+requirejs(['TweenMax.min',"interact","app","productionCamera","gem","networking"]);
 //
 this.containerData = {};
 containerData.containerIndex = 0;
@@ -81,7 +81,11 @@ this.container = function(properties)
 		if(typeof(this.properties['type']) == "string")
 			DOMtype = this.properties['type'];
 
-		this.DOMreference = document.createElement(DOMtype);
+		if(this.properties['_DOMreference'])
+			this.DOMreference = this.properties['_DOMreference'];
+		else
+			this.DOMreference = document.createElement(DOMtype);
+
 		this.DOMreference.setAttribute('id',this.UID);
 
 		//convert numbers to vaild CSS pixel quantity
@@ -137,7 +141,8 @@ this.container = function(properties)
 
 		if(this.properties['background']) //initial descriptor overrides cssText
 			this.DOMreference.style.background 	= this.properties['background'];
-
+		if(this.properties['opacity']) //initial descriptor overrides cssText
+				this.DOMreference.style.opacity 	= this.properties['opacity'];
 		//border props
 		if(!this.DOMreference.style.borderWidth)
 			this.DOMreference.style.borderWidth = (this.properties['border_size'] || "0px");
@@ -174,7 +179,11 @@ this.container = function(properties)
 			else //this is the master object ( root )
 				document.body.appendChild(this.DOMreference);
 		}
-
+		else{ //add the isolated container
+			if(!parent)
+				parent = document.body;
+			parent.appendChild(this.DOMreference);
+		}
 		this.properties['width'] = this.getWidth();
 		this.properties['height']= this.getHeight();
 
@@ -183,6 +192,50 @@ this.container = function(properties)
 			GEM.fireEvent({event:"loadContainer",target:this})
 
 		return true;
+	}
+	//warning this code is identical to the one above, use this function above
+	this.restyle = function(data)
+	{
+	  if(!this.DOMreference)
+			return;
+
+		if( typeof data['border_size']  == "number" )
+			data["border_size"] += "px";
+		console.log("Container:Restyling:"+utils.debug(data));
+		//Custom Styling
+		if(data['class']) //custom CSS styling ()
+			this.DOMreference.setAttribute('class',data['class']);
+
+		for( k in {cssText:true,style:true})
+			if(data[k]) // custom CSS styling ( works more efficient, only needs CSS )
+				this.DOMreference.style.cssText = data[k];
+
+		if(data['background']) //initial descriptor overrides cssText
+			this.DOMreference.style.background 	= data['background'];
+		if(data['opacity']) //initial descriptor overrides cssText
+			this.DOMreference.style.opacity 	= data['opacity'];
+		//border props
+		if(data['border_size'])
+			this.DOMreference.style.borderWidth = (data['border_size'] || "0px");
+		if(data['border_color'])
+			this.DOMreference.style.borderColor = (data['border_color'] || "0x000000");
+		if(data['border_style'])
+			this.DOMreference.style.borderStyle = (data['border_type'] || data['border_style'] || "solid");
+
+		if(data['border_radius'])
+		{
+			var borders = data["border_radius"];
+			for( var i=0; i < 4 && borders ; ++i )
+			{
+				switch(i)
+				{
+					case 0:this.DOMreference.style.borderTopLeftRadius 		= ( borders[i%borders.length] || "0px");break;
+					case 1:this.DOMreference.style.borderTopRightRadius 	= ( borders[i%borders.length] || "0px");break;
+					case 2:this.DOMreference.style.borderBottomRightRadius 	= ( borders[i%borders.length] || "0px");break;
+					case 3:this.DOMreference.style.borderBottomLeftRadius 	= ( borders[i%borders.length] || "0px");break;
+				}
+			}
+		}
 	}
 	//EXTENTION Posibilities ( Turn Object into Camera )
 	this.extend = function( extensions )
