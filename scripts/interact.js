@@ -38,6 +38,12 @@ Interactive.triggerCount = 0;
 this.Interaction = {}
 Interaction.origin = 0;
 
+Interaction.pmo = function(e){
+	//prevent mobile overscroll
+	if(e.preventDefault)
+		e.preventDefault();
+}
+
 Interactive._onMouseDown = function( e , ctx )
 {
 	if(!ctx)
@@ -248,14 +254,16 @@ Interactive.touchstart = function( e , ctx)
 	if( ctx.propagation == 1 )
 		return true;
 
-    ctx._onMouseDown(e,ctx);
-    //NOT NEEDED AT THE MOMENT
+  ctx._onMouseDown(e,ctx);
+  //NOT NEEDED AT THE MOMENT
 }
 //TODO: sort out propagation for this
 Interactive.touchmoved = function( e , ctx)
 {
-    if(!ctx)
-        ctx = this.context;
+  if(!ctx)
+      ctx = this.context;
+
+	Interaction.pmo(e);
 
 	if( e.touches.length > 1 )
 	{
