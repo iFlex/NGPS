@@ -53,7 +53,7 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.interface.parent.show();
 		//assigns the editable DOM object
 		keyboard.interface.target = target;
-		keyboard.interface.subject = target.subject;
+		keyboard.interface.subject = target.DOMreference;//.subject;
 		var pos = target.getPos();
 		pos = factory.root.surfaceToViewport(pos.x,pos.y);
 		//alert("c:"+utils.debug(pos))

@@ -43,7 +43,6 @@ save.clear = function(){
 	//just for testing
 	this.saveBuffer = 0;
 }
-
 //init
 save.clear();
 
@@ -67,6 +66,8 @@ save.proceed = function(){
 //builds the saved data in the ram then flushes it to the host
 save._unit = function(node,operation_mode)
 {
+	var nostore = {x:true,y:true,top:true,bottom:true,left:true,right:true,width:true,height:true}
+
 	console.log("NODE:"+node.UID);
 	if(!node.permissions.save)
 		return;
@@ -75,8 +76,16 @@ save._unit = function(node,operation_mode)
 	var st = {};
 	st[node.UID] = {};
 	//now save the most relevant stuff
-	st[node.UID].css = node.DOMreference.style.cssText;
+	st[node.UID].properties = utils.merge(node.properties,{});
+	//take out any possize data that is not relevant anymore
+	for( prop in nostore )
+		delete st[node.UID].properties[prop];
+
+	st[node.UID].properties['cssText'] = node.DOMreference.style.cssText;
 	st[node.UID].parent = (node.parent)?node.parent.UID:null;
+	if(node.DOMreference.value && node.DOMreference.value.length > 0)
+		st[node.UID].value = node.DOMreference.value;
+
 	//now look for static children
 	if(node.child)
 	{
@@ -130,9 +139,9 @@ save._unit = function(node,operation_mode)
 	}
 
 	//if terminal container then save inner content
-	if(!nrc)
+	if(!nrc){
 		st[node.UID].innerHTML = encodeURIComponent(node.DOMreference.innerHTML);
-
+	}
 
 	save.nestCount--;
 	if(save.nestCount == 0 && operation_mode['iteration'] == 'asynchronous')

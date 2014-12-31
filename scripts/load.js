@@ -14,10 +14,10 @@ pLOAD._unit = function(node,root)
 	console.log("adding:"+utils.debug(node)+" to:"+utils.debug(root));
 	var croot = 0;
 	if(root)
-		croot = root.addChild({cssText:node.css});
+		croot = root.addChild(node.properties);
 	else
 	{
-		croot = new container({cssText:node.css})
+		croot = new container(node.properties)
 		croot.load();
 	}
 	//reference needed containers
@@ -36,13 +36,15 @@ pLOAD._unit = function(node,root)
 		//immediately instantiate the display object and replace the display of the above camera
 		var _node = LOADcontent[node.children[0]];
 		node.children.splice(0,1);
-		console.log("Creating display:"+utils.debug(_node));
-		var display = new container({cssText:_node.css,_DOMreference:croot.display.DOMreference})
+		/*console.log("Creating display:"+utils.debug(_node));
+		var display = new container(utils.merge(node.properties,{_DOMreference:croot.display.DOMreference}));
 		display.load();
-		croot.display = display;
+		croot.display = display;*/
 		node = _node;
 	}
 	//add content
+	if(node.value)
+		croot.DOMreference.value = node.value;
 	if(node.innerHTML)
 		croot.DOMreference.innerHTML = decodeURIComponent(node.innerHTML);
 
