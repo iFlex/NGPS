@@ -50,6 +50,8 @@ loadAppCode("edit/components/addVideo",function(data)
   }
 
   this.init = function(){
+    console.log("edit/components/addVideo - initialising...");
+
     //prepare image from file import
     Editor.videos.input = document.createElement("input");
     Editor.videos.input.type = "file";

@@ -31,6 +31,7 @@ factory.init = function(mode,manualSetup) // editor init
 		//resetting the factory
 		factory.initialised = false;
 		factory.base.discard();
+		containerData.containerIndex = 0;
 	}
 	//global initalisation operations
 	factory.presentation = {};
@@ -66,7 +67,7 @@ factory.init = function(mode,manualSetup) // editor init
 		//need to be manually set
 		factory.base = 0;
 		factory.root = 0;
-		require(["constructors/editor"],_init);
+		//require(["constructors/view"],_init);
 	}
 
 	if(factory.AMS && factory.AMS.init)

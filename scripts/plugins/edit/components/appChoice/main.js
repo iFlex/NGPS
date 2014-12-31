@@ -16,6 +16,8 @@ loadAppCode("edit/components/appChoice",function(data)
   Editor.apps = this;
 
   this.init = function(){
+    console.log("edit/components/appChoice - initialising...");
+
     root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["15px","15px","0px","0px"],background:"grey",style:"padding-left:5px;padding-right:5px",permissions:{save:false,connect:false}});
     utils.makeHTML([{
       h4:{

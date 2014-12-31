@@ -36,6 +36,7 @@ loadAppCode("edit/components/text",function(data)
 
 	this.init = function() //called only one when bound with container
 	{
+		console.log("edit/components/text - initialising.");
 		//include app
 		keyboard.editor = factory.newContainer({x:100,y:100,width:500,height:50,background:"transparent",permissions:{save:false,connect:false}},"simple_rect",factory.base);
 		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface"],function(){

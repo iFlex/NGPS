@@ -161,6 +161,8 @@ loadAppCode("edit/components/aligner",function(data)
 
   this.init = function()
   {
+    console.log("edit/components/aligner - initialising...");
+
     GEM.addEventListener("addChild",0,onAddedChild,this);
     factory.root.addEventListener("triggered",hideLines);
     this.toggle(this.parent);

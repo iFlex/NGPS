@@ -87,6 +87,8 @@ loadAppCode("edit/components/addImage",function(data)
   }
 
   this.init = function(){
+    console.log("edit/components/addImage - initialising...");
+
     utils.loadRawStyle(".adimgbkgfl{background-image: url("+this.appFullPath+"/pattern.png);background-repeat: repeat;}");
     //prepare image from file import
     Editor.images.input = document.createElement("input");

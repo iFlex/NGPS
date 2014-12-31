@@ -69,11 +69,10 @@ loadAppCode("edit/components/link",function(data){
 			linkParent = target;
 			//linkData['left_container_xreff'] = localPos.x / target.getWidth();
 			//linkData['left_container_yreff'] = localPos.y / target.getHeight();
-
+			console.log("Link left:"+utils.debug(target)+" temp:"+utils.debug(temp));
 			temp.changeParent(target);
 			temp.show();
 			temp.putAt(localPos.x,localPos.y,0.5,0.5);
-
 		}
 		else
 		{
@@ -98,9 +97,11 @@ loadAppCode("edit/components/link",function(data){
 
 	this.init = function() //called only one when bound with container
 	{
+		console.log(this.parent.appPath+" - initialising...");
 		this.parent.onTrigger = this.toggle;
 
-		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true,permissions:{save:false,connect:false}},'link_dot',factory.root);
+		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true,permissions:{save:false,connect:false,edit:false}},'link_dot',factory.root);
+		console.log("link.init> created pointer:"+utils.debug(temp));
 		var g = temp.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-record"}});//<span class="glyphicon glyphicon-record"></span>
 		g.style.cssText = "font-size:32px";
 		temp.hide();
@@ -112,6 +113,9 @@ loadAppCode("edit/components/link",function(data){
 	}
 	this.shutdown = function() //called only when app is unloaded from container
 	{
+		console.log(this.parent.appPath+" - shutdown.");
+		temp.discard();
+		factory.root.removeEventListener("triggered",cancel);
 		GEM.removeEventListener("triggered",0,"trigger",this);
 	}
 });

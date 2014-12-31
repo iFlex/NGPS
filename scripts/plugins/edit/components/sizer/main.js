@@ -24,7 +24,6 @@ loadAppCode("edit/components/sizer",function(data)
       }
 
       Editor.sizer.EditUI = {};
-      console.log("Interface descriptor:"+utils.debug(data));
       for( k in data )
       {
         if( Object.keys(data[k]).length == 1 && data[k].anchors ) //simplify making the same interface with buttons in different places
@@ -36,23 +35,28 @@ loadAppCode("edit/components/sizer",function(data)
       var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:["20%"],border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
       for( B in Editor.sizer.EditUI )
       {
-        //console.log("building sizer interface:"+B+utils.debug(Editor.sizer.EditUI[B].descriptor));
         var cnt = factory.newContainer(descriptor,"simple_rect",mountPoint);
         cnt.DOMreference.innerHTML = Editor.sizer.EditUI[B].descriptor['innerHTML'] || "";
         for( e in Editor.sizer.EditUI[B].descriptor.callbacks)
           cnt[e] = Editor.sizer.EditUI[B].descriptor.callbacks[e];
-          cnt.hide();
-          cnt.lastEditAngle = 0;
+        cnt.hide();
+        cnt.lastEditAngle = 0;
 
-          Editor.sizer.EditUI[B].object = cnt;
-        }
+        Editor.sizer.EditUI[B].object = cnt;
+      }
   }
 
+  function attachInterfaceTrigger(e){
+    var c = e.child;
+    if(c.permissions.edit)
+      c.addEventListener("triggered",Editor.sizer._show);
+  }
   this.init = function(){
-    console.log("Initialising sizer, default interface:"+defaultInterface);
+    console.log("edit/components/sizer - initialising. Default interface:"+defaultInterface);
     this.configure(this.interfaces[defaultInterface]);
     currentInterface = defaultInterface;
     factory.root.addEventListener("triggered",Editor.sizer.hide);
+    GEM.addEventListener("addChild",0,attachInterfaceTrigger);
   }
 
   this._show = function(data)

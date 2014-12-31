@@ -26,8 +26,8 @@ loadAppCode("edit",function(data)
 	//edit interface
 	this.EditUI = {};
 	//
-	console.log("New edit:"+this.parent.appPath);
-	
+	console.log(this.parent.appPath+" - initialising...");
+
 	this.UI = function(info){
 		this.parent = info['parent'];
 		this.parts = {};
@@ -194,10 +194,8 @@ loadAppCode("edit",function(data)
 		alert("Saved!");
 	}
 	this.load = function(){
-		//factory.base.discard();
 		factory.init('editor');
-		//require(['../saved/test'],function(){
-		//});
+		require(['../saved/test'],function(){});
 	}
 	this.onAddContainer = function(noEvent,descriptor){
 		var pos = {}
@@ -213,12 +211,11 @@ loadAppCode("edit",function(data)
 			y:pos.y,
 			width:Editor.dock.possize.width,
 			height:Editor.dock.possize.height,
-			permissions:{track:true,connect:true}},descriptor),"c000000",Editor.sizer.target,false,true);
+			permissions:{track:true,connect:true,edit:true}},descriptor),"c000000",Editor.sizer.target,false,true);
 
 		if(noEvent == true)
 			return container;
 
-		container.addEventListener("triggered",Editor.sizer._show);
 		Editor.sizer.show(container);
 		return container;
 	}

@@ -34,6 +34,7 @@ this.container = function(properties)
 	this.UID = 0;
 	this.DOMreference = 0;
 	this.parent = 0;
+	this.discarded = false;
 	//display properties
 	this.angle = 0;
 	this.scaleX = 1;
@@ -43,7 +44,7 @@ this.container = function(properties)
 	this.isLeaf = false;
 	this.isApp = false;
 	this.isLink = false;
-	this.child = 0;
+	this.child = 0; //not sure if used anywhere - save and load seem to have had something to do with it
 	this.children = {};
 	//connections
 	this.outgoing = {};
@@ -57,7 +58,7 @@ this.container = function(properties)
 	this.onMouseDown = 0;
 	this.onMouseUp  = 0;
 	//FLAGS
-	this.permissions = {save:true,connect:false}//connect:true};//savable, connectable, extend in future
+	this.permissions = {save:true,connect:false,edit:false}//connect:true};//savable, connectable, extend in future
 	//DOM manipulation
 	//TODO: Add possibility to  style with CSS
 	this.load = function(parent)
@@ -294,7 +295,10 @@ this.container = function(properties)
 
 	this.discard = function()
 	{
-		var uid = this.UID;
+		if(this.discarded)//already discarded
+			return;
+
+		console.log("Container.discard()>"+this.UID);
 		//discard all children
 		for( k in this.children )
 			this.children[k].discard();
@@ -314,12 +318,14 @@ this.container = function(properties)
 		else
 		{
 			document.body.removeChild(this.DOMreference);
-			delete this;
 		}
 
 		//EVENT
 		if( this.events['discardContainer'] || ( GEM.events['discardContainer'] && GEM.events['discardContainer']['_global'] ) )
-			GEM.fireEvent({event:"discardContainer",target:uid})
+			GEM.fireEvent({event:"discardContainer",target:this.UID})
+
+		//mark container as unusable
+		this.discarded = true;
 	}
 
 	this.changeParent = function(parent)
@@ -335,6 +341,7 @@ this.container = function(properties)
 			spos.y -= dpos.y;
 
 			//handle old parent
+			console.log("Container:changeParent()> old parent:"+utils.debug(this.parent)+" this:"+utils.debug(this)+" new Parent:"+utils.debug(parent));
 			oldP = this.parent;
 			if( this.parent.DOMreference && this.DOMreference )
 				this.parent.DOMreference.removeChild(this.DOMreference);
@@ -873,7 +880,7 @@ this.container = function(properties)
 		host.appName = app;
 		host.appPath = 'plugins/'+app+'/';
 		host.appFullPath = requirejs.s.contexts._.config.baseUrl+host.appPath;
-		
+
 		if(! AppMgr.loadedApps[app] )
 		{
 			//lookup app

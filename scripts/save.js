@@ -76,13 +76,13 @@ save._unit = function(node,operation_mode)
 	var st = {};
 	st[node.UID] = {};
 	//now save the most relevant stuff
+	st[node.UID].UID = node.UID;
+	st[node.UID].parent = (node.parent)?node.parent.UID:null;
 	st[node.UID].properties = utils.merge(node.properties,{});
 	//take out any possize data that is not relevant anymore
 	for( prop in nostore )
 		delete st[node.UID].properties[prop];
-
 	st[node.UID].properties['cssText'] = node.DOMreference.style.cssText;
-	st[node.UID].parent = (node.parent)?node.parent.UID:null;
 	if(node.DOMreference.value && node.DOMreference.value.length > 0)
 		st[node.UID].value = node.DOMreference.value;
 

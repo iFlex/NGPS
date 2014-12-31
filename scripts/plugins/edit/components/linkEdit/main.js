@@ -134,7 +134,15 @@ loadAppCode("edit/components/linkEdit",function(data){
     link.addEventListener("triggered",linkClick);
   }
   this.init = function(){
+    console.log(this.parent.appPath+" - initialising...");
+
     GEM.addEventListener("link",0,newlink,this);
     factory.root.addEventListener("triggered",hide);
+  }
+  this.shutdown = function(){
+    console.log(this.parent.appPath+" - shutting down...");
+
+    GEM.removeEventListener("link",0,newlink,this);
+    factory.root.removeEventListener("triggered",hide);
   }
 });

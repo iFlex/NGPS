@@ -10,13 +10,15 @@ loadAppCode("edit/components/configureContainer",function(data)
   var parent = data['parent'];
   parent.permissions.save = false;
   parent.permissions.connect = false;
-  
+
   var w = 100;
   var h = 100;
   var root = 0;
   var target;
   Editor.configureContainer = this;
   this.init = function(){
+    console.log("edit/components/configureContainer - initialising...");
+
     utils.loadStyle(parent.appFullPath+'colorpicker/spectrum.css');
     requirejs([parent.appFullPath+'colorpicker/spectrum.js',parent.appFullPath+'colorpicker/jquery.spectrum-fi.js'],function(){
       root = factory.newContainer({type:"dev",width:"30%",height:"100%",top:"0%",left:"-30%",background:"grey"},"none",factory.base);
