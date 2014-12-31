@@ -19,13 +19,18 @@ requirejs(['container',"descriptors/containers","descriptors/links","themes/defa
 this.factory = this.factory || {};
 this.factory.initialised = false;
 //initiation script comes here
-factory.init = function(mode) // editor init
+factory.init = function(mode,manualSetup) // editor init
 {
+	function _init() {
+		if(factory.setup && !manualSetup) //if custom setup is loaded, run it
+			factory.setup();
+	}
+
 	if(factory.initialised)
 	{
 		//resetting the factory
 		factory.initialised = false;
-		factory.root.discard();
+		factory.base.discard();
 	}
 	//global initalisation operations
 	factory.presentation = {};
@@ -54,17 +59,15 @@ factory.init = function(mode) // editor init
 		factory.root.c_move(-s['width']/2,-s['height']/2);
 
 		factory.initialised = true;
-
-		if(factory.setup) //if custom setup is loaded, run it
-			factory.setup();
+		require(["constructors/editor"],_init);
 	}
 	if( mode == "view" )
 	{
 		//need to be manually set
 		factory.base = 0;
 		factory.root = 0;
+		require(["constructors/editor"],_init);
 	}
-
 
 	if(factory.AMS && factory.AMS.init)
 		factory.AMS.init( factory.settings.container, factory.AMS);

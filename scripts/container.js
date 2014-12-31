@@ -870,14 +870,15 @@ this.container = function(properties)
 
 		//REQUIRES: AppMgr to be defined by the time this function is called
 		var host = this;
+		host.appName = app;
+		host.appPath = 'plugins/'+app+'/';
+		host.appFullPath = requirejs.s.contexts._.config.baseUrl+host.appPath;
+		
 		if(! AppMgr.loadedApps[app] )
 		{
 			//lookup app
 			requirejs(['plugins/'+app+"/main"],function(){
 				//AppMgr.loadedApps[app] = eval(app);
-				host.appName = app;
-				host.appPath = 'plugins/'+app+'/';
-				host.appFullPath = requirejs.s.contexts._.config.baseUrl+host.appPath;
 				ldApp(AppMgr.loadedApps[app]);
 			});
 		}

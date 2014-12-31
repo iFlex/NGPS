@@ -26,6 +26,8 @@ loadAppCode("edit",function(data)
 	//edit interface
 	this.EditUI = {};
 	//
+	console.log("New edit:"+this.parent.appPath);
+	
 	this.UI = function(info){
 		this.parent = info['parent'];
 		this.parts = {};
@@ -144,6 +146,7 @@ loadAppCode("edit",function(data)
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-font',Editor.dock.onAddText)//,"#REG:EDIT_text:innerHTML");
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-film',Editor.dock.onAddVideo)//,"#REG:EDIT_video:innerHTML");
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-save',Editor.dock.save)//,"#REG:EDIT_save:innerHTML");
+		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-upload',Editor.dock.load)//,"#REG:EDIT_save:innerHTML");
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-th',Editor.dock.toggleCli);
 
 		//Editor.dock.dockApp('link');
@@ -190,7 +193,12 @@ loadAppCode("edit",function(data)
 		save.toConsole();
 		alert("Saved!");
 	}
-
+	this.load = function(){
+		//factory.base.discard();
+		factory.init('editor');
+		//require(['../saved/test'],function(){
+		//});
+	}
 	this.onAddContainer = function(noEvent,descriptor){
 		var pos = {}
 		if(!Editor.sizer.target)

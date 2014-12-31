@@ -25,14 +25,11 @@
             });
             //include testing
             requirejs(['cli']);
-            requirejs(['drivers','factory','save'],function(){
+            requirejs(['drivers','factory','save','load'],function(){
                 //iniialise editor mode
                 setTimeout(function(){
-                    factory.init('editor');
-                    factory.newGlobalApp('edit');
-                    factory.newGlobalApp('zoom',{offsetY:48});
-                    cli.hide();
-                    }, 500);
+                  factory.init('editor');
+                }, 500);
             });
         </script>
         <!-- Navbar styling -->
