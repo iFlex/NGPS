@@ -58,7 +58,7 @@ this.container = function(properties)
 	this.onMouseDown = 0;
 	this.onMouseUp  = 0;
 	//FLAGS
-	this.permissions = {save:true,connect:false,edit:false}//connect:true};//savable, connectable, extend in future
+	this.permissions = {save:true,connect:false,edit:false,children:true}//connect:true};//savable, connectable, extend in future
 	//DOM manipulation
 	//TODO: Add possibility to  style with CSS
 	this.load = function(parent)
@@ -200,6 +200,10 @@ this.container = function(properties)
 	  if(!this.DOMreference)
 			return;
 
+		//override the old properties
+		for( k in data)
+			this.properties[k] = data[k];
+
 		if( typeof data['border_size']  == "number" )
 			data["border_size"] += "px";
 		console.log("Container:Restyling:"+utils.debug(data));
@@ -266,6 +270,8 @@ this.container = function(properties)
 
 	this.addChild = function(properties)
 	{
+		if(this.permissions.children == false)
+			return;
 		//inherit permissions
 		if(!properties['permissions'])
 			properties['permissions'] = this.permissions;
@@ -298,7 +304,7 @@ this.container = function(properties)
 		if(this.discarded)//already discarded
 			return;
 
-		console.log("Container.discard()>"+this.UID);
+		//console.log("Container.discard()>"+this.UID);
 		//discard all children
 		for( k in this.children )
 			this.children[k].discard();
@@ -330,6 +336,9 @@ this.container = function(properties)
 
 	this.changeParent = function(parent)
 	{
+		if(parent.permissions.children == false)
+			return;
+
 		var oldP = 0;
 		if( parent && this.parent )
 		{
@@ -378,6 +387,8 @@ this.container = function(properties)
 			this.removePrimitive();
 
 		this.child = document.createElement(descriptor['type']);
+		if(descriptor['type'] == "iframe")
+			this.child.sandbox = "allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation"
 
 		if(descriptor['content'])
 			for( k in descriptor['content'] )
@@ -727,6 +738,8 @@ this.container = function(properties)
 	}
 	this.link = function (target,descriptor)
 	{
+		if( this.permissions.connect == false || target.permissions.connect == false )
+			return;
 		//delete already existing link
 		if(this.outgoing[target.UID])
 			this.unlink(target);
@@ -785,6 +798,9 @@ this.container = function(properties)
 	}
 	this.changeLinkTarget = function(oldTarget,newTarget)
 	{
+		if(newTarget.permissions.connect == false)
+			return;
+			
 		//delete form incoming (oldTarget)
 		if(oldTarget.incoming[this.UID])
 			delete oldTarget.incoming[this.UID];

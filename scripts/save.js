@@ -53,7 +53,7 @@ function pack(){
 		apps:save.requiredApps
 	};
 	output.content = save.saveTree;
-
+	console.log("SAVE:"+utils.debug(output,"\n",true));
 	return JSON.stringify(output);
 }
 //TODO check if memory allows a ram save
@@ -73,16 +73,29 @@ save._unit = function(node,operation_mode)
 		return;
 	console.log("Parsing...");
 	save.nestCount++;
+
+	//now save the most relevant stuff
+
 	var st = {};
 	st[node.UID] = {};
-	//now save the most relevant stuff
 	st[node.UID].UID = node.UID;
+	st[node.UID].isApp = node.isApp;
+	st[node.UID].isCamera = node.isCamera;
+	st[node.UID].isLink = node.isLink;
+	st[node.UID].isLeaf = node.isLeaf;
+	for( a in node.actions){
+		for( k in node.actions[a] )
+			if( k[0] == "_" )
+				delete node.actions[a][k];
+	}
+	st[node.UID].actions = node.actions; // Presentation animations & actions
 	st[node.UID].parent = (node.parent)?node.parent.UID:null;
 	st[node.UID].properties = utils.merge(node.properties,{});
 	//take out any possize data that is not relevant anymore
 	for( prop in nostore )
 		delete st[node.UID].properties[prop];
 	st[node.UID].properties['cssText'] = node.DOMreference.style.cssText;
+
 	if(node.DOMreference.value && node.DOMreference.value.length > 0)
 		st[node.UID].value = node.DOMreference.value;
 

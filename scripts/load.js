@@ -20,6 +20,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 		if(!factory.base && !root){
 			croot = new container(node.properties)
 			croot.load();
+			factory.base = croot;
 		}
 		else
 		{
@@ -31,11 +32,13 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			}
 		}
 		//reference needed containers
-		if( LOADreferences[croot.UID] )
+		/*if( LOADreferences[croot.UID] )
 		{
 			LOADreferences[croot.UID] = croot;
 			console.log("Saved container for referencing:"+croot.UID);
-		}
+		}*/
+		//save for referencing
+		LOADreferences[node.UID] = croot;
 
 		if(node.camera)
 		{
@@ -49,6 +52,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			node = _node;
 		}
 		//add content
+		croot.actions = node.actions;
 		if(node.value)
 			croot.DOMreference.value = node.value;
 		if(node.innerHTML)
@@ -110,8 +114,10 @@ pLOAD.proceed = function(jsn)
 			console.log(">>LD>>Starging load at:"+k);
 			pLOAD._unit(LOADcontent[k],undefined,jae);
 			//now load all the apps
+			if(factory.setup) //if custom setup is loaded, run it
+				factory.setup();
 			console.log("Loading apps:"+utils.debug(LOADtree.requirements.apps));
-			//pLOAD.loadApps( LOADtree.requirements.apps  );
+			pLOAD.loadApps( LOADtree.requirements.apps  );
 
 		}
 		else

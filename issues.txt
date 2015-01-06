@@ -1,0 +1,5 @@
+iFrame: Links are open in parent...
+google does not load because of same origin
+
+quickAddInterface:
+add camera does not work for factory.root

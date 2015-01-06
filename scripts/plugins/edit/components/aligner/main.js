@@ -165,7 +165,7 @@ loadAppCode("edit/components/aligner",function(data)
 
     GEM.addEventListener("addChild",0,onAddedChild,this);
     factory.root.addEventListener("triggered",hideLines);
-    this.toggle(this.parent);
+    //this.toggle(this.parent);
   }
 
 });

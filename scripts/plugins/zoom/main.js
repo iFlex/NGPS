@@ -1,5 +1,6 @@
 loadAppCode("zoom",function(data){
 	this.config = {interface:"none"};
+	var parent = data['parent'];
 	this.parent = factory.base; //WARNING: this depends on the structure of the standard factory.js setup
 	this.buttonNames = ['zup','zdn'];
 	this.buttons = {};
@@ -20,6 +21,7 @@ loadAppCode("zoom",function(data){
 	}
 	this.init = function() //called only once when bound with container
 	{
+		console.log(parent.appPath+" - initialising...");
 		var ctx = this;
 		var btnSize = this.buttonSize;
 		for( i in this.buttonNames)
@@ -46,5 +48,8 @@ loadAppCode("zoom",function(data){
 		}
 		//
 		this.positionButtons();
+	}
+	this.shutdown = function(){
+		console.log(parent.appPath+" - shutdown...");
 	}
 });

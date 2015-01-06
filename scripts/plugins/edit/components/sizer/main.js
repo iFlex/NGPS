@@ -52,7 +52,7 @@ loadAppCode("edit/components/sizer",function(data)
       c.addEventListener("triggered",Editor.sizer._show);
   }
   this.init = function(){
-    console.log("edit/components/sizer - initialising. Default interface:"+defaultInterface);
+    console.log(this.parent.appPath+" - initialising. Default interface:"+defaultInterface);
     this.configure(this.interfaces[defaultInterface]);
     currentInterface = defaultInterface;
     factory.root.addEventListener("triggered",Editor.sizer.hide);
@@ -61,11 +61,28 @@ loadAppCode("edit/components/sizer",function(data)
 
   this._show = function(data)
   {
+    if(Editor.configureContainer)
+      Editor.configureContainer.hide();
+
+    //show add interface rather than edit
+    if( (Editor.sizer.target && Editor.sizer.target.UID == data['target'].UID) || ( Editor.addInterface && Editor.addInterface.overrideEdit == true) )
+    {
+      if(Editor.addInterface)
+      {
+        Editor.addInterface.onClick(data);
+        Editor.sizer.hide();
+        return;
+      }
+    }
+
     Editor.sizer.show(data['target']);
+    if(Editor.addInterface)
+      Editor.addInterface.hide();
   }
 
   this.show = function(target)
   {
+
     Editor.sizer.hide();
     Editor.sizer.target = target;
     console.log("Showing interface for:"+utils.debug(target)+" prefered interface:"+target.editInterface);

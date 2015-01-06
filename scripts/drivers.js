@@ -129,15 +129,18 @@ utils.loadRawStyle = function(style)
 }
 utils.debug = function(elem,newline,verbose)
 {
+	if(elem == undefined || elem == null)
+		return;
+
 	if(!newline)
 		newline = "\n";
 
-	if(typeof(elem) == "string")
+	if(typeof(elem) == "string" || typeof(elem) == "number")
 		return "";
 
-	var str = "{"+newline;
+	var str = "{"
 	if(typeof(elem) == "object" && elem.hasOwnProperty('UID'))
-		str+= " NGPS Container #"+elem.UID+newline+"}";
+		str+= " NGPS Container #"+elem.UID+"}"+newline;
 	else
 	{
 		for( k in elem )
@@ -145,9 +148,10 @@ utils.debug = function(elem,newline,verbose)
 			str += k + ":";
 			if(typeof(elem[k]) != "function" )
 			{
-				str += elem[k]
+				//if((typeof(elem) == "string" || typeof(elem) == "number" || typeof(elem) == "boolean") && verbose )
+					str += elem[k]
 				if(verbose)
-					str += utils.debug(elem[k],verbose)+" ";
+					str += utils.debug(elem[k],newline,verbose)+" ";
 				else
 				{
 					if(elem[k] && elem[k].hasOwnProperty("UID"))
@@ -159,7 +163,7 @@ utils.debug = function(elem,newline,verbose)
 			//	str += utils.debug(elem[k])+" ";
 		}
 	}
-	str += newline+"}"
+	str += "}"+newline
 	return str;
 }
 utils.whois = function(elem)

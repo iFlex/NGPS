@@ -25,7 +25,7 @@ factory.init = function(mode,manualSetup) // editor init
 		if(factory.setup && !manualSetup) //if custom setup is loaded, run it
 			factory.setup();
 	}
-
+	console.log("Factory initialised:"+factory.initialised);
 	if(factory.initialised)
 	{
 		//resetting the factory
@@ -67,7 +67,8 @@ factory.init = function(mode,manualSetup) // editor init
 		//need to be manually set
 		factory.base = 0;
 		factory.root = 0;
-		//require(["constructors/view"],_init);
+		factory.initialised = true;
+		require(["constructors/view"]);
 	}
 
 	if(factory.AMS && factory.AMS.init)
@@ -149,10 +150,11 @@ factory.newCamera = function (possize,tag,parent,interval,addToFrame,translate)
 	{
 		//possibly fetch camera tag for camera configurations
 		obj.extend(Camera);
+		obj.extend(Interactive);
+		obj.interactive(true);
 
 		if(!interval)
 			interval = 30;
-
 		obj.cstart(interval);
 	}
 	return obj;

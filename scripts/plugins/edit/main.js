@@ -125,7 +125,8 @@ loadAppCode("edit",function(data)
 		}
 	}
 
-	Editor.dock.possize = {x:0,y:0,width:100,height:100};
+	var dim = (factory.base.getWidth() < factory.base.getHeight() ? factory.base.getWidth() : factory.base.getHeight())*0.6;
+	Editor.dock.possize = {x:0,y:0,width:dim,height:dim};
 	Editor.dock.tags = [];
 	this.buildInterface = function()
 	{
@@ -142,9 +143,10 @@ loadAppCode("edit",function(data)
 		//init interface
 		Editor.dock.interfaces['main']	= new Editor.dock.UI({parent:Editor.dock.parent,title:"NGPS - "+factory.presentation.name});
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-plus',Editor.dock.onAddContainer)//,"#REG:EDIT_add:innerHTML");
-		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-picture',Editor.dock.onAddPicture)//,"#REG:EDIT_picture:innerHTML");
-		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-font',Editor.dock.onAddText)//,"#REG:EDIT_text:innerHTML");
-		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-film',Editor.dock.onAddVideo)//,"#REG:EDIT_video:innerHTML");
+		//Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-picture',Editor.dock.onAddPicture)//,"#REG:EDIT_picture:innerHTML");
+		//Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-font',Editor.dock.onAddText)//,"#REG:EDIT_text:innerHTML");
+		//Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-film',Editor.dock.onAddVideo)//,"#REG:EDIT_video:innerHTML");
+		Editor.dock.dockApp('edit/components/background',{lastInterfaceContainer:5});
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-save',Editor.dock.save)//,"#REG:EDIT_save:innerHTML");
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-upload',Editor.dock.load)//,"#REG:EDIT_save:innerHTML");
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-th',Editor.dock.toggleCli);
@@ -156,14 +158,21 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp("edit/components/addImage");
 		factory.newGlobalApp("edit/components/addVideo");
 		factory.newGlobalApp("edit/components/appChoice");
+		factory.newGlobalApp('edit/components/link',{lastInterfaceContainer:5});
 		factory.newGlobalApp("edit/components/linkEdit");
 		factory.newGlobalApp("edit/components/configureContainer");
+		factory.newGlobalApp("edit/components/quickAddInterface"); //this app messes up saving
+		factory.newGlobalApp("_actions",{mode:"edit"});
 		//read tags
 		for( k in Descriptors.containers)
 			Editor.dock.tags.push(k);
 
-		Editor.dock.dockApp('edit/components/link',{lastInterfaceContainer:5});
+		//Editor.dock.dockApp('edit/components/link',{lastInterfaceContainer:5}); - investigate how dock works
 		Editor.dock.dockApp('edit/components/aligner',{lastInterfaceContainer:5});
+
+		setTimeout(function(){
+			console.log("Editor Components:"+utils.debug(Editor));
+		},1000);
 	}
 	this.init = function() //called only one when bound with container
 	{
@@ -237,7 +246,7 @@ loadAppCode("edit",function(data)
 
 	this.onAddText = function()
 	{
-		var container = Editor.dock.onAddContainer(true,{type:"textarea"});
+		var container = Editor.dock.onAddContainer(true,{type:"textarea",ignoreTheme:true,background:"transparent"});
 		container.editInterface = 'text';
 		//container.subject = container.addPrimitive({type:"textarea",content:{style:"width:100%;height:100%;border:none;resize: none;"}});
 		//Editor.sizer.hide();

@@ -48,9 +48,11 @@ loadAppCode("edit/components/text",function(data)
 
 		factory.root.addEventListener("triggered",keyboard.hide);
 	}
-
 	keyboard.focus = function(target)
 	{
+		if(Editor.addInterface)
+			Editor.addInterface.hide();
+			
 		keyboard.interface.parent.show();
 		//assigns the editable DOM object
 		keyboard.interface.target = target;

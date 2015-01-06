@@ -1,5 +1,5 @@
 this.Editor = this.Editor || {};
-
+//TODO: make sure it's under the dock & close button visivle
 loadAppCode("edit/components/configureContainer",function(data)
 {
   //temporary
@@ -22,7 +22,7 @@ loadAppCode("edit/components/configureContainer",function(data)
     utils.loadStyle(parent.appFullPath+'colorpicker/spectrum.css');
     requirejs([parent.appFullPath+'colorpicker/spectrum.js',parent.appFullPath+'colorpicker/jquery.spectrum-fi.js'],function(){
       root = factory.newContainer({type:"dev",width:"30%",height:"100%",top:"0%",left:"-30%",background:"grey"},"none",factory.base);
-      root.DOMreference.innerHTML = '<style> .inline{ display: inline-block; *display: inline; } .margin{ margin-left:10px } .displayer{ width:100%;height:'+h+'px;overflow:scroll; background:transparent } .sliderBKG{ background:rgba(50,50,50); } </style> <h2> Edit </h2> <div id="EDIT_Appearence"> <div width="100%"> <h3 class="inline"> Shape </h3> </div> <div id="SHAPES" class="displayer"></div> <div> <h3 class="inline"> Border </h3> <input type="text" id="BRD_COLOR" class="btn btn-default inline"/> </div> <div id="BORDERS" class="displayer"></div> <div id="BORDER_Slider" class="dragdealer"> <div class="handle red-bar" style="perspective: 1000px; backface-visibility: hidden; transform: translateX(0px);"> <p style="" class="inline"> Opacity </p> <span class="value inline">0</span>% </div> </div> <div> <h3 class="inline"> Background </h3> <input type="text" id="BKG_COLOR" class="btn btn-default inline"/> </div> <div id="BACKGROUND_Slider" class="dragdealer"> <div class="handle red-bar" style="perspective: 1000px; backface-visibility: hidden; transform: translateX(0px);"> <p style="" class="inline"> Opacity </p> <span class="value inline">0</span>% </div> </div> </div> <div id="EDIT_Events"> </div> <script> new Dragdealer("BORDER_Slider", { animationCallback: function(x, y) { $("#BORDER_Slider .value").text(Math.round(x * 100)); } }); new Dragdealer("BACKGROUND_Slider", { animationCallback: function(x, y) { $("#BACKGROUND_Slider .value").text(Math.round(x * 100)); } }); </script>';
+      root.DOMreference.innerHTML += '<button id="CUSTOMIZE_CONTAINER_CLOSE" style="width:10%;height:10%;float:right" class="btn btn-danger" onclick="Editor.configureContainer.hide()">Close</button><style> .inline{ display: inline-block; *display: inline; } .margin{ margin-left:10px } .displayer{ width:100%;height:'+h+'px;overflow:scroll; background:transparent } .sliderBKG{ background:rgba(50,50,50); } </style> <h2> Edit </h2> <div id="EDIT_Appearence"> <div width="100%"> <h3 class="inline"> Shape </h3> </div> <div id="SHAPES" class="displayer"></div> <div> <h3 class="inline"> Border </h3> <input type="text" id="BRD_COLOR" class="btn btn-default inline"/> </div> <div id="BORDERS" class="displayer"></div> <div id="BORDER_Slider" class="dragdealer"> <div class="handle red-bar" style="perspective: 1000px; backface-visibility: hidden; transform: translateX(0px);"> <p style="" class="inline"> Opacity </p> <span class="value inline">0</span>% </div> </div> <div> <h3 class="inline"> Background </h3> <input type="text" id="BKG_COLOR" class="btn btn-default inline"/> </div> <div id="BACKGROUND_Slider" class="dragdealer"> <div class="handle red-bar" style="perspective: 1000px; backface-visibility: hidden; transform: translateX(0px);"> <p style="" class="inline"> Opacity </p> <span class="value inline">0</span>% </div> </div> </div> <div id="EDIT_Events"> </div> <script> new Dragdealer("BORDER_Slider", { animationCallback: function(x, y) { $("#BORDER_Slider .value").text(Math.round(x * 100)); } }); new Dragdealer("BACKGROUND_Slider", { animationCallback: function(x, y) { $("#BACKGROUND_Slider .value").text(Math.round(x * 100)); } }); </script>';
       root.onMoved = function(){}
 
       var mountShapes = document.getElementById("SHAPES");
@@ -85,7 +85,6 @@ loadAppCode("edit/components/configureContainer",function(data)
         }
       }));
     });
-
     //utils.loadStyle("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css",function(){loaded++;});
     //utils.loadStyle("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css",function(){loaded++;});
     //utils.loadStyle(parent.appFullPath+"lib/jasmine.css",function(){loaded++;});

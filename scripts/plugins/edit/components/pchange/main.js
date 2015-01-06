@@ -158,9 +158,11 @@ loadAppCode("edit/components/pchange",function(data)
 
   this.init = function()
   {
-    console.log("edit/components/pchange - initialising...");
-
+    console.log(this.parent.appPath+" - initialising...");
     GEM.addEventListener("addChild",0,onAddedChild,this);
   }
-
+  this.shutdown = function(){
+    console.log(this.parent.appPath+" - shutdown...");
+    GEM.removeEventListener("addChild",0,onAddedChild,this);
+  }
 });

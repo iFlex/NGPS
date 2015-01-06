@@ -1,9 +1,12 @@
 //TODO: fix linker issues with large containers ( it links with absurd positions)
+this.Editor = this.Editor || {};
+
 loadAppCode("edit/components/link",function(data){
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
 	this.parent.permissions.save = false;
 	this.parent.permissions.connect = false;
+	Editor.link = this;
 
 	var startFrom = data['lastInterfaceContainer'] || 2 ;
 
@@ -106,7 +109,7 @@ loadAppCode("edit/components/link",function(data){
 		g.style.cssText = "font-size:32px";
 		temp.hide();
 
-		GEM.addEventListener("triggered",0,"trigger",this);
+		//GEM.addEventListener("triggered",0,"trigger",this);
 		factory.root.addEventListener("triggered",cancel);
 
 		this.toggle(this.parent);
