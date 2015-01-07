@@ -6,6 +6,7 @@ loadAppCode("edit/components/link",function(data){
 	this.parent = data['parent'];
 	this.parent.permissions.save = false;
 	this.parent.permissions.connect = false;
+	
 	Editor.link = this;
 
 	var startFrom = data['lastInterfaceContainer'] || 2 ;

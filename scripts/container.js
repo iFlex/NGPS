@@ -336,7 +336,7 @@ this.container = function(properties)
 
 	this.changeParent = function(parent)
 	{
-		if(parent.permissions.children == false)
+		 if(parent.permissions.children == false)
 			return;
 
 		var oldP = 0;
@@ -753,6 +753,9 @@ this.container = function(properties)
 		target.incoming[this.UID] = {link:leLink,target:this};
 		//do positioning
 		leLink.linkData = descriptor['anchors'];
+		leLink.linkData.left = this.UID;
+		leLink.linkData.right = target.UID;
+
 		this.maintainLink(target);
 		//add callbacks //could use GEM events but it will make it slower
 		this.onMoved = function(dx,dy){
@@ -800,7 +803,7 @@ this.container = function(properties)
 	{
 		if(newTarget.permissions.connect == false)
 			return;
-			
+
 		//delete form incoming (oldTarget)
 		if(oldTarget.incoming[this.UID])
 			delete oldTarget.incoming[this.UID];
@@ -814,6 +817,7 @@ this.container = function(properties)
 			this.outgoing[newTarget.UID] = {link:leLink,target:newTarget};
 			delete this.outgoing[oldTarget.UID];
 
+			leLink.linkData.right = newTarget.UID;
 			//EVENT
 			if( this.events['linkChange'] || ( GEM.events['linkChange'] && GEM.events['linkChange']['_global'] ) )
 				GEM.fireEvent({event:"linkChange",target:ctx,old_owner:oldTarget,new_owner:newTarget,link:leLink})

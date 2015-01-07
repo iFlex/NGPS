@@ -3,10 +3,13 @@ this.Editor = this.Editor || {};
 loadAppCode("edit/components/quickAddInterface",function(data){
   this.config = {interface:"none"};
   this.parent = data['parent'];
+  this.parent.permissions.save = false;
+  this.parent.permissions.connect = false;
+
   this.interface = {};
   this.x = 0;
   this.y = 0;
-  this.parent = 0;
+
   var interfaceSize = 32;
   var sizeCoef = 0.75;
   var radius = 48;
@@ -58,7 +61,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     if(parent.UID < 3)
       parent = factory.root;
 
-    Editor.addInterface.parent = parent;
+    Editor.addInterface.origin = parent; //this causes cyclic references in save tree
     Editor.addInterface.x = globalX;
     Editor.addInterface.y = globalY;
     //console.log("Click happened on:"+utils.debug(parent)+" @ "+globalX+"|"+globalY);
@@ -114,16 +117,16 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     buttons.push(options);
   }
   //adders
-  function addContainer(noInterface,descriptor){
+  function _addContainer(noInterface,descriptor){ //causes cyclic references in save tree
     Editor.addInterface.hide();
+
     var d = utils.merge({
-    x:0,
-    y:0,
+    x:0,y:0,
     width:Editor.dock.possize.width,
     height:Editor.dock.possize.height,
     permissions:{track:true,connect:true,edit:true}},descriptor);
 
-    var container = factory.newContainer(d,"c000000",Editor.addInterface.parent,false,true);
+    var container = factory.newContainer(d,"c000000",Editor.addInterface.origin);
     var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
     container.putAt(pos.x,pos.y,0.5,0.5);
 
@@ -132,11 +135,14 @@ loadAppCode("edit/components/quickAddInterface",function(data){
 
     return container;
   }
+  function addContainer(){
+    _addContainer();
+  }
   function addCamera(){
     Editor.addInterface.hide();
 
-    var dparent = Editor.addInterface.parent;
-    if(Editor.addInterface.parent.UID < 3)
+    var dparent = Editor.addInterface.origin;
+    if(Editor.addInterface.origin.UID < 3)
       dparent = factory.base;
 
     var container = factory.newCamera({
@@ -146,7 +152,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       height:dparent.getHeight()*0.8,
       surfaceWidth:50000,surfaceHeight:50000,CAMERA_type:"scroller",
       permissions:{track:true,connect:true,edit:true}},"c000000",
-      Editor.addInterface.parent,false,true);
+      Editor.addInterface.origin,false,true);
 
       var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
       container.putAt(pos.x,pos.y,0.5,0.5);
@@ -155,7 +161,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         Editor.sizer.show(container);
     }
   function addText(){
-    var container = addContainer(true,{type:"textarea",ignoreTheme:true,background:"rgba(255,255,255,0.5)"});
+    var container = _addContainer(true,{type:"textarea",ignoreTheme:true,background:"rgba(255,255,255,0.5)"});
     container.permissions.children = false;
     container.permissions.quickAddInterface = false;
 
@@ -169,18 +175,18 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   function addVideo(){
     Editor.addInterface.hide();
     console.log("Adding Video");
-    if(Editor.addInterface.parent.UID < 3)
-      Editor.addInterface.parent = factory.base;
+    if(Editor.addInterface.origin.UID < 3)
+      Editor.addInterface.origin = factory.base;
     if(Editor.videos)
-      Editor.videos.show(Editor.addInterface.parent);
+      Editor.videos.show(Editor.addInterface.origin);
   }
   function addImage(){
     Editor.addInterface.hide();
     console.log("Adding image");
-    if(Editor.addInterface.parent.UID < 3)
-      Editor.addInterface.parent = factory.base;
+    if(Editor.addInterface.origin.UID < 3)
+      Editor.addInterface.origin = factory.base;
     if(Editor.images)
-      Editor.images.show(Editor.addInterface.parent);
+      Editor.images.show(Editor.addInterface.origin);
   }
   function addWebsite(){
     Editor.addInterface.x = 0;
@@ -189,9 +195,9 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     var container = factory.newContainer({
     x:0,
     y:0,
-    width:Editor.addInterface.parent.getWidth(),
+    width:Editor.addInterface.origin.getWidth(),
     height:300,
-    permissions:{track:true,connect:true,edit:true}},"c000000",Editor.addInterface.parent,false,true);
+    permissions:{track:true,connect:true,edit:true}},"c000000",Editor.addInterface.origin,false,true);
 
     var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
     container.putAt(pos.x,pos.y,0,0);

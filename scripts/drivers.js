@@ -127,6 +127,60 @@ utils.loadRawStyle = function(style)
 	s.innerHTML = style;
 	document.body.appendChild(s);
 }
+utils.sDeepDebug = function( node, spcs ){
+	var str = "";
+	var struct = "";
+	var cstruct = "";
+	var willEnter = false;
+	if(!spcs)
+		spcs = "";
+
+	if( typeof(node) == "object" )
+	{
+		struct = "{";
+		cstruct = "}";
+
+		if( node instanceof Array )
+		{
+			struct = "[";
+			cstruct = "]";
+		}
+		willEnter = true;
+	}
+
+	str += spcs+struct+((willEnter)?"\n":"");
+	if(typeof(node) != "object")
+	{
+		if( typeof(node) == "function" )
+			return spcs+"* function *";
+
+		str += spcs + node;
+	}
+	else {
+
+		if(node && node._visited)
+			return "#CYCLIC REFERENCE HERE#";
+
+		for( k in node){
+			if( k == "DOMreference" || k == "parent" )
+				continue;
+
+			if( node instanceof Array )
+				str += spcs; //+ this.sDeepDebug(node[k],spcs+" ")+",\n";
+			else
+				str += spcs + k + ":";
+
+			if( typeof(node[k]) == "object" )
+				str += this.sDeepDebug(node[k],spcs+" ")+",\n";
+			else
+				str += ((typeof(node[k]) == "function")?"function":node[k])+"\n";
+		}
+		if(node && typeof(node) == "object")
+			node._visited = true;
+	}
+	str += spcs+cstruct+((willEnter)?"\n":"");
+	return str;
+}
 utils.debug = function(elem,newline,verbose)
 {
 	if(elem == undefined || elem == null)

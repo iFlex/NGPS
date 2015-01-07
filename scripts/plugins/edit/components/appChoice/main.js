@@ -10,6 +10,7 @@ loadAppCode("edit/components/appChoice",function(data)
   this.parent = data['parent'];
   this.parent.permissions.save = false;
   this.parent.permissions.connect = false;
+  
   var root = 0;
   var popular = 0;
   var all = 0;

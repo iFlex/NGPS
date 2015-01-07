@@ -9,8 +9,15 @@ this.pLOAD = {}
 pLOAD.root = 0;
 var LOADtree = {};
 var LOADreferences = {};
+var _LINKS = [];
 pLOAD._unit = function(node,root,jumpAlreadyExisting)
 {
+	if(node.isLink)//save link for loading after whole tree is loaded
+	{
+		_LINKS.push(node);
+		return;
+	}
+
 	console.log("jumpAlreadyExisting:"+jumpAlreadyExisting+" UID:"+node.UID);
 	if( jumpAlreadyExisting == undefined || node.UID > jumpAlreadyExisting )
 	{
@@ -68,7 +75,19 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			pLOAD._unit( LOADcontent[node.children[k]],croot,jumpAlreadyExisting);
 	}
 }
-
+pLOAD.loadLinks = function(){
+	var left = 0;
+	var right = 0;
+	var link = 0;
+	for( l in _LINKS )
+	{
+		link = _LINKS[l];
+		left = LOADreferences[link.linkData.left];
+		right = LOADreferences[link.linkData.right];
+		if(left && right)
+			left.link(right,{container:link.properties,anchors:link.linkData});
+	}
+}
 pLOAD.loadApps = function(apps){
 	for( app in apps )
 	{
@@ -113,6 +132,7 @@ pLOAD.proceed = function(jsn)
 			var k = Object.keys(LOADcontent)[0];
 			console.log(">>LD>>Starging load at:"+k);
 			pLOAD._unit(LOADcontent[k],undefined,jae);
+			pLOAD.loadLinks();
 			//now load all the apps
 			if(factory.setup) //if custom setup is loaded, run it
 				factory.setup();

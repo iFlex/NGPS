@@ -95,7 +95,9 @@ save._unit = function(node,operation_mode)
 	for( prop in nostore )
 		delete st[node.UID].properties[prop];
 	st[node.UID].properties['cssText'] = node.DOMreference.style.cssText;
-
+	if( node.isLink )
+		st[node.UID].linkData = node.linkData;
+		
 	if(node.DOMreference.value && node.DOMreference.value.length > 0)
 		st[node.UID].value = node.DOMreference.value;
 
