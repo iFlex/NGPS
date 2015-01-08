@@ -164,10 +164,10 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         Editor.sizer.show(container);
     }
   function addText(){
-    var container = _addContainer(true,{type:"textarea",height:64,ignoreTheme:true,background:"rgba(255,255,255,0.5)"});
+    var container = _addContainer(true,{type:"textarea",height:64,width:64,ignoreTheme:true,background:"rgba(255,255,255,0.5)"});
     //container.permissions.children = false;
     //container.permissions.quickAddInterface = false;
-
+    console.log("New text field:"+utils.debug(container));
     container.editInterface = 'text';
     container.addEventListener("triggered",function(data){ console.log("focusing on text");keyboard.focus(data['target']); });
 

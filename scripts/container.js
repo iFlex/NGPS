@@ -52,8 +52,6 @@ this.container = function(properties)
 	//EVENTS
 	this.events = {};
 	//INTERACTION Rights
-	this.allowMove = true;
-	this.allowTrigger = true;
 	this.onMoved = 0; //this overrides the default container move function ( for camera use )
 	this.onMouseDown = 0;
 	this.onMouseUp  = 0;

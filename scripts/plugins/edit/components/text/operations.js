@@ -28,6 +28,9 @@ keyboard.interface.updateText = function()
 		document.getElementById('current_alignment').className = "glyphicon glyphicon-align-"+keyboard.interface.align;
 		document.getElementById('_InterfT_bold').className = (keyboard.interface.isBold)?"active textinterfC":"textinterfC";
 		document.getElementById('_InterfT_italic').className = (keyboard.interface.isItalic)?"active textinterfC":"textinterfC";
+
+		if(keyboard.interface.subject.focus)
+			keyboard.interface.subject.focus();
 	}
 }
 keyboard.interface.onCurrentColorChanged = function(e)

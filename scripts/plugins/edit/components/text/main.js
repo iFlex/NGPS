@@ -34,6 +34,7 @@ loadAppCode("edit/components/text",function(data)
 	this.rootDir = "plugins/text";
 	keyboard.uppercase = 0;
 
+	var _target = 0;
 	this.init = function() //called only one when bound with container
 	{
 		console.log("edit/components/text - initialising.");
@@ -60,12 +61,13 @@ loadAppCode("edit/components/text",function(data)
 		}");
 
 		//include app
-		keyboard.editor = factory.newContainer({x:100,y:100,width:"auto",height:"48px",border_size:1,border_radius:["5px"],background:"rgba(255,255,255,0.75)",permissions:{save:false,connect:false}},"simple_rect",factory.base);
+		keyboard.editor = factory.newContainer({x:100,y:100,width:"auto",height:"48px",border_size:1,border_radius:["10px","10px",0,0],background:"rgba(255,255,255,0.75)",permissions:{save:false,connect:false}},"simple_rect",factory.base);
 		keyboard.editor.DOMreference.style.overflow = 'visible';
-		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface"],function(){
+		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface",this.parent.appPath+"jquery.elastic.source"],function(){
 			keyboard.buildTextInterface(keyboard.editor.DOMreference);
 			keyboard.interface.parent = keyboard.editor;
 			keyboard.interface.init();
+
 		})
 		keyboard.editor.hide();
 
@@ -78,18 +80,28 @@ loadAppCode("edit/components/text",function(data)
 
 		keyboard.interface.parent.show();
 		//assigns the editable DOM object
+		_target = target;
 		keyboard.interface.target = target;
 		keyboard.interface.subject = target.DOMreference;//.subject;
+
 		var pos = target.local2global();
-		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.interface.originalHeight);
-		target.pauseInteraction(true);
+		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.interface.originalHeight-10);
+		target.allowUserMove = false;
+
+		if(keyboard.interface.subject.focus)
+			keyboard.interface.subject.focus();
+
+		if($(target.DOMreference).elastic)
+			$(target.DOMreference).elastic({'max-width': factory.base.getWidth()*2});
+		else
+			console.error("Elastic text boxes not supported!");
 	}
 	keyboard.hide = function()
 	{
 		keyboard.interface.parent.hide();
-		if(keyboard.interface.target)
-			keyboard.interface.target.pauseInteraction(false);
-
+		if(_target)
+			_target.allowUserMove = true;
 		keyboard.interface.subject = 0;
+		_target = 0;
 	}
 });

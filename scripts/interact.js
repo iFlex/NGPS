@@ -34,6 +34,8 @@ Interactive.lx = 0;
 Interactive.ly = 0;
 Interactive.dragDist = 0;
 Interactive.triggerCount = 0;
+Interactive.allowUserMove = true;
+Interactive.allowUserTrigger = true;
 //smooth continuous interaction
 this.Interaction = {}
 Interaction.origin = 0;
@@ -114,7 +116,7 @@ Interactive._onMouseMove = function(e, ctx)
 			//console.log("Mouse Move("+ctx.UID+")");
 			var dx = e.pageX - ctx.lx;
 			var dy = e.pageY - ctx.ly
-			if(ctx.allowMove)
+			if(ctx.allowUserMove)
 			{
 				if( ctx.onMoved )
 					ctx.onMoved(dx,dy,ctx)
@@ -168,7 +170,7 @@ Interactive._onMouseUp = function( e , ctx )
 		if( Interaction.origin && ctx.UID == Interaction.origin.UID )
 		{
 			// if triggered then call handler
-			if( ctx.dragDist < 7 && ctx.allowTrigger ) // this is considered a tap / click
+			if( ctx.dragDist < 7 && ctx.allowUserTrigger ) // this is considered a tap / click
 			{
 				if(	ctx.onTrigger )
 					ctx.onTrigger( ctx , e);
