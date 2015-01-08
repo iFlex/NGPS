@@ -119,12 +119,15 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   //adders
   function _addContainer(noInterface,descriptor){ //causes cyclic references in save tree
     Editor.addInterface.hide();
+    var dparent = Editor.addInterface.origin;
+    if(dparent.UID < 3)
+      dparent = factory.base;
 
     var d = utils.merge({
     x:0,y:0,
-    width:Editor.dock.possize.width,
-    height:Editor.dock.possize.height,
-    permissions:{track:true,connect:true,edit:true}},descriptor);
+    width:dparent.getWidth()*0.5,
+    height:dparent.getWidth()*0.5,
+    permissions:{track:true,connect:true,edit:true}},descriptor,true);
 
     var container = factory.newContainer(d,"c000000",Editor.addInterface.origin);
     var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
@@ -142,7 +145,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     Editor.addInterface.hide();
 
     var dparent = Editor.addInterface.origin;
-    if(Editor.addInterface.origin.UID < 3)
+    if(dparent.UID < 3)
       dparent = factory.base;
 
     var container = factory.newCamera({
@@ -151,7 +154,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       width:dparent.getWidth()*0.8,
       height:dparent.getHeight()*0.8,
       surfaceWidth:50000,surfaceHeight:50000,CAMERA_type:"scroller",
-      permissions:{track:true,connect:true,edit:true}},"c000000",
+      permissions:{track:false,connect:true,edit:true}},"c000000",
       Editor.addInterface.origin,false,true);
 
       var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
@@ -161,15 +164,15 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         Editor.sizer.show(container);
     }
   function addText(){
-    var container = _addContainer(true,{type:"textarea",ignoreTheme:true,background:"rgba(255,255,255,0.5)"});
-    container.permissions.children = false;
-    container.permissions.quickAddInterface = false;
+    var container = _addContainer(true,{type:"textarea",height:64,ignoreTheme:true,background:"rgba(255,255,255,0.5)"});
+    //container.permissions.children = false;
+    //container.permissions.quickAddInterface = false;
 
     container.editInterface = 'text';
+    container.addEventListener("triggered",function(data){ console.log("focusing on text");keyboard.focus(data['target']); });
+
     Editor.sizer.show(container);
     keyboard.focus(container);
-    container.addEventListener("triggered",function(data){ Editor.sizer.show(data['target']);});
-    container.addEventListener("triggered",function(){ keyboard.focus(container); });
   }
 
   function addVideo(){

@@ -13,7 +13,7 @@ loadAppCode("edit/components/pchange",function(data)
 
   var interfaces = [];
   var interfSize = 32;
-  this.target = 0;
+  var target = 0;
   Editor.track = this;
   //debug:
   factory._pchangecheck = function(){
@@ -103,6 +103,9 @@ loadAppCode("edit/components/pchange",function(data)
     }
 
     function checkOverlap(parent,node){
+      if(!parent)
+        return null;
+
       if(parent.UID != factory.root.display.UID)
       {
         //check parent
@@ -140,8 +143,8 @@ loadAppCode("edit/components/pchange",function(data)
   }
 
   var trigger = function(e){
-    //console.log(utils.debug(e.target.destination));
     if(target && e.target.destination ){
+      console.log("Change parent:"+e.target.destination);
       target.changeParent(e.target.destination);
       hideTriggers();
     }

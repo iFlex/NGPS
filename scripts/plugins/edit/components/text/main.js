@@ -37,12 +37,35 @@ loadAppCode("edit/components/text",function(data)
 	this.init = function() //called only one when bound with container
 	{
 		console.log("edit/components/text - initialising.");
+		utils.loadRawStyle(".textinterfC{\
+			display: inline-table;\
+			width: auto;\
+			height:  100%;\
+			text-align: center;\
+			padding-left:5px;\
+			padding-right:5px;\
+		}\
+\
+		.textinterfT{\
+			display: table-cell;\
+			vertical-align: middle;\
+			margin-top:auto;\
+			margin-bottom:auto;\
+		}\
+		.bold{\
+			font-weight: bold;\
+		}\
+		.italic{\
+			font-style: italic;\
+		}");
+
 		//include app
-		keyboard.editor = factory.newContainer({x:100,y:100,width:500,height:50,background:"transparent",permissions:{save:false,connect:false}},"simple_rect",factory.base);
+		keyboard.editor = factory.newContainer({x:100,y:100,width:"auto",height:"48px",border_size:1,border_radius:["5px"],background:"rgba(255,255,255,0.75)",permissions:{save:false,connect:false}},"simple_rect",factory.base);
+		keyboard.editor.DOMreference.style.overflow = 'visible';
 		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface"],function(){
 			keyboard.buildTextInterface(keyboard.editor.DOMreference);
-			keyboard.interface.init();
 			keyboard.interface.parent = keyboard.editor;
+			keyboard.interface.init();
 		})
 		keyboard.editor.hide();
 
@@ -52,22 +75,20 @@ loadAppCode("edit/components/text",function(data)
 	{
 		if(Editor.addInterface)
 			Editor.addInterface.hide();
-			
+
 		keyboard.interface.parent.show();
 		//assigns the editable DOM object
 		keyboard.interface.target = target;
 		keyboard.interface.subject = target.DOMreference;//.subject;
-		var pos = target.getPos();
-		pos = factory.root.surfaceToViewport(pos.x,pos.y);
-		//alert("c:"+utils.debug(pos))
+		var pos = target.local2global();
 		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.interface.originalHeight);
-		target.interactive(false);
+		target.pauseInteraction(true);
 	}
 	keyboard.hide = function()
 	{
 		keyboard.interface.parent.hide();
 		if(keyboard.interface.target)
-			keyboard.interface.target.interactive(true);
+			keyboard.interface.target.pauseInteraction(false);
 
 		keyboard.interface.subject = 0;
 	}

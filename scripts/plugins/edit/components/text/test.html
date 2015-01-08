@@ -1,0 +1,122 @@
+<html>
+<head>
+  <!-- Boot Strap -->
+  <link rel="stylesheet" href="../../../../../style/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="../../../../../style/general.css">
+  <script src="../../../../../scripts/jquery.js"></script>
+  <script src="../../../../../style/bootstrap/js/bootstrap.min.js"></script>
+<style>
+
+.textinterfC{
+  display: inline-table;
+  width: auto;
+  height: 64px;
+  text-align: center;
+  border: 1px solid red;
+  padding-left:5px;
+  padding-right:5px;
+}
+
+.textinterfT{
+  display: table-cell;
+  vertical-align: middle;
+  margin-top:auto;
+  margin-bottom:auto;
+}
+.bold{
+  font-weight: bold;
+}
+.italic{
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+
+<div style="width:30%;height:64px;background:rgba(0,0,0,0.5)">
+  <div class="textinterfC">
+    <select id="_InterfT_font" class="textinterfT">
+      <option value="font">Font</option>
+    </select>
+  </div>
+
+  <div id="_InterfT_-" class="textinterfC">
+    <span class="textinterfT">a</span>
+  </div>
+
+  <div id="_InterfT_+" class="textinterfC">
+    <span class="textinterfT">A</span>
+  </div>
+
+  <div id="_InterfT_color" class="textinterfC">
+    <li class="dropdown textinterfT">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <table>
+          <tr>
+            <td><div id="current_color" class="color_preview"></div></td>
+            <td><span class="caret"></td>
+          </tr>
+        </table>
+      </a>
+      <ul id="dropdown_menu_color" class="dropdown-menu" role="menu">
+        <table id="color_palette"></table>
+      </ul>
+    </li>
+  </div>
+
+  <div id="_InterfT_bold" class="textinterfC">
+    <span class="textinterfT bold">B</span>
+  </div>
+
+  <div id="_InterfT_italic" class="textinterfC">
+    <span class="textinterfT italic">I</span>
+  </div>
+
+  <div id="_InterfT_align" class="textinterfC">
+    <li class="dropdown textinterfT">
+      <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <span id="current_alignment" class="glyphicon glyphicon-align-left"></span>
+      </a>
+      <span class="caret"></span>
+      <ul id="dropdown_menu_align" class="dropdown-menu dropdown-menu-right" role="menu">
+        <center>
+          <table>
+            <tr>
+              <td class="dropdown_cell">
+                <li>
+                  <a id="_InterfT_alignLeft" href="#">
+                    <span class="glyphicon glyphicon-align-left"></span>
+                  </a>
+                </li>
+              </td>
+              <td class="dropdown_cell">
+                <li>
+                  <a id="_InterfT_alignCenter" href="#">
+                    <span class="glyphicon glyphicon-align-center"></span>
+                  </a>
+                </li>
+              </td>
+              <td class="dropdown_cell">
+                <li>
+                  <a id="_InterfT_alignRight" href="#">
+                    <span class="glyphicon glyphicon-align-right"></span>
+                  </a>
+                </li>
+              </td>
+              <td class="dropdown_cell">
+                <li>
+                  <a id="_InterfT_alignJustify" href="#">
+                    <span class="glyphicon glyphicon-align-justify"></span>
+                  </a>
+                </li>
+              </td>
+            </tr>
+          </table>
+        </center>
+      </ul>
+    </li>
+  </div>
+
+</div>
+</body>
+</html>

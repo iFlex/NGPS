@@ -28,7 +28,10 @@
 // >> surfaceHeight: presets the height of the camera surface
 // >> onMoreContent: ['extend','extend_frame','extend_frame_x','extend_frame_y'] // when content exceeds surface boundaries 0: camera surface is extended 1: extends both the surface and frame
 // >> CAMERA_type: ['generic','scroller'] 0: camera movement is supplied by movind the surface div 1: camera movement is supplied by native browser scroll
+
 // relations are defined in terms of a coefficient applied to the a property
+//	crelations[index] - root = the camera to relate to
+//						        - descriptor = the properties that relate them
 // example: x => 0.5
 
 // boundaries are limits defined for a property which include a High and Low limit
@@ -75,10 +78,10 @@ Camera.cstart = function(interval)
 	this.c_allowInertia = true;
 	this.allowInertia = true;
 	//
-	this.crelations = {};
+	this.crelations = this.crelations || {};
 	this.wasCalled = {};
 	//
-	this.boundaries = {};
+	this.boundaries = this.boundaries || {};
 	// Built in Fast Callbacks
 	this.onMoved = this.c_move;//this.cmove;
 	this.onMouseDown = this.onMoveStart;
@@ -97,7 +100,12 @@ Camera.cstart = function(interval)
 		this.display.DOMreference.style.position = "relative";
 
 	if(this.properties['CAMERA_type'] == "scroller")
+	{
 		this.cameraType = 1;//GENERIC CAMERA TYPE = 0; SCROLLER CAMERA = 1 ( uses native scroll )
+		var sxy = this.getSurfaceXY(0,0);
+		this.lastScrollLeft = sxy.x;
+		this.lastScrollTop = sxy.y;
+	}
 	else
 		this.cameraType = 0;
 	this.setCameraType(this.cameraType);
@@ -366,7 +374,7 @@ Camera.pullContent = function(dx,dy) // works
 	this.c_move(dx,dy,true);
 	this.moveContent(-dx,-dy);
 }
-
+//fires when scroller camera is moved by any of the functions or the user
 Camera.scrollHandler = function(e)
 {
 	//console.log("Camera: handling scroll");
@@ -375,11 +383,15 @@ Camera.scrollHandler = function(e)
 	parent.ctargetY = pos.y;
 	parent.ctargetX = pos.x;
 	//check cross refference
-	var dx = 0;
-	var dy = 0;
+	var dx = parent.lastScrollLeft - pos.x;
+	var dy = parent.lastScrollTop - pos.y;
+	parent.lastScrollLeft = pos.x;
+	parent.lastScrollTop = pos.y;
+	//console.log("Scroller Camera move:"+dx+"|"+dy);
 	for( k in parent.crelations )
 		parent.crelations[k]['root'].cmove(dx*parent.crelations[k]['x'],dy*parent.crelations[k]['y'])
 
+	this.antiCrossReff("cmove",0);
 }
 //TODO: calculate boundaries and add boundary limit enforcing
 //MOVE CODE
@@ -468,7 +480,7 @@ Camera.cmove = function(dx,dy,delay,norel) //ICR ignore cross refference, make t
 		this.ctargetX = pos.x + dx;
 	this.cmoveBound();
 
-	console.log("DX:"+dx+" DY:"+dy);
+	//console.log("DX:"+dx+" DY:"+dy);
 	var ctx = this;
 	if(this.cameraType == 1)
 		TweenMax.to(this.DOMreference,1,{scrollTop:-this.ctargetY,scrollLeft:-this.ctargetX});

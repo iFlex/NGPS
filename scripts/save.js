@@ -39,7 +39,6 @@ save.clear = function(){
 	save.saveTree = {};
 	save.requiredApps = {};
 	save.nestCount = 0;
-	save.ignore = {};
 	//just for testing
 	this.saveBuffer = 0;
 }
@@ -97,7 +96,7 @@ save._unit = function(node,operation_mode)
 	st[node.UID].properties['cssText'] = node.DOMreference.style.cssText;
 	if( node.isLink )
 		st[node.UID].linkData = node.linkData;
-		
+
 	if(node.DOMreference.value && node.DOMreference.value.length > 0)
 		st[node.UID].value = node.DOMreference.value;
 
@@ -125,12 +124,11 @@ save._unit = function(node,operation_mode)
 		st[node.UID].camera.interval = node.cinterval;
 		st[node.UID].camera.relations = node.crelations;
 		st[node.UID].camera.boundaries = node.boundaries;
-		save.ignore[ node.display.UID ] = node.UID;
+		for( i in st[node.UID].camera.relations )
+			st[node.UID].camera.relations[i].root = st[node.UID].camera.relations[i].root.UID;
 	}
 	st[node.UID].children = [];
-	//save links
-	//save callbacks
-	//save certain event bindings
+
 	if( operation_mode['build'] == "continuous")
 		save.saveTree[node.UID] = st[node.UID];
 	if( operation_mode['build'] == "chunked")

@@ -1,8 +1,10 @@
 //the interface
 keyboard.buildTextInterface = function(parent){
+parent.innerHTML = '<div class="textinterfC"> <select id="_InterfT_font" class="textinterfT"> <option value="font">Font</option> </select> </div> <div id="_InterfT_-" class="textinterfC"> <span class="textinterfT">a</span> </div> <div id="_InterfT_+" class="textinterfC"> <span class="textinterfT">A</span> </div> <div id="_InterfT_color" class="textinterfC"> <li class="dropdown textinterfT"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <table> <tr> <td><div id="current_color" class="color_preview"></div></td> <td><span class="caret"></td> </tr> </table> </a> <ul id="dropdown_menu_color" class="dropdown-menu" role="menu"> <table id="color_palette"></table> </ul> </li> </div> <div id="_InterfT_bold" class="textinterfC"> <span class="textinterfT bold">B</span> </div> <div id="_InterfT_italic" class="textinterfC"> <span class="textinterfT italic">I</span> </div> <div id="_InterfT_align" class="textinterfC"> <li class="dropdown textinterfT"> <a href="#" class="dropdown-toggle" data-toggle="dropdown"> <span id="current_alignment" class="glyphicon glyphicon-align-left"></span> </a> <span class="caret"></span> <ul id="dropdown_menu_align" class="dropdown-menu dropdown-menu-right" role="menu"> <center> <table> <tr> <td class="dropdown_cell"> <li> <a id="_InterfT_alignLeft" href="#"> <span class="glyphicon glyphicon-align-left"></span> </a> </li> </td> <td class="dropdown_cell"> <li> <a id="_InterfT_alignCenter" href="#"> <span class="glyphicon glyphicon-align-center"></span> </a> </li> </td> <td class="dropdown_cell"> <li> <a id="_InterfT_alignRight" href="#"> <span class="glyphicon glyphicon-align-right"></span> </a> </li> </td> <td class="dropdown_cell"> <li> <a id="_InterfT_alignJustify" href="#"> <span class="glyphicon glyphicon-align-justify"></span> </a> </li> </td> </tr> </table> </center> </ul> </li> </div>';
+/*
 utils.makeHTML([{
 			nav:{
-				class:"navbar navbar-default navbar-static-top",
+				class:"navbar navbar-static-top",
 				role:"navigation",
 				children:[
 				{
@@ -30,7 +32,7 @@ utils.makeHTML([{
 										}]
 									}
 								},
-								{	
+								{
 									li:{
 										children:[
 										{
@@ -47,7 +49,7 @@ utils.makeHTML([{
 										}]
 									}
 								},
-								{	
+								{
 									li:{
 										class:"dropdown",
 										children:[
@@ -91,7 +93,7 @@ utils.makeHTML([{
 											}
 										},
 										{
-											ul:{ 
+											ul:{
 												id:"dropdown_menu_color",
 												onclick:keyboard.interface.collapseInterface,
 												class:"dropdown-menu",
@@ -277,7 +279,7 @@ utils.makeHTML([{
 												href:"#",
 												children:[{
 													span:{
-														class:"glyphicon glyphicon-list"	
+														class:"glyphicon glyphicon-list"
 													}
 												}]
 											}
@@ -292,14 +294,14 @@ utils.makeHTML([{
 												href:"#",
 												children:[{
 													span:{
-														class:"glyphicon glyphicon-indent-left"	
+														class:"glyphicon glyphicon-indent-left"
 													}
 												}]
 											}
 										}]
 									}
 								},
-								{	
+								{
 									li:{
 										children:[
 										{
@@ -307,7 +309,7 @@ utils.makeHTML([{
 												href:"#",
 												children:[{
 													span:{
-														class:"glyphicon glyphicon-indent-right"	
+														class:"glyphicon glyphicon-indent-right"
 													}
 												}]
 											}
@@ -317,8 +319,9 @@ utils.makeHTML([{
 							}
 						}],
 					}
-					
+
 				}],
 			}
 		}],parent);
+		*/
 }

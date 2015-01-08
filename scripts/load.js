@@ -10,6 +10,7 @@ pLOAD.root = 0;
 var LOADtree = {};
 var LOADreferences = {};
 var _LINKS = [];
+var _CAMERAS = [];
 pLOAD._unit = function(node,root,jumpAlreadyExisting)
 {
 	if(node.isLink)//save link for loading after whole tree is loaded
@@ -38,12 +39,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 				factory.initialised = true;
 			}
 		}
-		//reference needed containers
-		/*if( LOADreferences[croot.UID] )
-		{
-			LOADreferences[croot.UID] = croot;
-			console.log("Saved container for referencing:"+croot.UID);
-		}*/
+
 		//save for referencing
 		LOADreferences[node.UID] = croot;
 
@@ -53,10 +49,15 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			croot.extend(Interactive);
 			croot.interactive(true);
 			croot.cstart(node.camera.interval);
+			//load all camera specific data
+			for( p in node.camera )
+				croot["c"+p] = node.camera[p];
 			//immediately instantiate the display object and replace the display of the above camera
 			var _node = LOADcontent[node.children[0]];
 			node.children.splice(0,1);
 			node = _node;
+
+			_CAMERAS.push(croot);
 		}
 		//add content
 		croot.actions = node.actions;
@@ -86,6 +87,20 @@ pLOAD.loadLinks = function(){
 		right = LOADreferences[link.linkData.right];
 		if(left && right)
 			left.link(right,{container:link.properties,anchors:link.linkData});
+	}
+}
+pLOAD.activateCameras = function(){
+	//saved camera relations only reference by id not by actual pointer to container
+	//need to read the UIDs and replace with actual pointer to container
+	for( c in _CAMERAS ){
+		var rels = _CAMERAS[c].crelations;
+		console.log("Checking relations for camera:"+utils.debug(_CAMERAS[c])+" > "+utils.debug(rels));
+		for( r in rels )
+		{
+			console.log("Adding relation with:"+r+" dsc:"+utils.debug(rels[r]));
+			if( rels[r].root )
+				rels[r].root = LOADreferences[rels[r].root];
+		}
 	}
 }
 pLOAD.loadApps = function(apps){
@@ -133,6 +148,7 @@ pLOAD.proceed = function(jsn)
 			console.log(">>LD>>Starging load at:"+k);
 			pLOAD._unit(LOADcontent[k],undefined,jae);
 			pLOAD.loadLinks();
+			pLOAD.activateCameras();
 			//now load all the apps
 			if(factory.setup) //if custom setup is loaded, run it
 				factory.setup();

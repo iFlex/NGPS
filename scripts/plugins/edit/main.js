@@ -144,7 +144,7 @@ loadAppCode("edit",function(data)
 		Editor.dock.interfaces['main']	= new Editor.dock.UI({parent:Editor.dock.parent,title:"NGPS - "+factory.presentation.name});
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-plus',Editor.dock.onAddContainer)//,"#REG:EDIT_add:innerHTML");
 		//Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-picture',Editor.dock.onAddPicture)//,"#REG:EDIT_picture:innerHTML");
-		//Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-font',Editor.dock.onAddText)//,"#REG:EDIT_text:innerHTML");
+		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-font',Editor.dock.onAddText)//,"#REG:EDIT_text:innerHTML");
 		//Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-film',Editor.dock.onAddVideo)//,"#REG:EDIT_video:innerHTML");
 		Editor.dock.dockApp('edit/components/background',{lastInterfaceContainer:5});
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-save',Editor.dock.save)//,"#REG:EDIT_save:innerHTML");

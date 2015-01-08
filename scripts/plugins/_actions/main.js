@@ -30,6 +30,9 @@ loadAppCode("_actions",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
+  this.parent.permissions.save = false;
+  this.parent.permissions.connect = false;
+
   mode = data['mode'] || 'present';
   Actions = this;
 
@@ -118,7 +121,7 @@ loadAppCode("_actions",function(data)
 
   function onNewNode(e){
     defaultNode(e.child);
-    console.log("Actions added to new container:"+utils.debug(e.child)+">"+utils.debug(e.child.actions,";",true));
+    //console.log("Actions added to new container:"+utils.debug(e.child)+">"+utils.debug(e.child.actions,";",true));
   }
 
   this.init = function(){
