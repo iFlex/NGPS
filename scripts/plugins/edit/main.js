@@ -199,8 +199,7 @@ loadAppCode("edit",function(data)
 	}
 
 	this.save = function(){
-		save.toConsole();
-		alert("Saved!");
+		window.prompt("Presenation content",save.toConsole());
 	}
 	this.load = function(){
 		factory.init('editor');

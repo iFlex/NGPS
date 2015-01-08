@@ -66,22 +66,31 @@ AppCtl.ainit = function(app,params)
 	this.exit = 0;
 	/////////////////////
 	data = this.app.config;
+	var _permissions = {edit:false};
 	if(data['interface'] != "none")
 	{
 		if(data && data['cover'])
+		{
+			data['cover'].permissions = _permissions;
 			this.cover = this.addChild(data['cover'])
+		}
 		else
-			this.cover = this.addChild({x:"0%",y:"0%",width:"100%",height:"100%",background:"transparent"});
+			this.cover = this.addChild({x:"0%",y:"0%",width:"100%",height:"100%",background:"transparent",permissions:_permissions});
 
 		if(data && data['exit'])
+		{
+			data['exit'].permissions = _permissions;
 			this.exit = this.addChild(data['exit'])
+		}
 		else
 		{
 			d = (this.getWidth()>this.getHeight())?this.getHeight():this.getWidth();
 			d *= 0.2
 			if( d < 20 )
 				d = 20;
-			this.exit = this.addChild({x:"0%",y:"0%",width:d,height:d,background:"red",border_radius:["15px"]})
+			if( d > 64 )
+				d = 64
+			this.exit = this.addChild({x:"0%",y:"0%",width:d,height:d,background:"red",border_radius:["15px"],permissions:_permissions})
 		}
 		//configure for interaction
 		this.cover.extend(Interactive);

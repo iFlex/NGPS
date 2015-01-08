@@ -48,8 +48,11 @@ loadAppCode("edit/components/sizer",function(data)
 
   function attachInterfaceTrigger(e){
     var c = e.child;
-    if(c.permissions.edit)
+    if(c.permissions.edit == true)
+    {
+      console.log("attaching edit interface to:"+utils.debug(c)+" perm:"+utils.debug(c.permissions));
       c.addEventListener("triggered",Editor.sizer._show);
+    }
   }
   this.init = function(){
     console.log(this.parent.appPath+" - initialising. Default interface:"+defaultInterface);
@@ -82,6 +85,8 @@ loadAppCode("edit/components/sizer",function(data)
 
   this.show = function(target)
   {
+    if(!target.permissions.edit)
+      return;
 
     Editor.sizer.hide();
     Editor.sizer.target = target;

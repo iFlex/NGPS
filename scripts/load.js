@@ -63,8 +63,19 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 		croot.actions = node.actions;
 		if(node.value)
 			croot.DOMreference.value = node.value;
+
 		if(node.innerHTML)
 			croot.DOMreference.innerHTML = decodeURIComponent(node.innerHTML);
+
+		if(node.child)
+		{
+			var cld = croot.addPrimitive(node.child.descriptor);
+			cld.innerHTML = node.child.innerHTML;
+			console.log("Loading child:"+utils.debug(node.child,";",true));
+		}
+		
+		if(node.isApp)
+			croot.appData = node.appData;
 	}
 	else
 		croot = LOADreferences[node.UID];
@@ -110,7 +121,7 @@ pLOAD.loadApps = function(apps){
 		for( j in apps[app] )
 		{
 			console.log(">> On container:"+j);
-			LOADreferences[apps[app][j]].loadApp(app);
+			LOADreferences[apps[app][j]].loadApp(app,LOADreferences[apps[app][j]].appData);
 		}
 	}
 }

@@ -385,6 +385,7 @@ this.container = function(properties)
 			this.removePrimitive();
 
 		this.child = document.createElement(descriptor['type']);
+
 		if(descriptor['type'] == "iframe")
 			this.child.sandbox = "allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation"
 
@@ -450,6 +451,7 @@ this.container = function(properties)
 		}
 
 		//this.child.pointerEvents = "none";
+		this.child.descriptor = descriptor;
 		this.child.ondragstart = function() { return false; };
 		this.DOMreference.appendChild(this.child);
 		this.isLeaf = true;

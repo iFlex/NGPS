@@ -17,7 +17,7 @@ loadAppCode("edit/components/addVideo",function(data)
     if(!vCTL)
     {
       vCTL = mountPoint || Editor.dock.onAddContainer();
-      vCTL.loadApp('video',{url:link});
+      vCTL.loadApp('interactiveContent',{url:link});
       vCTL.src = link;
       //primitiveCTL = container.addPrimitive({type:'iframe',width:420,height:345,content:{src:link,width:"420",height:"345"}});
       Editor.sizer.show(Editor.sizer.target);

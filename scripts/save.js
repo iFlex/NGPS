@@ -104,10 +104,9 @@ save._unit = function(node,operation_mode)
 	if(node.child)
 	{
 		st[node.UID].child = {};
-		st[node.UID].child.type = "div";//TODO: store type of child in div
-		st[node.UID].child.css = node.child.style.cssText;
-		//testing
-		//st[node.UID].child.innerHTML = node.child.innerHTML;
+		st[node.UID].child.descriptor = node.child.descriptor;
+		//st[node.UID].child.descriptor.style = node.child.style.cssText;
+		st[node.UID].child.innerHTML = node.child.innerHTML;
 	}
 	//now look for apps
 	if(node.isApp)
@@ -116,6 +115,7 @@ save._unit = function(node,operation_mode)
 		if( !save.requiredApps[node.appName] )
 			save.requiredApps[node.appName] = []; //store nodes that need the app here
 		save.requiredApps[node.appName].push(node.UID);
+		st[node.UID].appData = node.app._save;
 	}
 	//now look for camera
 	if(node.isCamera)
@@ -180,10 +180,12 @@ save.RAMsave = function(stringify){
 save.toConsole = function(_alert){
 
 	save.RAMsave();
+	var dta = pack();
 	if(_alert)
-		alert(pack());
+		alert(dta);
 	else
-		console.log(pack());
+		console.log(dta);
+	return dta;
 }
 
 save.jsonTree = function(){
