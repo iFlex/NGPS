@@ -204,7 +204,8 @@ loadAppCode("edit/components/quickAddInterface",function(data){
 
     var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
     container.putAt(pos.x,pos.y,0,0);
-    container.loadApp('interactiveContent',{url:"http://www.gla.ac.uk",width:"100%",height:"100%"});
+    var website = window.prompt("Please enter url:");
+    container.loadApp('interactiveContent',{url:website,width:"100%",height:"100%"});
     //container.addPrimitive({type:"iframe",content:{src:"http://www.gla.ac.uk",width:"100%",height:"100%"}});
   }
   function connect(){

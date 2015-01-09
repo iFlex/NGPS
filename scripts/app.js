@@ -66,7 +66,7 @@ AppCtl.ainit = function(app,params)
 	this.exit = 0;
 	/////////////////////
 	data = this.app.config;
-	var _permissions = {edit:false};
+	var _permissions = {edit:false,save:false,track:false,connect:false};
 	if(data['interface'] != "none")
 	{
 		if(data && data['cover'])
@@ -92,6 +92,9 @@ AppCtl.ainit = function(app,params)
 				d = 64
 			this.exit = this.addChild({x:"0%",y:"0%",width:d,height:d,background:"red",border_radius:["15px"],permissions:_permissions})
 		}
+		//
+		this.cover.DOMreference.name = "cover";
+		this.exit.DOMreference.name = "exit";
 		//configure for interaction
 		this.cover.extend(Interactive);
 		this.cover.interactive(true);

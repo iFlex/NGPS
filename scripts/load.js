@@ -70,10 +70,9 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 		if(node.child)
 		{
 			var cld = croot.addPrimitive(node.child.descriptor);
-			cld.innerHTML = node.child.innerHTML;
-			console.log("Loading child:"+utils.debug(node.child,";",true));
+			//cld.innerHTML = node.child.innerHTML;
 		}
-		
+
 		if(node.isApp)
 			croot.appData = node.appData;
 	}

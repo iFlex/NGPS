@@ -52,7 +52,6 @@ function pack(){
 		apps:save.requiredApps
 	};
 	output.content = save.saveTree;
-	console.log("SAVE:"+utils.debug(output,"\n",true));
 	return JSON.stringify(output);
 }
 //TODO check if memory allows a ram save
@@ -67,10 +66,9 @@ save._unit = function(node,operation_mode)
 {
 	var nostore = {x:true,y:true,top:true,bottom:true,left:true,right:true,width:true,height:true}
 
-	console.log("NODE:"+node.UID);
+	//console.log("NODE:"+node.UID);
 	if(!node.permissions.save)
 		return;
-	console.log("Parsing...");
 	save.nestCount++;
 
 	//now save the most relevant stuff
@@ -115,6 +113,7 @@ save._unit = function(node,operation_mode)
 		if( !save.requiredApps[node.appName] )
 			save.requiredApps[node.appName] = []; //store nodes that need the app here
 		save.requiredApps[node.appName].push(node.UID);
+		console.log("Rapps:"+utils.debug(save.requiredApps));
 		st[node.UID].appData = node.app._save;
 	}
 	//now look for camera
