@@ -1,15 +1,18 @@
 loadAppCode("zoom",function(data){
 	this.config = {interface:"none"};
 	var parent = data['parent'];
+	parent.permissions.save = false;
+	parent.permissions.track = false;
+
 	this.parent = factory.base; //WARNING: this depends on the structure of the standard factory.js setup
 	this.buttonNames = ['zup','zdn'];
 	this.buttons = {};
 	this.buttonSize = 30;
-	this.zoomLevel = 1;
-	this.zoomAm = 0.25;
-	this.zoomAmDn = 0.6
-	this.zoomAmUp = 1.4;
-	this.zoomTime = 50;
+
+	var zoomLevel = 1;
+	var zoomAmDn = 0.6
+	var zoomAmUp = 1.4;
+
 	var offsetTop = data['offsetY'] || 0;
 	this.positionButtons = function()
 	{
@@ -37,19 +40,22 @@ loadAppCode("zoom",function(data){
 		}
 		this.buttons['zup'].addPrimitive({type:"i",content:{class:"glyphicon glyphicon-zoom-in"}});
 		this.buttons['zup'].onTrigger = function(){
-			factory.root.czoom(1.1);
-			console.log("ZUP");
+			factory.root.czoom(zoomAmUp);
+			zoomLevel *= zoomAmUp;
 		}
 
 		this.buttons['zdn'].addPrimitive({type:"i",content:{class:"glyphicon glyphicon-zoom-out"}});
 		this.buttons['zdn'].onTrigger = function(){
-			factory.root.czoom(0.9);
-			console.log("ZDN");
+			factory.root.czoom(zoomAmDn);
+			zoomLevel *= zoomAmDn;
 		}
 		//
 		this.positionButtons();
 	}
 	this.shutdown = function(){
 		console.log(parent.appPath+" - shutdown...");
+		for( b in this.buttons)
+			this.buttons[b].discard();
+		delete this.buttons;
 	}
 });

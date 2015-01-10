@@ -159,15 +159,44 @@ factory.newCamera = function (possize,tag,parent,interval,addToFrame,translate)
 	}
 	return obj;
 }
-//APPs
+//Global APPs
+factory._glApps = {};
 factory.newGlobalApp = function ( app , passToApp )
 {
 	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"global_app",factory.base);
 	host.loadApp(app,passToApp);
+
+	//keep track of all global apps
+	factory._glApps[app] = factory._glApps[app] || [];
+	factory._glApps[app].push(host);
+
 	return host;
 }
-//TODO:
-factory.newLink = function( a , b , type)
-{
 
+factory.removeGlobalApp = function ( app )
+{
+	if( factory._glApps[app] )
+	{
+		for( a in factory._glApps[app] )
+			factory._glApps[app][a].discard();
+		delete factory._glApps[app];
+		return true;
+	}
+	return false;
+}
+
+factory.listGlobalApps = function(withCount){
+	if(!withCount)
+		return Object.keys(factory._glApps);
+
+	var apps = {};
+	for( k in factory._glApps)
+		apps[k] = factory._glApps[k].length;
+	return apps;
+}
+
+factory.removeAllGlobalApps = function(){
+	var apps = factory.listGlobalApps();
+	for( a in apps)
+		factory.removeGlobalApp(apps[a]);
 }

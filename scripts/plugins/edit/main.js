@@ -26,14 +26,14 @@ loadAppCode("edit",function(data)
 	//edit interface
 	this.EditUI = {};
 	//
+	var isMob = false;
 	console.log(this.parent.appPath+" - initialising...");
 
 	this.UI = function(info){
 		this.parent = info['parent'];
 		this.parts = {};
 		this.parts['root'] = document.createElement("nav");
-		//this.root.style.height = this.parent.getHeight()+"px";
-		//this.root.style.width = this.parent.getWidth()+"px";
+
 		this.parts['root'].className = "navbar navbar-default navbar-fixed-top";
 		this.parts['root'].role = "navigation";
 
@@ -58,6 +58,12 @@ loadAppCode("edit",function(data)
 
 		this.parts['root'].appendChild(this.parts['mainDiv']);
 		this.parent.DOMreference.appendChild(this.parts['root']);
+
+		if(platform.isMobile)
+		{
+			this.parts['mobile'] = factory.newContainer({x:"-100%",y:0,width:factory.base.getWidth()*0.4,height:"100%",background:"rgba(200,20,200,0.75)"},"none",factory.base);
+			this.parts['mobile'].allowUserMove = false;
+		}
 
 		this.addButton = function(icon,handler,description,properties)
 		{
@@ -85,7 +91,12 @@ loadAppCode("edit",function(data)
 			li.appendChild(a);
 			a.appendChild(span);
 			if(name)	a.appendChild(name);
-			this.parts['interfaceRight'].appendChild(li);
+
+			if(isMob)
+				this.parts['mobile'].DOMreference.appendChild(li);
+			else
+				this.parts['interfaceRight'].appendChild(li);
+
 			return span;
 		}
 		this.addCustom = function(element,style,events,properties)
@@ -116,7 +127,12 @@ loadAppCode("edit",function(data)
 
 			li.appendChild(a);
 			a.appendChild(span);
-			this.parts["interfaceRight"].appendChild(li);
+
+			if(isMob)
+				this.parts['mobile'].DOMreference.appendChild(li);
+			else
+				this.parts['interfaceRight'].appendChild(li);
+
 			return span;
 		}
 		this.destroy = function()
@@ -142,6 +158,16 @@ loadAppCode("edit",function(data)
 
 		//init interface
 		Editor.dock.interfaces['main']	= new Editor.dock.UI({parent:Editor.dock.parent,title:"NGPS - "+factory.presentation.name});
+		if(platform.isMobile || factory.base.getWidth() < 450)
+		{
+			Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-list',Editor.dock.toggleMobile)//,"#REG:EDIT_add:innerHTML");
+			isMob = true;
+			Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-chevron-right',Editor.dock.toggleMobile);
+			Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-chevron-right',Editor.dock.toggleMobile);
+			Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-chevron-right',Editor.dock.toggleMobile);
+			Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-chevron-left',Editor.dock.toggleMobile);
+		}
+
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-plus',Editor.dock.onAddContainer)//,"#REG:EDIT_add:innerHTML");
 		//Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-picture',Editor.dock.onAddPicture)//,"#REG:EDIT_picture:innerHTML");
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-font',Editor.dock.onAddText)//,"#REG:EDIT_text:innerHTML");
@@ -150,6 +176,7 @@ loadAppCode("edit",function(data)
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-save',Editor.dock.save)//,"#REG:EDIT_save:innerHTML");
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-upload',Editor.dock.load)//,"#REG:EDIT_save:innerHTML");
 		Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-th',Editor.dock.toggleCli);
+
 
 		//Editor.dock.dockApp('link');
 		factory.newGlobalApp("edit/components/pchange");
@@ -161,8 +188,9 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp('edit/components/link',{lastInterfaceContainer:5});
 		factory.newGlobalApp("edit/components/linkEdit");
 		factory.newGlobalApp("edit/components/configureContainer");
-		factory.newGlobalApp("edit/components/quickAddInterface"); //this app messes up saving
+		factory.newGlobalApp("edit/components/quickAddInterface");
 		factory.newGlobalApp("_actions",{mode:"edit"});
+		factory.newGlobalApp("userMsg");
 		//read tags
 		for( k in Descriptors.containers)
 			Editor.dock.tags.push(k);
@@ -170,6 +198,7 @@ loadAppCode("edit",function(data)
 		//Editor.dock.dockApp('edit/components/link',{lastInterfaceContainer:5}); - investigate how dock works
 		Editor.dock.dockApp('edit/components/aligner',{lastInterfaceContainer:5});
 
+		factory.newGlobalApp("edit/components/saveDisplay"); //this app messes up saving
 		setTimeout(function(){
 			console.log("Editor Components:"+utils.debug(Editor));
 		},1000);
@@ -199,11 +228,28 @@ loadAppCode("edit",function(data)
 	}
 
 	this.save = function(){
-		window.prompt("Presenation content",save.toConsole());
+		if(Editor.saveAid)
+			Editor.saveAid.show();
+		else
+			window.prompt("Presenation content",save.toConsole());
 	}
 	this.load = function(){
+		var pcnt = window.prompt("presentation content:");
 		factory.init('editor');
-		require(['../saved/test'],function(){});
+		pLOAD.proceed(pcnt);
+	}
+	this.toggleMobile = function(){
+		if(!Editor.dock.interfaces['main'].parts['mobile'].active)
+		{
+			Editor.dock.interfaces['main'].parts['mobile'].tween({left:"0%"},1);
+			Editor.dock.interfaces['main'].parts['mobile'].active = true;
+		}
+		else
+		{
+			Editor.dock.interfaces['main'].parts['mobile'].tween({left:"-100%"},1);
+			Editor.dock.interfaces['main'].parts['mobile'].active = false;
+		}
+		console.log("mobile toggled:"+Editor.dock.interfaces['main'].parts['mobile'].active);
 	}
 	this.onAddContainer = function(noEvent,descriptor){
 		var pos = {}
@@ -223,6 +269,16 @@ loadAppCode("edit",function(data)
 
 		if(noEvent == true)
 			return container;
+
+		if(userMessages)
+			userMessages.inform(
+			"To add elements to the screen, simply click anywhere and a round interface will appear:<br>\
+				to add a container press on <span class='glyphicon glyphicon-unchecked' style='color:white;'></span><br>\
+				to add text press on <span class='glyphicon glyphicon-font' style='color:white;'></span><br>\
+				to add an image press on <span class='glyphicon glyphicon-picture' style='color:white;'></span><br>\
+				to add a video press on <span class='glyphicon glyphicon-film' style='color:white;'></span><br>\
+				to add a website view press on <span class='glyphicon glyphicon-globe' style='color:white;'></span><br>\
+				");
 
 		Editor.sizer.show(container);
 		return container;

@@ -25,7 +25,7 @@
 */
 //include dependencies
 //requirejs(['TweenMax.min',"interact","app","camera","gem"]);
-requirejs(['TweenMax.min',"interact","app","productionCamera","gem","networking"]);
+requirejs(['TweenMax.min',"interact","app","camera","gem","networking"]);
 //
 this.containerData = {};
 containerData.containerIndex = 0;
@@ -671,16 +671,17 @@ this.container = function(properties)
 			GEM.fireEvent({event:"changePosition",target:this})
 	}
 
-	this.scale = function(amount,ox,oy)
+	this.scale = function(amount,ox,oy,delay)
 	{
 		if(!ox)
 			ox = 0.5;
 		if(!oy)
 			oy = 0.5;
-
+		if(delay == undefined)
+			delay = 0;
 		this.scaleX *= amount;
 		this.scaleY *= amount;
-		TweenMax.to(this.DOMreference,0,{
+		TweenMax.to(this.DOMreference,delay,{
 			scaleX:this.scaleX,
 			scaleY:this.scaleY,
 			transformOrigin:((ox*100)+"% "+(oy*100)+"%")

@@ -42,6 +42,7 @@ AppMgr.maxAppWorkers = 10;
 AppMgr.running_app_parent = 0;
 AppMgr.workers = {};
 AppMgr.loadedApps = {};
+AppMgr.appHosts = {};
 //only one app can be running at one time
 //apps can have backbround tasks running even though they are suspended
 //those processes will be stopped when the app is unloaded
@@ -59,6 +60,8 @@ AppCtl.ainit = function(app,params)
 
 	this.isApp = true;
 	this.app = new app(params);
+	AppMgr.appHosts[this.appName] = AppMgr.appHosts[this.appName] || {};
+	AppMgr.appHosts[this.appName][this.UID] = this;
 	//unique identifiers for workers
 	this.aworkers = 0;
 	//
@@ -84,18 +87,24 @@ AppCtl.ainit = function(app,params)
 		}
 		else
 		{
-			d = (this.getWidth()>this.getHeight())?this.getHeight():this.getWidth();
-			d *= 0.2
-			if( d < 20 )
-				d = 20;
-			if( d > 64 )
-				d = 64
-			this.exit = this.addChild({x:"0%",y:"0%",width:d,height:d,background:"red",border_radius:["15px"],permissions:_permissions})
+			var attach = this.parent;
+			var pos = this.getPos(0,0);
+			if(!attach)
+			{
+				attach = this;
+				pos.x = 0;
+				pos.y = 0;
+			}
+
+			d = 40;
+			this.exit = attach.addChild({x:"0%",y:"0%",width:d,height:d,background:"red",border_radius:["20px","20px",0,0],permissions:_permissions})
+			this.exit.putAt(pos.x,pos.y,0,1);
 		}
 		//
 		this.cover.DOMreference.name = "cover";
 		this.exit.DOMreference.name = "exit";
 		//configure for interaction
+		this.exit.theapp = this;
 		this.cover.extend(Interactive);
 		this.cover.interactive(true);
 
@@ -137,6 +146,9 @@ AppCtl.adestroy = function() // completely remove app from container
 	//stop all of the apps workers
 	this.stopWorker();
 
+	delete AppMgr.appHosts[this.appName][this.UID];
+	if( Object.keys(AppMgr.appHosts[this.appName]) == 0 ) //all apps instances destroyed, time to unload the app
+		delete AppMgr.loadedApps[this.appName];
 	//EVENT
 	if( this.events['appDestroyed'] || ( GEM.events['appDestroyed'] && GEM.events['appDestroyed']['_global'] ) )
 		GEM.fireEvent({event:"appDestroyed",target:this})
@@ -171,7 +183,17 @@ AppCtl.arun = function(ctx)
 
 	host.pauseInteraction(true);
 	host.cover.hide();
+
+	var attach = host.parent;
+	var pos = host.getPos(0,0);
+	if(!attach)
+	{
+		attach = host;
+		pos.x = 0;
+		pos.y = 0;
+	}
 	host.exit.show();
+	host.exit.putAt(pos.x,pos.y,0,1);
 	//app
 	host.app.run();
 	AppMgr.running_app_parent = host;
@@ -190,7 +212,7 @@ AppCtl.asuspend = function(ctx)
 	}
 	var host = this;
 	if(ctx)
-		host = ctx.parent;
+		host = ctx.theapp;
 
 	host.pauseInteraction(false);
 	host.cover.show();
@@ -247,7 +269,7 @@ AppCtl.requestWorker = function( worker, interval )
 
 AppCtl.stopWorker = function( id )
 {
-	console.log("this:"+this+" "+this.UID);
+	//console.log("this:"+this+" "+this.UID);
 	if( AppMgr.workers[this.UID] )
 	{
 		var len = AppMgr.workers[this.UID].length;

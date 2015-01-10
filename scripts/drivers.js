@@ -47,6 +47,17 @@ utils.merge = function(a,b,option){
 	}
 	return nw;
 }
+utils.clearHTML = function(markup)
+{
+	var node = markup.firstChild;
+	while(node)
+	{
+		console.log("Clearing:"+node);
+		var ns = node.nextSibling;
+		markup.removeChild(node);
+		node = ns;
+	}
+}
 utils.makeHTML = function(markup,parent)
 {
 	var child;
