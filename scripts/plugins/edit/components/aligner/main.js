@@ -165,7 +165,12 @@ loadAppCode("edit/components/aligner",function(data)
 
     GEM.addEventListener("addChild",0,onAddedChild,this);
     factory.root.addEventListener("triggered",hideLines);
-    //this.toggle(this.parent);
   }
+  this.shutdown = function()
+  {
+    console.log("edit/components/aligner - shutdown.");
 
+    GEM.removeEventListener("addChild",0,onAddedChild,this);
+    factory.root.removeEventListener("triggered",hideLines);
+  }
 });

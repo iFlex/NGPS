@@ -131,7 +131,7 @@ loadAppCode("edit/components/appChoice",function(data)
     var info = e.target.info;
     if(confirm("Are you sure you want to shut down "+info.name+"?"))
     {
-      factory.removeGlobalApp(info.name);
+      factory.removeGlobalApp(info.name,true);
       e.target.discard();
     }
   }
@@ -152,14 +152,19 @@ loadAppCode("edit/components/appChoice",function(data)
     }
   }
   var makeAppRecord = function(info,mp,onclick){
-    var record = mp.addChild({width:"50px",height:"75px",border_radius:["10px","10px",0,0],autopos:true,style:"display: inline-block;margin-right:20px"});
+    var record = mp.addChild({width:"100px",height:"125px",border_radius:["10px","10px",0,0],autopos:true,style:"display: inline-block;margin-right:20px"});
     record.extend(Interactive);
     record.interactive(true);
     record.info = info;
     record.addEventListener("triggered",onclick || loadTheApp);
 
+    var fs = record.getWidth()/info.name.length;
+    if(fs > 18)
+      fs = 18;
+    if(fs < 8)
+      fs = 8;
     record.addPrimitive({type:"img",content:{src:"scripts/plugins/"+info.name+"/resources/icon.png",width:"100%",height:"auto"}});
-    record.DOMreference.innerHTML += "<p style='margin-left:auto;margin-right:auto;margin-top:5px;text-align: center;'>"+info.name+"</p>";
+    record.DOMreference.innerHTML += "<p style='margin-left:auto;margin-right:auto;margin-top:5px;text-align: center;font-size:"+fs+"px'>"+info.name+"</p>";
     return record;
   }
   var ordinaryArrange = function(){

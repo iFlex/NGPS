@@ -316,8 +316,11 @@ this.container = function(properties)
 
 		if(this.parent)
 		{
-			this.parent.DOMreference.removeChild(this.DOMreference);
-			this.parent.removeChild( this.UID ); //remove from child reference of the parent
+			if(this.DOMreference)
+			{
+				this.parent.DOMreference.removeChild(this.DOMreference);
+				this.parent.removeChild( this.UID ); //remove from child reference of the parent
+			}
 		}
 		else
 		{

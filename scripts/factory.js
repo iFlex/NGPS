@@ -60,7 +60,7 @@ factory.init = function(mode,manualSetup) // editor init
 		factory.root.c_move(-s['width']/2,-s['height']/2);
 
 		factory.initialised = true;
-		require(["constructors/editor"],_init);
+		requirejs(["constructors/editor"],_init);
 	}
 	if( mode == "view" )
 	{
@@ -68,7 +68,7 @@ factory.init = function(mode,manualSetup) // editor init
 		factory.base = 0;
 		factory.root = 0;
 		factory.initialised = true;
-		require(["constructors/view"]);
+		requirejs(["constructors/view"]);
 	}
 
 	if(factory.AMS && factory.AMS.init)
@@ -173,14 +173,31 @@ factory.newGlobalApp = function ( app , passToApp )
 	return host;
 }
 
-factory.removeGlobalApp = function ( app )
+factory.removeGlobalApp = function ( app,unsafe )
 {
+	console.log("removing global app:"+app);
 	if( factory._glApps[app] )
 	{
 		for( a in factory._glApps[app] )
+		{
+			console.log("found instance of "+app+":"+utils.debug(factory._glApps[app][a]));
 			factory._glApps[app][a].discard();
+		}
 		delete factory._glApps[app];
 		return true;
+	}
+
+	if(unsafe)
+	{
+		if(AppMgr.loadedApps[app])
+		{
+			for( k in AppMgr.appHosts[app])
+			{
+				console.log("uFound instance of "+app+":"+utils.debug(AppMgr.appHosts[app][k]));
+				AppMgr.appHosts[app][k].discard();
+			}
+			return true;
+		}
 	}
 	return false;
 }
