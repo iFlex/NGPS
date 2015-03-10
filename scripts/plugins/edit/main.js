@@ -25,6 +25,43 @@ loadAppCode("edit",function(data)
 	this.onLoadedFile = 0;
 	//edit interface
 	this.EditUI = {};
+	//main interface exclusive access to system
+	var mainActiveUI = {
+		current:0,
+		previous:0,
+	};//storage for descriptor
+	Editor.mainActiveUI = {};
+	Editor.mainActiveUI.hide = function(){
+		if( mainActiveUI.current &&
+				mainActiveUI.current.hide )
+					mainActiveUI.current.hide.apply(mainActiveUI.current.context,mainActiveUI.current.passToHide);
+		mainActiveUI.current = {};
+
+		//activate previous
+		if( mainActiveUI.previous.activate )
+		{
+			mainActiveUI.previous.activate.apply(mainActiveUI.previous.context,mainActiveUI.previous.passToActivate);
+			mainActiveUI.current = mainActiveUI.previous;
+		}
+		mainActiveUI.previous = {};
+	}
+	Editor.mainActiveUI.activate = function( descriptor, _context, activate){
+		//save previous descriptor
+		if( mainActiveUI.current.activate )
+			mainActiveUI.previous = mainActiveUI.current;
+
+		//hide current UI
+		if( mainActiveUI.current &&
+				mainActiveUI.current.hide )
+					mainActiveUI.current.hide.apply(mainActiveUI.current.context,mainActiveUI.current.passToHide);
+
+		//save descriptor
+		mainActiveUI.current = descriptor;
+		mainActiveUI.current.context = _context;
+
+		if( activate && descriptor.activate )
+			descriptor.activate.apply( _context , descriptor.passToActivate );
+	}
 	//
 	var isMob = false;
 	console.log(this.parent.appPath+" - initialising...");
@@ -157,7 +194,7 @@ loadAppCode("edit",function(data)
 		Editor.dock.parent.setHeight(0);
 
 		//init interface
-		Editor.dock.interfaces['main']	= new Editor.dock.UI({parent:Editor.dock.parent,title:"NGPS - "+factory.presentation.name});
+		Editor.dock.interfaces['main']	= new Editor.dock.UI({parent:Editor.dock.parent,title:"2048 Challenge"});//"NGPS - "+factory.presentation.name});
 		if(platform.isMobile || factory.base.getWidth() < 450)
 		{
 			Editor.dock.interfaces['main'].addButton('glyphicon glyphicon-list',Editor.dock.toggleMobile)//,"#REG:EDIT_add:innerHTML");
@@ -179,7 +216,7 @@ loadAppCode("edit",function(data)
 
 
 		//Editor.dock.dockApp('link');
-		factory.newGlobalApp("edit/components/pchange");
+		//factory.newGlobalApp("edit/components/pchange");
 		factory.newGlobalApp("edit/components/text");
 		factory.newGlobalApp("edit/components/sizer");
 		factory.newGlobalApp("edit/components/addImage");
@@ -216,12 +253,12 @@ loadAppCode("edit",function(data)
 	{
 		if(!Editor.dock.clistatus)
 		{
-				cli.show();
+				//cli.show();
 				Editor.apps.show();
 		}
 		else
 		{
-			cli.hide();
+			//cli.hide();
 			Editor.apps.hide();
 		}
 		Editor.dock.clistatus = !Editor.dock.clistatus;

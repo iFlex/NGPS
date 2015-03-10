@@ -44,6 +44,7 @@ this.container = function(properties)
 	this.isLeaf = false;
 	this.isApp = false;
 	this.isLink = false;
+	this.isCamera = false;
 	this.child = 0; //not sure if used anywhere - save and load seem to have had something to do with it
 	this.children = {};
 	//connections
@@ -111,7 +112,7 @@ this.container = function(properties)
 		if(!this.DOMreference.style.position && !this.properties['autopos'])
 			this.DOMreference.style.position 	= 'absolute';
 
-		if(!this.DOMreference.style.overflow && this.properties['dynamic_size'] != true )
+		if(!this.DOMreference.style.overflow && this.properties['autosize'] != true )
 			this.DOMreference.style.overflow 	= "hidden";
 
 		if(this.properties['x'])
@@ -136,7 +137,9 @@ this.container = function(properties)
 
 		if(this.properties['left'])
 			this.DOMreference.style.left = this.properties['left'];
-
+		
+		if(this.properties['top'])
+			this.DOMreference.style.left = this.properties['top'];
 
 		if(this.properties['background']) //initial descriptor overrides cssText
 			this.DOMreference.style.background 	= this.properties['background'];

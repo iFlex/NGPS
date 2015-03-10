@@ -1,6 +1,7 @@
 this.Editor = this.Editor || {};
 
 loadAppCode("edit/components/quickAddInterface",function(data){
+  var context = this;
   this.config = {interface:"none"};
   this.parent = data['parent'];
   this.parent.permissions.save = false;
@@ -51,13 +52,13 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     }
   }
   function show( globalX, globalY , parent){
-
+    Editor.mainActiveUI.hide();
     if(parent && parent.permissions.quickAddInterface == false)
       return;
 
     console.log("Adding to container:"+utils.debug(parent)+" >> "+utils.debug(parent.permissions));
-    Editor.addInterface.hide();
 
+    Editor.mainActiveUI.activate({hide:context.hide});
     if(parent.UID < 3)
       parent = factory.root;
 
@@ -87,6 +88,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       ctx.interface[b] = cnt;
       index++;
     }
+
   }
   function makeButton(dsc,x,y){
     var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:["20%"],border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
@@ -118,15 +120,15 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   }
   //adders
   function _addContainer(noInterface,descriptor){ //causes cyclic references in save tree
-    Editor.addInterface.hide();
+    Editor.mainActiveUI.hide();
     var dparent = Editor.addInterface.origin;
     if(dparent.UID < 3)
       dparent = factory.base;
 
     var d = utils.merge({
     x:0,y:0,
-    width:dparent.getWidth()*0.5,
-    height:dparent.getWidth()*0.5,
+    width:dparent.getWidth()*0.2,
+    height:dparent.getWidth()*0.2,
     permissions:{track:true,connect:true,edit:true}},descriptor,true);
 
     var container = factory.newContainer(d,"c000000",Editor.addInterface.origin);
@@ -142,8 +144,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     _addContainer();
   }
   function addCamera(){
-    Editor.addInterface.hide();
-
+    Editor.mainActiveUI.hide();
     var dparent = Editor.addInterface.origin;
     if(dparent.UID < 3)
       dparent = factory.base;
@@ -176,7 +177,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   }
 
   function addVideo(){
-    Editor.addInterface.hide();
+    Editor.mainActiveUI.hide();
     console.log("Adding Video");
     if(Editor.addInterface.origin.UID < 3)
       Editor.addInterface.origin = factory.base;
@@ -184,7 +185,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       Editor.videos.show(Editor.addInterface.origin);
   }
   function addImage(){
-    Editor.addInterface.hide();
+    Editor.mainActiveUI.hide();
     console.log("Adding image");
     if(Editor.addInterface.origin.UID < 3)
       Editor.addInterface.origin = factory.base;
@@ -193,7 +194,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   }
   function addWebsite(){
     Editor.addInterface.x = 0;
-    Editor.addInterface.hide();
+    Editor.mainActiveUI.hide();
     console.log("Adding Website");
     var container = factory.newContainer({
     x:0,
@@ -209,7 +210,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     //container.addPrimitive({type:"iframe",content:{src:"http://www.gla.ac.uk",width:"100%",height:"100%"}});
   }
   function connect(){
-    Editor.addInterface.hide();
+    Editor.mainActiveUI.hide();
     connectActive = true;
     Editor.addInterface.overrideEdit = true;
     Editor.link.trigger(Editor.addInterface.event);

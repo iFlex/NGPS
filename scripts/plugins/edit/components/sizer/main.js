@@ -15,7 +15,6 @@ loadAppCode("edit/components/sizer",function(data)
   var sizeCoef = 0.75;
   var mountPoint = factory.root;
   Editor.sizer = this;
-
   this.configure = function(data){
       for(k in Editor.sizer.EditUI)
       {
@@ -64,31 +63,38 @@ loadAppCode("edit/components/sizer",function(data)
 
   this._show = function(data)
   {
-    if(Editor.configureContainer)
-      Editor.configureContainer.hide();
-
+    console.log("Sizer:_show()");
     //show add interface rather than edit
     if( (Editor.sizer.target && Editor.sizer.target.UID == data['target'].UID) || ( Editor.addInterface && Editor.addInterface.overrideEdit == true) )
     {
+      console.log("About to override sizer."+Editor.addInterface);
       if(Editor.addInterface)
       {
+        console.log("Overriden!");
+        Editor.mainActiveUI.hide();
         Editor.addInterface.onClick(data);
-        Editor.sizer.hide();
         return;
       }
     }
+    console.log("No override!");
+    Editor.mainActiveUI.activate({
+      activate:Editor.sizer.show,
+      passToActivate:[data['target']],
+      hide:Editor.sizer.hide
+    },Editor.sizer,true);
 
-    Editor.sizer.show(data['target']);
-    if(Editor.addInterface)
-      Editor.addInterface.hide();
+    //if(Editor.addInterface)
+      //Editor.addInterface.hide();
   }
 
   this.show = function(target)
   {
-    if(!target.permissions.edit)
+    console.log("sizer:Showing... target:");
+    console.log(target);
+    if(!target || !target.permissions.edit)
       return;
 
-    Editor.sizer.hide();
+    Editor.mainActiveUI.hide();
     Editor.sizer.target = target;
     console.log("Showing interface for:"+utils.debug(target)+" prefered interface:"+target.editInterface);
     //debug
@@ -110,6 +116,12 @@ loadAppCode("edit/components/sizer",function(data)
     //target.addEventListener("changeAngle",this.focus);
     //shot interface
     this.focus();
+
+    Editor.mainActiveUI.activate({
+      activate:Editor.sizer.show,
+      passToActivate:[data['target']],
+      hide:Editor.sizer.hide
+    },Editor.sizer,false);
   }
 
   this.hide = function()

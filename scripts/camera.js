@@ -696,10 +696,10 @@ Camera.cfocusOn = function(target,options)
 	console.log("Camera focusing on:"+target+" "+target.UID);
 	if(!this.callow)
 		return;
-
+	var speed = options.speed || 1;
 	var tpos = target.local2global(0.5,0.5,this.display.UID);
 	console.log("tx:"+tpos.x+" ty:"+tpos.y)
-	this.cXYmove(tpos.x,tpos.y,0.5,0.5,1);
+	this.cXYmove(tpos.x,tpos.y,0.5,0.5,speed);
 	//calculate zoom difference
 	//this.czoom(level,ox,oy);
 	//calculate rotation difference

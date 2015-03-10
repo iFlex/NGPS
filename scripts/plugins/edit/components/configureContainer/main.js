@@ -117,6 +117,8 @@ loadAppCode("edit/components/configureContainer",function(data)
   }
   this.show = function(){
     root.tween({left:0},1);
+    Editor.mainActiveUI.hide();
+    Editor.mainActiveUI.activate({hide:Editor.configureContainer.hide});
   }
   this.hide = function(){
     root.tween({left:-root.getWidth()+"px"},1)
