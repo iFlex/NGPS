@@ -52,7 +52,6 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     }
   }
   function show( globalX, globalY , parent){
-    Editor.mainActiveUI.hide();
     if(parent && parent.permissions.quickAddInterface == false)
       return;
 
@@ -91,9 +90,10 @@ loadAppCode("edit/components/quickAddInterface",function(data){
 
   }
   function makeButton(dsc,x,y){
-    var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:["20%"],border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
+    var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:[interfaceSize/2+"px"],border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
     var cnt = factory.newContainer(descriptor,"simple_rect",factory.root);
-    cnt.DOMreference.innerHTML = "<center><span class='"+dsc.icon+"' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>";
+    cnt.DOMreference.innerHTML = "<center><span class='"+dsc.icon+"' style='font-size:"+interfaceSize*sizeCoef+"px'></span><i style='font-size:10px'>"//+dsc.name
+    +"</i></center>";
     for( e in dsc.callbacks)
       cnt[e] = dsc.callbacks[e];
 
@@ -215,11 +215,20 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     Editor.addInterface.overrideEdit = true;
     Editor.link.trigger(Editor.addInterface.event);
   }
+  function addCGI(e){
+    Editor.mainActiveUI.hide();
+    var dparent = Editor.addInterface.origin;
+    if(dparent.UID < 3)
+      dparent = factory.base;
+    var pos = dparent.getPos(0.5,0.5);
+    if(_CGI)
+      _CGI.create(pos.x,pos.y);
+  }
   var closeButton = {
     name:"close",
     description:"Close interface",
-    icon:"glyphicon glyphicon-remove-circle",
-    callbacks:{onTrigger:Editor.addInterface.hide}
+    icon:"glyphicon glyphicon-remove",
+    callbacks:{onTrigger:Editor.mainActiveUI.hide}
   }
 
   var buttons = [{
@@ -257,5 +266,10 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     description:"Add a new container",
     icon:"glyphicon glyphicon-camera",
     callbacks:{onTrigger:addCamera}
+  },{
+    name:"CGI",
+    description:"Add an effect",
+    icon:"glyphicon glyphicon-star",
+    callbacks:{onTrigger:addCGI}
   }];
 });

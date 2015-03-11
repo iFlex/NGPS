@@ -31,7 +31,7 @@ loadAppCode("edit/components/sizer",function(data)
           Editor.sizer.EditUI[k] = {descriptor:data[k]};
       }
 
-      var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:["20%"],border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
+      var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",opacity:0.75,border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
       for( B in Editor.sizer.EditUI )
       {
         var cnt = factory.newContainer(descriptor,"simple_rect",mountPoint);
@@ -63,38 +63,31 @@ loadAppCode("edit/components/sizer",function(data)
 
   this._show = function(data)
   {
-    console.log("Sizer:_show()");
+    console.log("_show");
+    console.log(data);
     //show add interface rather than edit
     if( (Editor.sizer.target && Editor.sizer.target.UID == data['target'].UID) || ( Editor.addInterface && Editor.addInterface.overrideEdit == true) )
     {
-      console.log("About to override sizer."+Editor.addInterface);
       if(Editor.addInterface)
       {
-        console.log("Overriden!");
-        Editor.mainActiveUI.hide();
         Editor.addInterface.onClick(data);
         return;
       }
     }
-    console.log("No override!");
-    Editor.mainActiveUI.activate({
-      activate:Editor.sizer.show,
-      passToActivate:[data['target']],
-      hide:Editor.sizer.hide
-    },Editor.sizer,true);
-
-    //if(Editor.addInterface)
-      //Editor.addInterface.hide();
+    Editor.sizer.show(data['target']);
   }
 
   this.show = function(target)
   {
-    console.log("sizer:Showing... target:");
+    console.log("SHOW");
     console.log(target);
     if(!target || !target.permissions.edit)
       return;
-
-    Editor.mainActiveUI.hide();
+    Editor.mainActiveUI.activate({
+      activate:Editor.sizer.show,
+      passToActivate:target,
+      hide:Editor.sizer.hide
+    },Editor.sizer,false);
     Editor.sizer.target = target;
     console.log("Showing interface for:"+utils.debug(target)+" prefered interface:"+target.editInterface);
     //debug
@@ -112,26 +105,23 @@ loadAppCode("edit/components/sizer",function(data)
     //add event listeners
     target.addEventListener("changeWidth",Editor.sizer.focus);
     target.addEventListener("changeHeight",Editor.sizer.focus);
-    target.addEventListener("changePosition",Editor.sizer.focus);
+    target.addEventListener("mouseUp",Editor.sizer.focus);
+    target.addEventListener("changePosition",Editor.sizer.move);
     //target.addEventListener("changeAngle",this.focus);
     //shot interface
     this.focus();
-
-    Editor.mainActiveUI.activate({
-      activate:Editor.sizer.show,
-      passToActivate:[data['target']],
-      hide:Editor.sizer.hide
-    },Editor.sizer,false);
   }
 
   this.hide = function()
   {
+    console.log("sizer:hide()");
     if(Editor.sizer.target)
     {
       //remove event listeners
       Editor.sizer.target.removeEventListener("changeWidth",Editor.sizer.focus);
       Editor.sizer.target.removeEventListener("changeHeight",Editor.sizer.focus);
-      Editor.sizer.target.removeEventListener("changePosition",Editor.sizer.focus);
+      Editor.sizer.target.removeEventListener("mouseUp",Editor.sizer.focus);
+      Editor.sizer.target.removeEventListener("changePosition",Editor.sizer.move);
       //Editor.sizer.target.removeEventListener("changeAngle",Editor.sizer.focus);
       //hide interface
       for( k in Editor.sizer.EditUI )
@@ -144,10 +134,19 @@ loadAppCode("edit/components/sizer",function(data)
     Editor.sizer.target = 0;
   }
 
+  focusState = 0;
+  this.move = function(e){
+    if(focusState == 1) {
+      for( k in Editor.sizer.EditUI )
+        Editor.sizer.EditUI[k].object.hide();
+        focusState = 2;
+    }
+  }
   //TODO: Not working properly for nested object
   this.focus = function(e){
       if(Editor.sizer.target)
       {
+        focusState = 1;
         var target =  Editor.sizer.target;
         for(k in Editor.sizer.EditUI)
         {
