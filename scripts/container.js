@@ -29,22 +29,24 @@ requirejs(['TweenMax.min',"interact","app","camera","gem","networking"]);
 //
 this.containerData = {};
 containerData.containerIndex = 0;
-this.container = function(properties)
+this.container = function(_properties)
 {
 	this.UID = 0;
 	this.DOMreference = 0;
 	this.parent = 0;
 	this.discarded = false;
-	//display properties
-	this.angle = 0;
-	this.scaleX = 1;
-	this.scaleY = 1;
-	this.properties = properties || {};
+	this.permissions = {save:true,connect:false,edit:false,children:true}//connect:true};//savable, connectable, extend in future
 	//content properties
 	this.isLeaf = false;
 	this.isApp = false;
 	this.isLink = false;
 	this.isCamera = false;
+	//display properties
+	this.angle = 0;
+	this.scaleX = 1;
+	this.scaleY = 1;
+	this.properties = utils.merge({},_properties,true);
+
 	this.child = 0; //not sure if used anywhere - save and load seem to have had something to do with it
 	this.children = {};
 	//connections
@@ -56,25 +58,23 @@ this.container = function(properties)
 	this.onMoved = 0; //this overrides the default container move function ( for camera use )
 	this.onMouseDown = 0;
 	this.onMouseUp  = 0;
-	//FLAGS
-	this.permissions = {save:true,connect:false,edit:false,children:true}//connect:true};//savable, connectable, extend in future
 	//DOM manipulation
 	//TODO: Add possibility to  style with CSS
+	//inherit permissions
+	if(_properties['permissions'])
+		this.permissions = utils.merge(this.permissions,_properties['permissions'],true);
+	//properties['permissions'] = this.permissions;
+
+	if(_properties['isLink'])
+		this.isLink = true;
+
+	if(_properties['isCamera'])
+		this.isCamera = true;
+
 	this.load = function(parent)
 	{
 		if(this.parent)
 			return false;
-
-		//inherit permissions
-		if(properties['permissions'])
-			this.permissions = utils.merge(this.permissions,properties['permissions'],true);
-		properties['permissions'] = this.permissions;
-
-		if(properties['isLink'])
-			this.isLink = true;
-
-		if(properties['isCamera'])
-			this.isCamera = true;
 
 		this.UID = containerData.containerIndex++;
 		var DOMtype = "div";
@@ -137,7 +137,7 @@ this.container = function(properties)
 
 		if(this.properties['left'])
 			this.DOMreference.style.left = this.properties['left'];
-		
+
 		if(this.properties['top'])
 			this.DOMreference.style.left = this.properties['top'];
 
@@ -274,10 +274,11 @@ this.container = function(properties)
 		if(this.permissions.children == false)
 			return;
 		//inherit permissions
-		if(!properties['permissions'])
-			properties['permissions'] = this.permissions;
+		var props = utils.merge({},utils.merge(properties,{permissions:this.permissions},false),true);
+		//if(!properties['permissions'])
+			//properties['permissions'] = this.permissions;
 
-		this.children[ containerData.containerIndex ] = new container( properties );
+		this.children[ containerData.containerIndex ] = new container( props );
 		var reff = this.children[ containerData.containerIndex ]
 		reff.load( this );
 

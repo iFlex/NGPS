@@ -53,7 +53,7 @@ loadAppCode("edit/components/addImage",function(data)
   {
     if(!primitiveCTL)
     {
-      var container = Editor.dock.onAddContainer();//mountPoint || Editor.dock.onAddContainer();
+      var container = Editor.addInterface.newContainer();//mountPoint || Editor.dock.onAddContainer();
       primitiveCTL = container.addPrimitive({type:"img",adapt_container:true,content:{src:link}},function(){resizeToFit(container)});
     }
     else
@@ -65,7 +65,7 @@ loadAppCode("edit/components/addImage",function(data)
 
   var addFromFile = function(e)
   {
-    var container = Editor.dock.onAddContainer();//mountPoint || Editor.dock.onAddContainer();
+    var container = Editor.addInterface.newContainer();//mountPoint || Editor.dock.onAddContainer();
     var img = container.addPrimitive({type:"img",adapt_container:true,content:{src:e.target.result}},function(){resizeToFit(container)});
     //Editor.images.hide();
   }
@@ -124,7 +124,7 @@ loadAppCode("edit/components/addImage",function(data)
       _target = 0;
     }
 
-    this.hide();
+    Editor.mainActiveUI.activate({hide:Editor.images.hide});
     Editor.images.container = factory.newContainer({width:"100%",height:"65px",background:"black",permissions:{save:false,connect:false}},"none",target);
     if(!sp)
       sp = (target.getHeight() - Editor.images.container.getHeight())/2;

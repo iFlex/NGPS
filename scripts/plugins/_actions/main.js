@@ -67,21 +67,55 @@ loadAppCode("_actions",function(data)
     return id;
   }
 
-  function processActionDescriptor(node,sl){
+  this.processActionDescriptor = function(node,sl){
+    var epl = node.actions.triggers;
+    for( a in epl){
+      for( i in epl[a]) {
+        ep = epl[a][i];
+        ep["target"] = getObjectFromID(ep.target,node);
+        for( g in ep.params )
+          for( p in ep.params[g] )
+            ep.params[g][p] = getObjectFromID( ep.params[g][p] , node);
+
+          if(sl){
+          node.addEventListener(a,function(e){
+          var act = e.target.actions[e.event];
+          var targ = act.target;
+          if( targ[act.handler] ) {
+            if(act.params.initial)
+              targ.DOMreference.style.cssText = act.params.initial;
+              targ[act.handler].apply(targ,act.params);
+          }
+          else
+            console.log("Actions: ERROR, handler"+act.handler+" does not exist on object:"+utils.debug(targ));
+         })
+         console.log("Actions: added "+a+" to "+utils.debug(node)+" target:"+utils.debug(act.target));
+       }
+     }
+   }
+  }
+
+  function processActionDescriptorNew(node,sl){
     for( a in node.actions){
       var act = node.actions[a];
       act["_target"] = getObjectFromID(act.target,node);
       act["_parameters"] = [];
-      for( p in act.parameters )
-        act["_parameters"][p] = getObjectFromID( act.parameters[p] , node);
-
+      if(act.parameters) {
+        act["_init"] = act.parameters.initial;
+        act["_fin"] = act.parameters.final;
+        for( p in act.parameters.pass )
+          act["_parameters"][p] = getObjectFromID( act.parameters[p] , node);
+      }
       console.log("Created act:"+utils.debug(act," ",true)+" will add events:"+sl);
       if(sl){
         node.addEventListener(a,function(e){
           var act = e.target.actions[e.event];
           var targ = act._target;
-          if( targ[act.handler] )
+          if( targ[act.handler] ) {
+            if(targ._init)
+              targ.DOMreference.style.cssText = targ._init;
             targ[act.handler].apply(targ,act._parameters);
+          }
           else
             console.log("Actions: ERROR, handler"+act.handler+" does not exist on object:"+utils.debug(targ));
         })

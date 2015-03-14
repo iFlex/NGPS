@@ -1,0 +1,29 @@
+{
+  subject:<UID of event subject>, (on what object the events will be recorded)
+  trigmode:<how listens for the events>,
+  triggers:{
+    event:[
+    {
+      target:<who the actions is applied to>,
+      name:<name of animation, for easy lookup>,
+      handler:"name of member function",
+      isMember:<boolean, is the handler a member of the target, if not then eval() will be used>,
+      params:{
+        initial:<the initial state of the target - optional>,
+        final:<the final state of the target - oltional>,
+        pass:[]//any other user defined params go here
+      } - initial parameters to pass to the handler
+    },{
+      target:,
+      a:{}
+    }],
+    event:[{},{}],
+  }
+}
+
+
+actions: {
+  event:{
+
+  }
+}

@@ -52,6 +52,7 @@ loadAppCode("edit/components/text",function(data)
 			vertical-align: middle;\
 			margin-top:auto;\
 			margin-bottom:auto;\
+			text-shadow: 0 0 9px rgba(255,255,255,1.0);\
 		}\
 		.bold{\
 			font-weight: bold;\
@@ -61,7 +62,7 @@ loadAppCode("edit/components/text",function(data)
 		}");
 
 		//include app
-		keyboard.editor = factory.newContainer({x:100,y:100,width:"auto",height:"48px",border_size:1,border_radius:["10px","10px",0,0],background:"rgba(255,255,255,0.75)",permissions:{save:false,connect:false}},"simple_rect",factory.base);
+		keyboard.editor = factory.newContainer({x:100,y:100,width:"auto",height:"32px",border_size:0,border_radius:["10px"],background:"rgba(255,255,255,0.25)",permissions:{save:false,connect:false},style:"box-shadow: 0 0 9px rgba(0,0,0,0.7);"},"simple_rect",factory.base);
 		keyboard.editor.DOMreference.style.overflow = 'visible';
 		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface",this.parent.appPath+"jquery.elastic.source"],function(){
 			keyboard.buildTextInterface(keyboard.editor.DOMreference);

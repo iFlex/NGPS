@@ -12,7 +12,7 @@ loadAppCode("edit/components/pchange",function(data)
   this.active = true;
 
   var interfaces = [];
-  var interfSize = 32;
+  var interfSize = 23;
   var target = 0;
   Editor.track = this;
   //debug:

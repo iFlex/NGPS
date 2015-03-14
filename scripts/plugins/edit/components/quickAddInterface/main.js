@@ -1,25 +1,22 @@
 this.Editor = this.Editor || {};
 
 loadAppCode("edit/components/quickAddInterface",function(data){
-  var context = this;
+  Editor.addInterface = this;
   this.config = {interface:"none"};
   this.parent = data['parent'];
   this.parent.permissions.save = false;
   this.parent.permissions.connect = false;
-
+  this.overrideEdit = false;
   this.interface = {};
+  this.active = true;
   this.x = 0;
   this.y = 0;
 
+  var buttons;
   var interfaceSize = 32;
   var sizeCoef = 0.75;
   var radius = 48;
   var connectActive = false;
-  this.overrideEdit = false;
-
-  Editor.addInterface = this;
-  this.active = true;
-
   this.onClick = function(e){
     if(!Editor.addInterface.active)
       return;
@@ -39,17 +36,16 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     }
   }
   this.hide = function(){
-    for( k in Editor.addInterface.interface)
-    {
-      Editor.addInterface.interface[k].discard();
-      delete Editor.addInterface.interface[k];
+    for( k in Editor.addInterface.interface){
+      Editor.addInterface.interface[k].hide();
+      Editor.addInterface.interface[k].DOMreference.className = "";
     }
-    Editor.addInterface.interface = {}
-    if(closeButton.button)
-    {
-      closeButton.button.discard();
-      closeButton.button = 0;
+
+    if(closeButton.button){
+      closeButton.button.hide();
+      closeButton.button.DOMreference.className = "";
     }
+    Editor.addInterface.setInterface(0);
   }
   function show( globalX, globalY , parent){
     if(parent && parent.permissions.quickAddInterface == false)
@@ -57,7 +53,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
 
     console.log("Adding to container:"+utils.debug(parent)+" >> "+utils.debug(parent.permissions));
 
-    Editor.mainActiveUI.activate({hide:context.hide});
+    Editor.mainActiveUI.activate({hide:Editor.addInterface.hide});
     if(parent.UID < 3)
       parent = factory.root;
 
@@ -71,10 +67,15 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     var maxPerRadius = Math.floor(2*Math.PI*r/interfaceSize);
     var index = 0;
     var nrc = ( buttons.length < maxPerRadius ) ? buttons.length : maxPerRadius;
+    if( nrc < 6)
+      nrc = 10;
     var angle = (360 / nrc )*Math.PI/180;
 
-    closeButton.button = makeButton(closeButton,pos.x,pos.y);
+    closeButton.button.show();
+    closeButton.button.putAt(pos.x,pos.y,0.5,0.5);
+    closeButton.button.DOMreference.className = "sizeTrans";
     for( b in buttons ){
+      Editor.addInterface.interface[b].show();
       if( index > maxPerRadius )
       {
         r += interfaceSize;
@@ -82,9 +83,8 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         index = 0;
         angle = (360 / maxPerRadius )*Math.PI/180;
       }
-
-      var cnt = makeButton(buttons[b],pos.x + Math.cos(-angle*index)*r,pos.y + Math.sin(-angle*index)*r);
-      ctx.interface[b] = cnt;
+      Editor.addInterface.interface[b].putAt(pos.x + Math.cos(-angle*index)*r,pos.y + Math.sin(-angle*index)*r,0.5,0.5);
+      Editor.addInterface.interface[b].DOMreference.className = "sizeTrans";
       index++;
     }
 
@@ -100,15 +100,37 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     cnt.putAt(x,y,0.5,0.5);
     return cnt;
   }
+  function discardInterface(){
+    if(closeButton.button && closeButton.button.discard)
+    {
+      closeButton.button.discard();
+      for( b in buttons )
+        Editor.addInterface.interface[b].discard();
+    }
+  }
+  this.setInterface = function(interfaceNo){
+    discardInterface();
+
+    if(!interfaceNo)
+      interfaceNo = 0;
+    buttons = button_store[interfaceNo];
+    closeButton.button = makeButton(closeButton,0,0);
+    for( b in buttons ){
+      var cnt = makeButton(buttons[b],0,0);
+      Editor.addInterface.interface[b] = cnt;
+    }
+  }
   this.init = function(){
     console.log(this.parent.appPath+" - initialising...");
     //GEM.addEventListener("triggered",0,clickHandler,this);
     factory.root.addEventListener("triggered",Editor.addInterface.onClick);
+    this.setInterface();
   }
   this.shutdown = function(){
     console.log(this.parent.appPath+" - shutdown...");
     //GEM.removeEventListener("triggered",0,clickHandler,this);
     factory.root.removeEventListener("triggered",Editor.addInterface.onClick);
+    discardInterface();
   }
   //apps can attach buttons to this interface
   //TODO: function should require the app's name and listen for the app's shutdown event, when that happens the buttons whould be deleted from the interface
@@ -122,7 +144,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   function _addContainer(noInterface,descriptor){ //causes cyclic references in save tree
     Editor.mainActiveUI.hide();
     var dparent = Editor.addInterface.origin;
-    if(dparent.UID < 3)
+    if(dparent.UID < 3 && factory.root.display.UID != dparent.UID)
       dparent = factory.base;
 
     var d = utils.merge({
@@ -140,6 +162,10 @@ loadAppCode("edit/components/quickAddInterface",function(data){
 
     return container;
   }
+  this.newContainer = function(where){
+    return _addContainer(true);
+  }
+  //event listeners
   function addContainer(){
     _addContainer();
   }
@@ -165,7 +191,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         Editor.sizer.show(container);
     }
   function addText(){
-    var container = _addContainer(true,{type:"textarea",height:64,width:64,ignoreTheme:true,background:"rgba(255,255,255,0.5)"});
+    var container = _addContainer(true,{type:"textarea",height:32,width:64,ignoreTheme:true,background:"transparent"});
     //container.permissions.children = false;
     //container.permissions.quickAddInterface = false;
     console.log("New text field:"+utils.debug(container));
@@ -222,7 +248,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       dparent = factory.base;
     var pos = dparent.getPos(0.5,0.5);
     if(_CGI)
-      _CGI.create(pos.x,pos.y);
+      _CGI.create(dparent,pos.x,pos.y);
   }
   var closeButton = {
     name:"close",
@@ -231,7 +257,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     callbacks:{onTrigger:Editor.mainActiveUI.hide}
   }
 
-  var buttons = [{
+  var button_store = [[{
     name:"container",
     description:"Add a new container",
     icon:"glyphicon glyphicon-unchecked",
@@ -271,5 +297,31 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     description:"Add an effect",
     icon:"glyphicon glyphicon-star",
     callbacks:{onTrigger:addCGI}
-  }];
+  }],[{
+    name:"ch_shape",
+    description:"Change the shape of the container",
+    icon:"glyphicon glyphicon-stop",
+    callbacks:{onTrigger:function(){
+      Editor.configureContainer.show(0);
+      factory.root.cfocusOn(Editor.sizer.target,{speed:1});}}
+  },{
+    name:"ch_border",
+    description:"Change the border style of the container",
+    icon:"glyphicon glyphicon-unchecked",
+    callbacks:{onTrigger:function(){
+      Editor.configureContainer.show(1);
+      factory.root.cfocusOn(Editor.sizer.target,{speed:1});}}
+  },{
+    name:"ch_colors",
+    description:"Change the color of the container",
+    icon:"glyphicon glyphicon-pencil",
+    callbacks:{onTrigger:function(){
+      Editor.configureContainer.show(2);
+      factory.root.cfocusOn(Editor.sizer.target,{speed:1});}}
+  },{
+    name:"CGI",
+    description:"Add an effect",
+    icon:"glyphicon glyphicon-star",
+    callbacks:{onTrigger:addCGI}
+  }]];
 });

@@ -113,7 +113,7 @@ keyboard.interface.init = function(){
 		return spacing;
 	}
 
-	var froot = document.getElementById("_InterfT_font");
+	/*var froot = document.getElementById("_InterfT_font");
 	for( f in keyboard.interface.fonts){
 		var s = document.createElement("option");
 		s.value = keyboard.interface.fonts[f];
@@ -123,7 +123,7 @@ keyboard.interface.init = function(){
 
 		froot.appendChild(s);
 	}
-
+*/
 	for(i in keyboard.interface.palette)
 	{
 		if(!i || i%perWidth == 0)

@@ -114,7 +114,7 @@ save._unit = function(node,operation_mode)
 			save.requiredApps[node.appName] = []; //store nodes that need the app here
 		save.requiredApps[node.appName].push(node.UID);
 		console.log("Rapps:"+utils.debug(save.requiredApps));
-		st[node.UID].appData = node.app._save;
+		st[node.UID].appData = node.app._store;
 	}
 	//now look for camera
 	if(node.isCamera)

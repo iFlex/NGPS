@@ -11,7 +11,7 @@ loadAppCode("edit/components/sizer",function(data)
   this.target = 0;
   var currentInterface = 0;
   var defaultInterface = "basic";
-  var interfaceSize = 32;
+  var interfaceSize = 23;
   var sizeCoef = 0.75;
   var mountPoint = factory.root;
   Editor.sizer = this;
@@ -295,8 +295,10 @@ loadAppCode("edit/components/sizer",function(data)
         callbacks:{onMoved:function(){},onTrigger:function(){
           if(Editor.configureContainer){
             Editor.configureContainer.setTarget(Editor.sizer.target);
-            Editor.configureContainer.show();
-            factory.root.cfocusOn(Editor.sizer.target);
+            Editor.addInterface.setInterface(1);
+            var pos = Editor.sizer.target.local2global(0.5,0.5,0);
+            console.log(pos);
+            Editor.addInterface.onClick({nativeEvent:{pageX:pos.x,pageY:pos.y},target:Editor.sizer.target});
           }
           Editor.sizer.hide();}},
         tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-wrench' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>"

@@ -67,9 +67,10 @@ loadAppCode("edit",function(data)
 	this.UI = function(info){
 		this.parent = info['parent'];
 		this.parts = {};
-		this.parts['root'] = factory.base.addChild({width:"100%",height:"32px",x:"0px",y:"0px",background:"rgba(0,0,0,0.05)",style:"z-index:100;padding-left:5px;padding-top:3px"});
+		this.parts['root']  = factory.base.addChild({width:"100%",height:"32px",x:"0px",y:"0px",background:"rgba(0,0,0,0.05)",style:"z-index:100;padding-left:5px;padding-top:3px"});
 		this.parts['title'] = this.parts['root'].addChild({style:"display:inline-block;"});
 		this.parts['interfaceRight'] = this.parts['root'].addChild({style:"position:relative;display:table;float:right;height:100%;width:auto"});
+		Editor.headerHeight = this.parts['root'].getHeight();
 
 		if( info['title'].indexOf("#REG:") > -1 )
 			this.parts['title'].DOMreference.value = info['title'];
@@ -129,14 +130,8 @@ loadAppCode("edit",function(data)
 
 			var span = 0;
 			if(typeof(element) == "string")
-			{
 				span = document.createElement(element);
-				span.style = style;
 
-				if(events)
-					for(k in events)
-						span[k] = events[k];
-			}
 			a.appendChild(span);
 			if(isMob)
 				this.parts['mobile'].DOMreference.appendChild(a);
@@ -212,16 +207,6 @@ loadAppCode("edit",function(data)
 		setTimeout(function(){
 			console.log("Editor Components:"+utils.debug(Editor));
 		},1000);
-
-		Editor.dock.interfaces['main'].addCustom("div");
-		Editor.dock.interfaces['main'].addCustom("div");
-		Editor.dock.interfaces['main'].addCustom("div");
-		Editor.dock.interfaces['main'].addCustom("div");
-		Editor.dock.interfaces['main'].addCustom("div");
-		Editor.dock.interfaces['main'].addCustom("div");
-		Editor.dock.interfaces['main'].addCustom("div");
-		Editor.dock.interfaces['main'].addCustom("div");
-		Editor.dock.interfaces['main'].addCustom("div");
 	}
 	this.init = function() //called only one when bound with container
 	{
