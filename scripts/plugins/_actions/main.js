@@ -38,9 +38,9 @@ loadAppCode("_actions",function(data)
 
   function getById(id,node){
       //assume that if in present mode the containers are loaded via LOAD module
-      console.log("MODE:"+mode+" id:"+id+" reff:"+LOADreferences[id]);
       if( mode == 'present' && LOADreferences[id])
       {
+        console.log("MODE:"+mode+" id:"+id+" reff:"+LOADreferences[id]);
         console.log("found reff to:"+id);
         return LOADreferences[id];
       }
@@ -48,93 +48,99 @@ loadAppCode("_actions",function(data)
       if(!node)
         node = factory.base;
 
+      console.log("Recursive BFS.("+node.UID+") ~ "+id);
       if( node.UID == id )
         return node;
 
-      for( c in node.children )
-        getById(id,node.children[c]);
+      var n = undefined;
+      for( c in node.children ) {
+        n = getById(id,node.children[c]);
+        if(n)
+          return n;
+      }
+      return n;
   }
 
   function getObjectFromID(id,self){
     if( typeof(id) == "string" )
     {
-      if( id == "self" )
+      if( id == "#self" )
         return self;
-      var pos = id.search("#UID:");
+      var pos = id.search("#:");
       if( pos == 0 )
-        return getById(id.substr(pos+5,id.length));
+        return getById(id.substr(pos+2,id.length));
     }
     return id;
   }
+  this.forceTrigger = function(node, _event){
+    if(!node.actions || !node.actions.triggers)
+      return;
+    if(!_event){
+      for( ev in node.actions.triggers)
+        exec(ev);
+    }
+    else
+      exec(_event);
 
-  this.processActionDescriptor = function(node,sl){
-    var epl = node.actions.triggers;
-    for( a in epl){
-      for( i in epl[a]) {
-        ep = epl[a][i];
-        ep["target"] = getObjectFromID(ep.target,node);
-        for( g in ep.params )
-          for( p in ep.params[g] )
-            ep.params[g][p] = getObjectFromID( ep.params[g][p] , node);
-
-          if(sl){
-          node.addEventListener(a,function(e){
-          var act = e.target.actions[e.event];
-          var targ = act.target;
-          if( targ[act.handler] ) {
-            if(act.params.initial)
-              targ.DOMreference.style.cssText = act.params.initial;
-              targ[act.handler].apply(targ,act.params);
-          }
-          else
-            console.log("Actions: ERROR, handler"+act.handler+" does not exist on object:"+utils.debug(targ));
-         })
-         console.log("Actions: added "+a+" to "+utils.debug(node)+" target:"+utils.debug(act.target));
-       }
-     }
-   }
-  }
-
-  function processActionDescriptorNew(node,sl){
-    for( a in node.actions){
-      var act = node.actions[a];
-      act["_target"] = getObjectFromID(act.target,node);
-      act["_parameters"] = [];
-      if(act.parameters) {
-        act["_init"] = act.parameters.initial;
-        act["_fin"] = act.parameters.final;
-        for( p in act.parameters.pass )
-          act["_parameters"][p] = getObjectFromID( act.parameters[p] , node);
-      }
-      console.log("Created act:"+utils.debug(act," ",true)+" will add events:"+sl);
-      if(sl){
-        node.addEventListener(a,function(e){
-          var act = e.target.actions[e.event];
-          var targ = act._target;
-          if( targ[act.handler] ) {
-            if(targ._init)
-              targ.DOMreference.style.cssText = targ._init;
-            targ[act.handler].apply(targ,act._parameters);
-          }
-          else
-            console.log("Actions: ERROR, handler"+act.handler+" does not exist on object:"+utils.debug(targ));
-        })
-        console.log("Actions: added "+a+" to "+utils.debug(node)+" target:"+utils.debug(act._target));
+    function exec(event){
+      var act = node.actions.triggers[event];
+      var a,t;
+      for( i in act){
+        a = act[i];
+        t = a.target;
+        if(!t[a.handler] && a.isMember)
+          t = factory.root;
+        console.log("Force trigger target:"+t.UID);
+        if( t[a.handler] ) {
+          if(a.params.initial)
+            t.DOMreference.style.cssText = a.params.initial;
+          t[a.handler].apply(t,a.params.pass);
+        }
+        else
+          console.log("Actions: ERROR, handler"+act.handler+" does not exist on object:"+utils.debug(targ));
       }
     }
   }
+  this.processActionDescriptor = function(node,sl){
+    processActionDescriptor(node,sl);
+  }
+  function processActionDescriptor(node,sl){
+    var epl = node.actions.triggers;
+    console.log("Actions:: processing node descriptor("+node.UID+")");
+    if(!node._actrdy) {
+      for( a in epl){
+        for( i in epl[a]) {
+          ep = epl[a][i];
+          console.log("Actions processing("+node.UID+"):"+a+" >> "+i);
+          console.log(ep);
+          ep["target"] = getObjectFromID(ep.target,node);
+          for( g in ep.params )
+            for( p in ep.params[g] )
+              ep.params[g][p] = getObjectFromID( ep.params[g][p] , node);
+        }
+        node._actrdy = true;
+        if(sl)
+          node.addEventListener(a,handle);
+      }
+    }
+    function handle(e){
+      var act = e.target.actions[e.event];
+      var a,t;
+      for( i in act){
+        a = act[i];
+        t = a.target;
+        if(!t[a.handler] && a.isMember)
+          t = factory.root;
 
-  function defaultNode(node){
-    node.actions = {
-      "triggered":{
-        target:"#UID:"+factory.root.UID,
-        handler:"cfocusOn",
-        parameters:['self']
-      },
-    };
-
-    for( c in node.children )
-      defaultNode(node.children[c]);
+        if( t[a.handler] ) {
+          if(a.params.initial)
+            t.DOMreference.style.cssText = a.params.initial;
+          t[a.handler].apply(t,a.params.pass);
+        }
+        else
+          console.log("Actions: ERROR, handler"+act.handler+" does not exist on object:"+utils.debug(targ));
+      }
+    }
   }
 
   function loadNode(node){
@@ -146,22 +152,22 @@ loadAppCode("_actions",function(data)
 
   function traverse(root){
 
-    if( mode == 'edit')
-      defaultNode(root);
+    //if( mode == 'edit')
+      //defaultNode(root);
 
-    if( mode == 'present' )
+    //if( mode == 'present' )
       loadNode(root);
   }
 
   function onNewNode(e){
-    defaultNode(e.child);
+    //defaultNode(e.child);
     //console.log("Actions added to new container:"+utils.debug(e.child)+">"+utils.debug(e.child.actions,";",true));
   }
 
   this.init = function(){
     console.log(this.parent.appPath+" - initialising. Mode:"+mode);
     traverse( factory.root );
-    GEM.addEventListener("addChild",0,onNewNode,this);
+    //GEM.addEventListener("addChild",0,onNewNode,this);
   }
 
   this.shutdown = function(){

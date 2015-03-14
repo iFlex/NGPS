@@ -39,7 +39,7 @@ loadAppCode("_CGI",function(data){
   }
   this.interfClick = function(e){
     console.log("Focusing...");
-    _CGI.createInterface(2,e);
+    _CGI.createInterface(3,e);
     factory.root.cfocusOn(e._CGI_CTL,{speed:1});
   }
 
@@ -55,7 +55,12 @@ loadAppCode("_CGI",function(data){
   this.hideAdj = function(){
     _CGI.adjInterf.tween({left:"-10%"},1);
   }
-
+  function playback(e){
+    if(Actions){
+      Actions.processActionDescriptor(e.target,true);
+      Actions.forceTrigger(e.target);
+    }
+  }
   function destroy(e){
     if(e.target.actions) {
       var rem = parseInt(e.DOMreference.innerHTML);
@@ -73,8 +78,13 @@ loadAppCode("_CGI",function(data){
     editEventList();
     _CGI.hideAdj();
   }
-
+  var prevaj = 0;
   this.createInterface = function(v,e){
+    if(e && prevaj == e.UID){
+      _CGI.hideAdj();
+      prevaj = 0;
+      return;
+    }
 
     for( i in buttons )
       buttons[i].discard();
@@ -96,6 +106,9 @@ loadAppCode("_CGI",function(data){
       buttons[0].onTrigger = function(){destroy(e);};
       buttons[1].DOMreference.innerHTML = "configure";
       buttons[1].onTrigger = function(){reconfigure(e);};
+      buttons[2].DOMreference.innerHTML = "play back";
+      buttons[2].onTrigger = function(){playback(e);};
+      prevaj = e.UID;
       var pos = e.getPos(0,0,true);
       _CGI.showAdj(pos.x);
     }
@@ -105,7 +118,7 @@ loadAppCode("_CGI",function(data){
       return;
 
     index++;
-    var descriptor = {width:"32px",height:"32px",border_radius:["50%"],border_size:2,background:"rgba(255,215,0,0.35)",class:"centerText unselectable"};
+    var descriptor = {width:"32px",height:"32px",border_radius:["50%"],border_size:2,background:"rgba(255,215,0,0.35)",class:"centerText unselectable",style:"display:inline-block"};
     var c = Interface.addChild(utils.merge(descriptor,{autopos:true,class:"sizeTransD centerText unselectable"}));
     c._CGI_CTL = factory.root.addChild(utils.merge(descriptor,{x:lastX,y:lastY}));
     c._CGI_CTL.putAt(lastX,lastY,0.5,0.5);
@@ -150,6 +163,20 @@ loadAppCode("_CGI",function(data){
   function finalCommit(how){
       console.log("Commit:");
       console.log(_CGI.selected);
+      if(!saveIndex)
+        saveIndex = 0;
+
+      var key = Object.keys(_CGI.selected[saveIndex].triggers)[0];
+      var slct = _CGI.selected[saveIndex].triggers[key];
+      var avac = availableActions[slct.name][1];
+      slct.handler = avac.handler;
+      slct.isMember = avac.isMember;
+      slct.target = "#:"+_CGI.target.UID;
+      if(avac.target)
+        slct.target = "#:"+avac.target.UID;
+
+      slct.params = slct.params || {};
+      slct.params.pass = slct.params.pass || avac.params || [];
       _CGI.target.actions = {
         subject:_CGI.target.UID
       };
@@ -171,11 +198,18 @@ loadAppCode("_CGI",function(data){
     _CGI.hideAdj();
     if( saveIndex != undefined ){
       var key = Object.keys(_CGI.selected[saveIndex].triggers)[0];
-      _CGI.selected[saveIndex].triggers[key].params = _CGI.selected[saveIndex].triggers[key].params || {};
-      _CGI.selected[saveIndex].triggers[key].params.final = _CGI.target.DOMreference.style.cssText;
+      var slct = _CGI.selected[saveIndex].triggers[key];
+      var aname = slct.name;
+      slct.params = slct.params || {pass:[]};
+      slct.params.final = _CGI.target.DOMreference.style.cssText;
+      //callback
+      if(typeof(availableActions[aname][1].onAdjustEnd) == 'function')
+        availableActions[aname][1].onAdjustEnd(_CGI.target,slct.params.pass);
+
       //restore to initial pos
-      if( _CGI.selected[saveIndex].triggers[key].params.initial)
-        _CGI.target.DOMreference.style.cssText = _CGI.selected[saveIndex].triggers[key].params.initial;
+      if( slct.params.initial)
+        _CGI.target.DOMreference.style.cssText = slct.params.initial;
+
     }
     finalCommit(false);
     _CGI.adjusting = false;
@@ -191,14 +225,22 @@ loadAppCode("_CGI",function(data){
         cancelLast();
         return;
       }
+
       if( _CGI.selected.length && _CGI.selected[ _CGI.selected.length - 1 ].triggers)
         _CGI.createInterface(1);
 
-      var key = Object.keys(_CGI.selected[data].triggers)[0];
-      _CGI.selected[data].triggers[key].params = _CGI.selected[data].triggers[key].params || {};
-      _CGI.selected[data].triggers[key].params.initial = _CGI.target.DOMreference.style.cssText;
       saveIndex = data;
       _CGI.adjusting = true;
+
+      var key = Object.keys(_CGI.selected[data].triggers)[0];
+      var aname = _CGI.selected[data].triggers[key].name;
+      var slct = _CGI.selected[data].triggers[key];
+      slct.params = slct.params || {pass:[]};
+      slct.params.initial = _CGI.target.DOMreference.style.cssText;
+      //callback
+      if(typeof(availableActions[aname][1].onAdjustStart) == 'function')
+        availableActions[aname][1].onAdjustStart(_CGI.target,slct.params.pass);
+
       finalCommit(false);
     }
   }
@@ -207,12 +249,31 @@ loadAppCode("_CGI",function(data){
     _CGI.selected.splice(0,1);
     finalCommit(false);
   }
-
   var availableActions = {
-    move:[2,true],
+    move:[2,{
+      //target:,//override target
+      isMember:true,
+      handler:"tween",
+      params:[],//parameters to pass
+      onAdjustStart:function(o,storage){
+        var pos = o.getPos(0,0);
+        storage[0] = pos.x;
+        storage[1] = pos.y;
+      },// function to be called when starting to adjust
+      onAdjustEnd:function(o,storage){
+        var pos = o.getPos(0,0);
+        storage[0] = {left:pos.x,top:pos.y};
+        storage[1] = 1;
+      },// function to be called when adjust ended
+    }],
     scale:[2,true],
     zoom:[2,true],
-    "focus camera":[0,true,"cfocusOn"],
+    "focus camera":[0,{
+      isMember:true,
+      handler:"cfocusOn",
+      params:[0,{speed:1}],
+      target:factory.root
+    }],
     fadeIn:[2,false],
     fadeOut:[2,false],
     restyle:[2,true,],
