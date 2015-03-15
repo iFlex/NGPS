@@ -7,6 +7,7 @@
 */
 //TODO: Fix weird trigger ( with the start editor listener ) evend firing on factory.root even though it's not listened for.
 this.keyboard = {};
+keyboard.ops;
 keyboard.editor = 0;
 //NOT REQUIRED ANYMORE
 keyboard.cursor = "|";
@@ -33,8 +34,32 @@ loadAppCode("edit/components/text",function(data)
 	this.stopWorker = data['stopWorker'];
 	this.rootDir = "plugins/text";
 	keyboard.uppercase = 0;
-
+	keyboard.ops = this;
 	var _target = 0;
+	var monInterval;
+	var ctdiv = 0;
+	function monitor(){
+		if(!_target)
+			return;
+		ctdiv.DOMreference.innerHTML = _target.DOMreference.value;
+		_target.setWidth(ctdiv.DOMreference.scrollWidth+5);
+		_target.setHeight(ctdiv.DOMreference.scrollHeight+5);
+		console.log(ctdiv.DOMreference);
+		console.log("w:"+ctdiv.DOMreference.scrollWidth+" h:"+ctdiv.DOMreference.scrollHeight);
+	}
+
+	this.startMonitoring = function(){
+		monInterval = setInterval(monitor,100);
+
+		if(!ctdiv)
+			ctdiv = factory.base.addChild({x:"100%",y:"100",width:1,height:1,style:"overflow:scroll"});
+		ctdiv.DOMreference.innerHTML = _target.DOMreference.innerHTML;
+	}
+
+	this.stopMonitoring = function(){
+		clearInterval(monInterval);
+	}
+
 	this.init = function() //called only one when bound with container
 	{
 		console.log("edit/components/text - initialising.");
@@ -64,14 +89,12 @@ loadAppCode("edit/components/text",function(data)
 		//include app
 		keyboard.editor = factory.newContainer({x:100,y:100,width:"auto",height:"32px",border_size:0,border_radius:["10px"],background:"rgba(255,255,255,0.25)",permissions:{save:false,connect:false},style:"box-shadow: 0 0 9px rgba(0,0,0,0.7);"},"simple_rect",factory.base);
 		keyboard.editor.DOMreference.style.overflow = 'visible';
-		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface",this.parent.appPath+"jquery.elastic.source"],function(){
+		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface"],function(){
 			keyboard.buildTextInterface(keyboard.editor.DOMreference);
 			keyboard.interface.parent = keyboard.editor;
 			keyboard.interface.init();
-
 		})
 		keyboard.editor.hide();
-
 		factory.root.addEventListener("triggered",keyboard.hide);
 	}
 	keyboard.focus = function(target)
@@ -92,10 +115,7 @@ loadAppCode("edit/components/text",function(data)
 		if(keyboard.interface.subject.focus)
 			keyboard.interface.subject.focus();
 
-		if($(target.DOMreference).elastic)
-			$(target.DOMreference).elastic({'max-width': factory.base.getWidth()*2});
-		else
-			console.error("Elastic text boxes not supported!");
+		keyboard.ops.startMonitoring();
 	}
 	keyboard.hide = function()
 	{
@@ -104,5 +124,6 @@ loadAppCode("edit/components/text",function(data)
 			_target.allowUserMove = true;
 		keyboard.interface.subject = 0;
 		_target = 0;
+		keyboard.ops.stopMonitoring();
 	}
 });
