@@ -64,18 +64,20 @@ loadAppCode("edit",function(data)
 	var isMob = false;
 	var cellStyle = "width:auto;height:auto;display:table-cell;padding-right:10px;";
 	console.log(this.parent.appPath+" - initialising...");
+
+	//Editor.dock.UI
 	this.UI = function(info){
 		this.parent = info['parent'];
 		this.parts = {};
-		this.parts['root']  = factory.base.addChild({width:"100%",height:"32px",x:"0px",y:"0px",background:"rgba(0,0,0,0.05)",style:"z-index:100;padding-left:5px;padding-top:3px"});
-		this.parts['title'] = this.parts['root'].addChild({style:"display:inline-block;"});
+		this.parts['root']  = factory.base.addChild({width:"100%",height:"32px",x:"0px",y:"0px",background:"rgba(0,0,0,0.05)",style:"z-index:100;padding-left:5px;padding-top:3px,padding-bottom:3px"});
+		this.parts['title'] = this.parts['root'].addChild({type:"input",style:"display:inline-block;height:100%;width:20%;background:rgba(0,0,0,0);"});
 		this.parts['interfaceRight'] = this.parts['root'].addChild({style:"position:relative;display:table;float:right;height:100%;width:auto"});
 		Editor.headerHeight = this.parts['root'].getHeight();
 
 		if( info['title'].indexOf("#REG:") > -1 )
-			this.parts['title'].DOMreference.value = info['title'];
+			this.parts['title'].DOMreference.data["regional"] = info['title'];
 		else
-			this.parts['title'].DOMreference.innerHTML =	info['title'];
+			this.parts['title'].DOMreference.value = info['title'];
 		Regional.inspectObject(this.parts['title'].DOMreference);
 
 		if(platform.isMobile)
@@ -233,10 +235,11 @@ loadAppCode("edit",function(data)
 	}
 
 	this.save = function(){
-		if(Editor.saveAid)
+		/*if(Editor.saveAid)
 			Editor.saveAid.show();
 		else
-			window.prompt("Presenation content",save.toConsole());
+			window.prompt("Presenation content",save.toConsole());*/
+			save.proceed();
 	}
 	this.load = function(){
 		var pcnt = window.prompt("presentation content:");

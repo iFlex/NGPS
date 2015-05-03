@@ -174,80 +174,16 @@ loadAppCode("userMsg",function(data){
 			if( _k == undefined )
 				lanes.push({parent:k,close:0,event:0,trigmode:0,action:0,board:board});
 
-			var a = k.addChild({type:"button",height:"auto",width:"auto",autopos:true,class:"btn btn-default",style:"display:table-cell;border-radius:50%"});
+			var a = k.addChild({type:"button",height:"auto",width:"auto",autopos:true,class:"btn btn-default",style:"display:table-cell"});
 			lanes[i].close = a;
 			a.reff = i;
-			a.DOMreference.innerHTML = "x";
+			a.DOMreference.innerHTML = "cancel";
 			a.extend(Interactive);
 			a.interactive(true);
 			a.onMoved = function(){};
 			a.onTrigger = function(crt){
 				currentActive = crt.reff;
 				remove();
-			};
-
-			a = k.addChild({height:"auto",width:25,autopos:true,style:"display:table-cell"});
-			a.onMoved = function(){};
-			a = k.addChild({type:"h3",height:"auto",width:"auto",autopos:true,style:"display:table-cell;padding-left:10px;padding-right:10px;text-shadow: 0 0 9px rgba(255,255,255,1)"});
-			a.DOMreference.innerHTML = "When";
-			a.onMoved = function(){};
-
-			a = k.addChild({type:"button",height:"auto",width:"auto",autopos:true,class:"btn btn-danger",style:"display:table-cell"});
-			lanes[i].event = a;
-			a.reff = i;
-			a.DOMreference.innerHTML = evt;
-			a.extend(Interactive);
-			a.interactive(true);
-			a.onMoved = function(){};
-			a.onTrigger = function(crt){
-				currentActive = crt.reff;
-				NGPS_Modal.show({
-					title:"Choose what triggers the animation",
-					type:type,
-					buttons:eventsList
-				});
-			};
-
-			a = k.addChild({type:"h3",height:"auto",width:"auto",autopos:true,style:"display:table-cell;padding-left:10px;padding-right:10px;text-shadow: 0 0 9px rgba(255,255,255,1)"});
-			a.DOMreference.innerHTML = "on";
-			a.onMoved = function(){};
-
-			a = k.addChild({type:"button",height:"auto",width:"auto",autopos:true,class:"btn btn-danger",style:"display:table-cell"});
-			lanes[i].trigmode = a;
-			a.reff = i;
-			a.DOMreference.innerHTML = chevButton[trg].label;
-			a.extend(Interactive);
-			a.interactive(true);
-			a.onMoved = function(){};
-			a.onTrigger = function(crt){
-				currentActive = crt.reff;
-				NGPS_Modal.show({
-					title: "Choose how to start animation",
-					type:type,
-					buttons:chevButton
-				});
-			};
-
-			a = k.addChild({type:"h3",height:"auto",width:"auto",autopos:true,style:"display:table-cell;padding-left:10px;padding-right:10px;text-shadow: 0 0 9px rgba(255,255,255,1)"});
-			a.DOMreference.innerHTML = ">";
-			a.onMoved = function(){};
-
-			a = k.addChild({height:"auto",width:25,autopos:true,style:"display:table-cell"});
-			a.onMoved = function(){};
-			a = k.addChild({type:"button",height:"auto",width:"auto",autopos:true,class:"btn btn-danger",style:"display:table-cell"});
-			lanes[i].action = a;
-			a.reff = i;
-			a.DOMreference.innerHTML = act.name;
-			a.extend(Interactive);
-			a.interactive(true);
- 			a.onMoved = function(){};
-			a.onTrigger = function(crt){
-				currentActive = crt.reff;
-				NGPS_Modal.show({
-					title:"Choose what to do",
-					type:type,
-					buttons: actionsList
-				});
 			};
 
 			a = k.addChild({height:"auto",width:25,autopos:true,style:"display:table-cell"});
@@ -259,7 +195,7 @@ loadAppCode("userMsg",function(data){
 				lanes[i].adjust = a;
 				a.reff = i;
 				if(!i)
-					a.DOMreference.innerHTML = "done";
+					a.DOMreference.innerHTML = "add";
 				else
 					a.DOMreference.innerHTML = "adjust";
 
@@ -291,6 +227,71 @@ loadAppCode("userMsg",function(data){
 						makeLane("click",0,{name:Object.keys(actions)[0],needAdjust:actions[Object.keys(actions)[0]][0]},cld);
 				}
 			};
+
+			a = k.addChild({height:"auto",width:25,autopos:true,style:"display:table-cell"});
+			a.onMoved = function(){};
+			a = k.addChild({type:"h5",height:"auto",width:"auto",autopos:true,style:"display:table-cell;padding-left:10px;padding-right:10px;text-shadow: 0 0 9px rgba(255,255,255,1)"});
+			a.DOMreference.innerHTML = "When";
+			a.onMoved = function(){};
+
+			a = k.addChild({type:"button",height:"auto",width:"auto",autopos:true,class:"btn btn-danger",style:"display:table-cell"});
+			lanes[i].event = a;
+			a.reff = i;
+			a.DOMreference.innerHTML = evt;
+			a.extend(Interactive);
+			a.interactive(true);
+			a.onMoved = function(){};
+			a.onTrigger = function(crt){
+				currentActive = crt.reff;
+				NGPS_Modal.show({
+					title:"Choose what triggers the animation",
+					type:type,
+					buttons:eventsList
+				});
+			};
+
+			a = k.addChild({type:"h5",height:"auto",width:"auto",autopos:true,style:"display:table-cell;padding-left:10px;padding-right:10px;text-shadow: 0 0 9px rgba(255,255,255,1)"});
+			a.DOMreference.innerHTML = "on";
+			a.onMoved = function(){};
+
+			a = k.addChild({type:"button",height:"auto",width:"auto",autopos:true,class:"btn btn-danger",style:"display:table-cell"});
+			lanes[i].trigmode = a;
+			a.reff = i;
+			a.DOMreference.innerHTML = chevButton[trg].label;
+			a.extend(Interactive);
+			a.interactive(true);
+			a.onMoved = function(){};
+			a.onTrigger = function(crt){
+				currentActive = crt.reff;
+				NGPS_Modal.show({
+					title: "Choose how to start animation",
+					type:type,
+					buttons:chevButton
+				});
+			};
+
+			a = k.addChild({type:"h5",height:"auto",width:"auto",autopos:true,style:"display:table-cell;padding-left:10px;padding-right:10px;text-shadow: 0 0 9px rgba(255,255,255,1)"});
+			a.DOMreference.innerHTML = ">";
+			a.onMoved = function(){};
+
+			a = k.addChild({height:"auto",width:25,autopos:true,style:"display:table-cell"});
+			a.onMoved = function(){};
+			a = k.addChild({type:"button",height:"auto",width:"auto",autopos:true,class:"btn btn-danger",style:"display:table-cell"});
+			lanes[i].action = a;
+			a.reff = i;
+			a.DOMreference.innerHTML = act.name;
+			a.extend(Interactive);
+			a.interactive(true);
+ 			a.onMoved = function(){};
+			a.onTrigger = function(crt){
+				currentActive = crt.reff;
+				NGPS_Modal.show({
+					title:"Choose what to do",
+					type:type,
+					buttons: actionsList
+				});
+			};
+
 			return k;
 		}
 		var t = currentBoard.addChild({type:"h3",width:"100%",height:"auto",autopos:true,background:"transparent",style:"display:table;text-align:center;text-shadow: 0 0 9px rgba(255,255,255,1)"});

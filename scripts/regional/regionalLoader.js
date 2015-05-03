@@ -9,6 +9,7 @@
 *    < message_name >
 *    :apply_method 
 *    example:  #REG:SUBMIT_BUTTON:value
+* 	 available fields: id, value, placeholder, data-regional
 */
 this.Regional = {};
 //default language english

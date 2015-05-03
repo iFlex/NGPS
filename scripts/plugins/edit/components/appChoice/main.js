@@ -1,7 +1,6 @@
 //TODO: Fix weird trigger ( with the start interface listener ) evend firing on factory.base even though it's not listened for.
 this.Editor = this.Editor || {};
 //hardcoded for now
-z_apps = [{name:"collision",local:true},{name:"debug",local:false,global:true},{name:"fps",local:false,global:true},{name:"2048",local:true,global:false}];
 //TODO: needs to get apps from server infrastructure
 //      needs to be able to save usage of apps and preferences
 loadAppCode("edit/components/appChoice",function(data)
@@ -16,8 +15,9 @@ loadAppCode("edit/components/appChoice",function(data)
   var active = 0;
   var popular = 0;
   var all = 0;
-  Editor.apps = this;
+  var apps = [];
 
+  Editor.apps = this;
   function showActive(){
     _buildActive();
     active.tween({top:"0%"},1);
@@ -102,16 +102,23 @@ loadAppCode("edit/components/appChoice",function(data)
 
   this.init = function(){
     console.log("edit/components/appChoice - initialising...");
+    host.getInstalledUserApps(function(data){
+      if( data.success == true ) {
+        apps = data.apps;
+        
+        root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"grey",style:"padding-left:5px;padding-right:5px",permissions:{save:false,connect:false}});
+        main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],background:"transparent",permissions:{save:false,connect:false}});
+        active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],background:"grey",permissions:{save:false,connect:false}});
 
-    root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"grey",style:"padding-left:5px;padding-right:5px",permissions:{save:false,connect:false}});
-    main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],background:"transparent",permissions:{save:false,connect:false}});
-    active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],background:"grey",permissions:{save:false,connect:false}});
+        main.DOMreference.style.overflowY = "scroll";
+        active.DOMreference.style.overflowY = "scroll";
 
-    main.DOMreference.style.overflowY = "scroll";
-    active.DOMreference.style.overflowY = "scroll";
-
-    _buildMain();
-    _buildActive();
+        _buildMain();
+        _buildActive();
+      } else {
+        console.error("edit/components/appChoice failed to list user's apps!");
+      }
+    });
   }
   this.shutdown = function(){
     console.log("edit/components/appChoice - shutdown.");
@@ -168,7 +175,6 @@ loadAppCode("edit/components/appChoice",function(data)
     return record;
   }
   var ordinaryArrange = function(){
-    var apps = z_apps;
     for( k in apps)
       makeAppRecord(apps[k],main);
     for( k in apps)

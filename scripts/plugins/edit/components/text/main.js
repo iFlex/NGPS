@@ -115,7 +115,7 @@ loadAppCode("edit/components/text",function(data)
 		if(keyboard.interface.subject.focus)
 			keyboard.interface.subject.focus();
 
-		keyboard.ops.startMonitoring();
+		///keyboard.ops.startMonitoring();
 	}
 	keyboard.hide = function()
 	{
@@ -124,6 +124,6 @@ loadAppCode("edit/components/text",function(data)
 			_target.allowUserMove = true;
 		keyboard.interface.subject = 0;
 		_target = 0;
-		keyboard.ops.stopMonitoring();
+		//keyboard.ops.stopMonitoring();
 	}
 });

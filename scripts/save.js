@@ -59,7 +59,7 @@ function pack(){
 //if not do a step by step save
 save.proceed = function(){
 	//saves the presentation
-	console.log(save.RAMsave());
+	host.fs.save(function(s){if(s.status)console.log("Saved!");else console.log("Error: could not save!");},"prez1.html",save.RAMsave());
 }
 //builds the saved data in the ram then flushes it to the host
 save._unit = function(node,operation_mode)
@@ -175,7 +175,6 @@ save.RAMsave = function(stringify){
 
 	return save.saveTree;
 }
-
 save.toConsole = function(_alert){
 
 	save.RAMsave();
