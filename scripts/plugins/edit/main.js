@@ -206,7 +206,7 @@ loadAppCode("edit",function(data)
 			Editor.dock.tags.push(k);
 
 		//Editor.dock.dockApp('edit/components/aligner',{lastInterfaceContainer:5});
-		factory.newGlobalApp("edit/components/saveDisplay"); //this app messes up saving - used to, possibly fixed
+		//factory.newGlobalApp("edit/components/saveDisplay"); //this app messes up saving - used to, possibly fixed
 		setTimeout(function(){
 			console.log("Editor Components:"+utils.debug(Editor));
 		},1000);
@@ -244,7 +244,6 @@ loadAppCode("edit",function(data)
 	}
 	this.load = function(){
 		var pcnt = window.prompt("presentation content:");
-		//factory.init('editor');
 		pLOAD.proceed(pcnt);
 	}
 	this.toggleMobile = function(){

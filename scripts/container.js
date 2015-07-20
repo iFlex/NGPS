@@ -35,7 +35,7 @@ function findContainer(uid){
 	return containerData.reffTree[uid];
 }
 
-this.container = function(_properties)
+this.container = function(_properties,_parent)
 {
 	function addToTree(container) {
 		containerData.reffTree[container.UID] = container;
@@ -46,9 +46,9 @@ this.container = function(_properties)
 
 	this.UID = 0;
 	this.DOMreference = 0;
-	this.parent = 0;
+	this.parent = _parent;
 	this.discarded = false;
-	permissions = {};//save:true,connect:false,edit:false,children:true,connect:true};//savable, connectable, extend in future
+	this.permissions = {};//save:true,connect:false,edit:false,children:true,connect:true};//savable, connectable, extend in future
 	//content properties
 	this.isLeaf = false;
 	this.isApp = false;
@@ -82,162 +82,12 @@ this.container = function(_properties)
 	this.onMouseDown = 0;
 	this.onMouseUp  = 0;
 
-	//override default permissions with ones from descriptor
-	if(_properties['permissions'])
-		permissions = utils.merge(permissions,_properties['permissions'],true);
-
 	if(_properties['isLink'])
 		this.isLink = true;
 
 	if(_properties['isCamera'])
 		this.isCamera = true;
 
-	this.load = function(parent)
-	{
-		if(this.parent)
-			return false;
-		//enforce UID preservation
-		if( this.properties['UID'] ){
-			var victim = findContainer(this.properties['UID']);
-			if( victim != undefined && !victim.getPermission('noOverride') )//conflicts with existing container - abort if container can't be overriden
-				return false;
-			else
-				victim.discard(); //override old container
-
-			this.UID = this.properties['UID']
-			if(containerData.containerIndex < this.UID)
-				containerData.containerIndex = this.UID + 1;
-		}
-		else {
-			this.UID = containerData.containerIndex++;
-			if( this.UID == 0 )
-				permissions.noOverride = true;
-		}
-
-		//DOM manipulation
-		var DOMtype = "div";
-		if(typeof(this.properties['type']) == "string")
-			DOMtype = this.properties['type'];
-
-		if(this.properties['_DOMreference'])
-			this.DOMreference = this.properties['_DOMreference'];
-		else
-			this.DOMreference = document.createElement(DOMtype);
-
-		this.DOMreference.setAttribute('id',this.UID);
-
-		//convert numbers to vaild CSS pixel quantity
-		for( key in {"width":0,"height":0,"x":0,"y":0,"border_size":0} )
-		{
-			if( typeof this.properties[key]  == "number" )
-				this.properties[key] += "px";
-		}
-
-		//Custom Styling
-		if(this.properties['class']) //custom CSS styling ()
-			this.DOMreference.setAttribute('class',this.properties['class']);
-
-		for( k in {cssText:true,style:true})
-			if(this.properties[k]) // custom CSS styling ( works more efficient, only needs CSS )
-				this.DOMreference.style.cssText = this.properties[k];
-
-		//Default Styling
-		if(this.properties['width'])
-			this.DOMreference.style.width 		= this.properties['width'];
-		if(this.properties['height'])
-			this.DOMreference.style.height 		= this.properties['height'];
-
-		if(!this.DOMreference.style.position && !this.properties['autopos'])
-			this.DOMreference.style.position 	= 'absolute';
-
-		if(!this.DOMreference.style.overflow && this.properties['autosize'] != true )
-			this.DOMreference.style.overflow 	= "hidden";
-
-		if(this.properties['x'])
-		{
-			if(!this.properties['autopos'])
-				this.DOMreference.style.position 	= 'absolute';
-			this.DOMreference.style.left 		= this.properties['x'];
-		}
-
-		if(this.properties['y'])
-		{
-			if(!this.properties['autopos'])
-				this.DOMreference.style.position 	= 'absolute';
-			this.DOMreference.style.top 		= this.properties['y'];
-		}
-
-		if(this.properties['bottom'])
-			this.DOMreference.style.bottom = this.properties['bottom'];
-
-		if(this.properties['right'])
-			this.DOMreference.style.right = this.properties['right'];
-
-		if(this.properties['left'])
-			this.DOMreference.style.left = this.properties['left'];
-
-		if(this.properties['top'])
-			this.DOMreference.style.left = this.properties['top'];
-
-		if(this.properties['background']) //initial descriptor overrides cssText
-			this.DOMreference.style.background 	= this.properties['background'];
-		if(this.properties['opacity']) //initial descriptor overrides cssText
-				this.DOMreference.style.opacity 	= this.properties['opacity'];
-		//border props
-		if(!this.DOMreference.style.borderWidth)
-			this.DOMreference.style.borderWidth = (this.properties['border_size'] || "0px");
-		if(!this.DOMreference.style.borderColor)
-			this.DOMreference.style.borderColor = (this.properties['border_color'] || "0x000000");
-		if(!this.DOMreference.style.borderStyle)
-			this.DOMreference.style.borderStyle = (this.properties['border_type'] || this.properties['border_style'] || "solid");
-		//add reference of the current object in the DOM object
-		this.DOMreference.context = this;
-
-		if(this.properties['border_radius'])
-		{
-			var borders = this.properties["border_radius"];
-			for( var i=0; i < 4 && borders ; ++i )
-			{
-				switch(i)
-				{
-					case 0:this.DOMreference.style.borderTopLeftRadius 		= ( borders[i%borders.length] || "0px");break;
-					case 1:this.DOMreference.style.borderTopRightRadius 	= ( borders[i%borders.length] || "0px");break;
-					case 2:this.DOMreference.style.borderBottomRightRadius 	= ( borders[i%borders.length] || "0px");break;
-					case 3:this.DOMreference.style.borderBottomLeftRadius 	= ( borders[i%borders.length] || "0px");break;
-				}
-			}
-		}
-		//isolated containers do not get included in the standard container hierarchy
-		if(!this.properties['*isolated'])
-		{
-			if(parent)
-			{
-				//append
-				this.parent = parent;
-				parent.DOMreference.appendChild(this.DOMreference);
-			}
-			else //this is the master object ( root )
-				document.body.appendChild(this.DOMreference);
-		}
-		else{ //add the isolated container
-			if(!parent)
-				parent = document.body;
-			parent.appendChild(this.DOMreference);
-		}
-		this.properties['width'] = this.getWidth();
-		this.properties['height']= this.getHeight();
-
-		//inherit permissions without overriding the descriptor ones
-		if(this.parent)
-			permissions = utils.merge(permissions,parent.permissions);
-
-		addToTree(this);
-		//EVENT
-		if( this.events['loadContainer'] || ( GEM.events['loadContainer'] && GEM.events['loadContainer']['_global'] ) )
-			GEM.fireEvent({event:"loadContainer",target:this})
-
-		return true;
-	}
 	//warning this code is identical to the one above, use this function above
 	this.restyle = function(data)
 	{
@@ -305,16 +155,20 @@ this.container = function(_properties)
 	}
 
 	this.setPermission = function(name,value){
-		permissions[name] = value;
+		this.permissions[name] = value;
 	}
 
 	this.setPermissions = function(perms){
 		for( k in perms )
-			permissions[k] = perms[k];
+			this.permissions[k] = perms[k];
 	}
 
 	this.getPermission = function(name){
-		return permissions[name];
+		return this.permissions[name];
+	}
+
+	this.getPermissions = function(){
+		return this.permissions;
 	}
 
 	this.hasChildren = function()
@@ -327,13 +181,10 @@ this.container = function(_properties)
 
 	this.addChild = function(properties)
 	{
-		if(permissions.children == false)
+		if(this.permissions.children == false)
 			return;
 
-		this.children[ containerData.containerIndex ] = new container( properties );
-		var reff = this.children[ containerData.containerIndex ]
-		reff.load( this );
-
+		var reff = new container( properties , this );
 		//EVENT
 		if( this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
 			GEM.fireEvent({event:"addChild",target:this,child:reff})
@@ -862,7 +713,7 @@ this.container = function(_properties)
 	}
 	this.link = function (target,descriptor)
 	{
-		if( permissions.connect == false || target.getPermission('connect') == false )
+		if( this.permissions.connect == false || target.getPermission('connect') == false )
 			return;
 		//delete already existing link
 		if(this.outgoing[target.UID])
@@ -1044,4 +895,159 @@ this.container = function(_properties)
 
 		}
 	}
+	/////////////////////////////////////////////////////////////////////////////////////
+	//this.load = function(parent)
+	//{
+		//if(this.parent)
+			//return false;
+//////////////////////////////////////////////////////////////////////////////////////////
+		//enforce UID preservation
+		console.log("New container");
+		console.log(this.properties);
+		if( this.properties['UID'] ) {
+			console.log("Override attempt...");
+			var victim = findContainer(this.properties['UID']);
+			console.log(victim);
+			if( victim ) {
+				if( !victim.getPermission('noOverride') )//conflicts with existing container - abort if container can't be overriden
+					return false;
+				else
+					victim.discard(); //override old container
+			}
+			
+			this.UID = this.properties['UID']
+			if(containerData.containerIndex < this.UID)
+				containerData.containerIndex = this.UID + 1;
+		}
+		else
+			this.UID = containerData.containerIndex++;
+		//store child object
+		if(this.parent)
+			this.parent.children[ this.UID ] = this;
+		//DOM manipulation
+		var DOMtype = "div";
+		if(typeof(this.properties['type']) == "string")
+			DOMtype = this.properties['type'];
+
+		if(this.properties['_DOMreference'])
+			this.DOMreference = this.properties['_DOMreference'];
+		else
+			this.DOMreference = document.createElement(DOMtype);
+
+		this.DOMreference.setAttribute('id',this.UID);
+
+		//convert numbers to vaild CSS pixel quantity
+		for( key in {"width":0,"height":0,"x":0,"y":0,"border_size":0} )
+		{
+			if( typeof this.properties[key]  == "number" )
+				this.properties[key] += "px";
+		}
+
+		//Custom Styling
+		if(this.properties['class']) //custom CSS styling ()
+			this.DOMreference.setAttribute('class',this.properties['class']);
+
+		for( k in {cssText:true,style:true})
+			if(this.properties[k]) // custom CSS styling ( works more efficient, only needs CSS )
+				this.DOMreference.style.cssText = this.properties[k];
+
+		//Default Styling
+		if(this.properties['width'])
+			this.DOMreference.style.width 		= this.properties['width'];
+
+		if(this.properties['height'])
+			this.DOMreference.style.height 		= this.properties['height'];
+
+		if(!this.DOMreference.style.position && !this.properties['autopos'])
+			this.DOMreference.style.position 	= 'absolute';
+
+		if(!this.DOMreference.style.overflow && this.properties['autosize'] != true )
+			this.DOMreference.style.overflow 	= "hidden";
+
+		if(this.properties['x'])
+		{
+			if(!this.properties['autopos'])
+				this.DOMreference.style.position 	= 'absolute';
+			this.DOMreference.style.left 		= this.properties['x'];
+		}
+
+		if(this.properties['y'])
+		{
+			if(!this.properties['autopos'])
+				this.DOMreference.style.position 	= 'absolute';
+			this.DOMreference.style.top 		= this.properties['y'];
+		}
+
+		if(this.properties['bottom'])
+			this.DOMreference.style.bottom = this.properties['bottom'];
+
+		if(this.properties['right'])
+			this.DOMreference.style.right = this.properties['right'];
+
+		if(this.properties['left'])
+			this.DOMreference.style.left = this.properties['left'];
+
+		if(this.properties['top'])
+			this.DOMreference.style.left = this.properties['top'];
+
+		if(this.properties['background']) //initial descriptor overrides cssText
+			this.DOMreference.style.background 	= this.properties['background'];
+		if(this.properties['opacity']) //initial descriptor overrides cssText
+				this.DOMreference.style.opacity 	= this.properties['opacity'];
+		//border props
+		if(!this.DOMreference.style.borderWidth)
+			this.DOMreference.style.borderWidth = (this.properties['border_size'] || "0px");
+		if(!this.DOMreference.style.borderColor)
+			this.DOMreference.style.borderColor = (this.properties['border_color'] || "0x000000");
+		if(!this.DOMreference.style.borderStyle)
+			this.DOMreference.style.borderStyle = (this.properties['border_type'] || this.properties['border_style'] || "solid");
+		//add reference of the current object in the DOM object
+		this.DOMreference.context = this;
+
+		if(this.properties['border_radius'])
+		{
+			var borders = this.properties["border_radius"];
+			for( var i=0; i < 4 && borders ; ++i )
+			{
+				switch(i)
+				{
+					case 0:this.DOMreference.style.borderTopLeftRadius 		= ( borders[i%borders.length] || "0px");break;
+					case 1:this.DOMreference.style.borderTopRightRadius 	= ( borders[i%borders.length] || "0px");break;
+					case 2:this.DOMreference.style.borderBottomRightRadius 	= ( borders[i%borders.length] || "0px");break;
+					case 3:this.DOMreference.style.borderBottomLeftRadius 	= ( borders[i%borders.length] || "0px");break;
+				}
+			}
+		}
+		//isolated containers do not get included in the standard container hierarchy
+		if(!this.properties['*isolated'])
+		{
+			if( this.parent )
+				this.parent.DOMreference.appendChild(this.DOMreference);
+			else //this is the master object ( root )
+				document.body.appendChild(this.DOMreference);
+		}
+		else{ //add the isolated container
+			if(!this.parent)
+				this.parent = document.body;
+			this.parent.appendChild(this.DOMreference);
+		}
+
+		this.properties['width']  = this.getWidth();
+		this.properties['height'] = this.getHeight();
+
+		//inherit and set new specific permissions
+		if(this.UID == 0 )
+			this.setPermission('noOverride',true);
+		if(this.parent)
+			this.setPermissions(this.parent.getPermissions());
+		this.setPermissions(_properties['permissions']);
+
+		//EVENT
+		addToTree(this);
+		if( this.events['loadContainer'] || ( GEM.events['loadContainer'] && GEM.events['loadContainer']['_global'] ) )
+			GEM.fireEvent({event:"loadContainer",target:this})
+
+		return this;
+		//return true;
+	//}
 }

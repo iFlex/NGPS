@@ -47,14 +47,12 @@ factory.init = function(mode,manualSetup) // editor init
 	{
 		//creating factory.root ( place where dynamic content is placed )
 		factory.base = new container(Descriptors.containers['base']);
-		factory.base.load();
-		factory.base.setPermissions({save:true,connect:false,edit:false,children:true,connect:true});
 
 		factory.root = factory.base.addChild(Descriptors.containers['root']);
 		factory.root.extend(Interactive);
 		factory.root.extend(Camera);
 		factory.root.interactive(true);
-		factory.root.cstart(10);
+		factory.root.cstart(5);
 
 		//center camera
 		var s = factory.root.getSurface();
@@ -100,7 +98,7 @@ factory.newContainer = function(possize,tag,parent,addToFrame,translate)
 
 	if(obj)
 	{
-		obj.load();
+	//	obj.load();
 		obj.interactive(true);
 	}
 
@@ -120,7 +118,7 @@ factory.createContainer = function(descriptor,parent,addToFrame,translate)
 	var obj = parent.addChild(descriptor,addToFrame,translate);
 	if(obj)
 	{
-		obj.load();
+		//obj.load();
 		obj.extend(Interactive);
 		obj.interactive(true);
 	}
@@ -131,7 +129,7 @@ factory.newIsolatedContainer = function(descriptor,parent)
 {
 	descriptor['*isolated'] = true;
 	var obj = new container(descriptor);
-	obj.load(parent);
+	//obj.load(parent);
 	obj.extend(Interactive);
 	obj.interactive(true);
 	//safety

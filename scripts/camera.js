@@ -48,8 +48,8 @@ this.Camera = {};
 
 Camera.cstart = function(interval)
 {
+	console.log("Creating camera");
 	//now adding camera specific functions
-	this.display = 0; // this is the display area used for move, zoom, rotate
 	//camera focus
 	//camera content properties
 	//zoom
@@ -129,7 +129,7 @@ Camera.cstart = function(interval)
 	//}
 	console.log("New Camera("+this.UID+"):"+utils.debug(this.properties," "));
 }
-Camera.setCameraRange = function ( w , h, ox,oy )
+Camera.setCameraRange = function ( w , h, ox, oy )
 {
 	if(typeof ox === 'undefined')
 		ox = 0.5;
@@ -310,9 +310,7 @@ Camera.addChild = function(descriptor,addToFrame) //translate is used to transla
 	{
 		if(this.display)
 		{
-			this.display.children[ containerData.containerIndex ] = new container( descriptor );
-			reff = this.display.children[ containerData.containerIndex ]
-			reff.load( this.display );
+			var reff = new container(descriptor,this.display);
 			//EVENT
 			if( this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
 				GEM.fireEvent({event:"addChild",target:this,child:reff})
@@ -322,10 +320,7 @@ Camera.addChild = function(descriptor,addToFrame) //translate is used to transla
 	}
 
 	//add to camera frame
-	this.children[ containerData.containerIndex ] = new container( descriptor );
-	reff = this.children[ containerData.containerIndex ]
-	reff.load( this );
-
+	reff = new container( descriptor, this );
 	//EVENT
 	if( !addToFrame && this.events['addChild'] || ( GEM.events['addChild'] && GEM.events['addChild']['_global'] ) )
 		GEM.fireEvent({event:"addChild",target:this,child:reff})

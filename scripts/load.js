@@ -27,11 +27,12 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 
 		if(!factory.base && !root){
 			croot = new container(node.properties)
-			croot.load();
+			//croot.load();
 			factory.base = croot;
 		}
 		else
 		{
+			node.properties.UID = node.UID;
 			croot = factory.createContainer(node.properties,root);
 			if(!factory.root)
 			{
@@ -95,6 +96,8 @@ pLOAD.loadLinks = function(){
 		link = _LINKS[l];
 		left = findContainer(link.linkData.left);//LOADreferences[link.linkData.left];
 		right = findContainer(link.linkData.right);//LOADreferences[link.linkData.right];
+		console.log("Link attempt("+link.UID+"):"+left+">"+right);
+		console.log(link.linkData);
 		if(left && right)
 			left.link(right,{container:link.properties,anchors:link.linkData});
 	}
@@ -155,8 +158,6 @@ pLOAD.proceed = function(jsn)
 			pLOAD.loadLinks();
 			pLOAD.activateCameras();
 			//now load all the apps
-			if(factory.setup) //if custom setup is loaded, run it
-				factory.setup();
 			console.log("Loading apps:"+utils.debug(LOADtree.requirements.apps));
 			pLOAD.loadApps( LOADtree.requirements.apps  );
 
