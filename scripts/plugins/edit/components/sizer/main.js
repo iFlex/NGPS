@@ -169,27 +169,36 @@ loadAppCode("edit/components/sizer",function(data)
     Editor.sizer.target.enlarge(amount);
   }
   //edit interface functions
+  function autoScale(target){
+    target.sampleAutoSizePos();
+    for( kid in target.children )
+      target.children[kid].updateAutoSizePos();
+  }
   this.onChangeWidthRight = function(dx,dy)
   {
     Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()+dx);
     Editor.sizer.focus();
+    autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeWidthLeft = function(dx,dy)
   {
     Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()-dx);
     Editor.sizer.target.move(dx,0);
+    autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeHeightBottom = function(dx,dy)
   {
     Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()+dy);
+    autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeHeightTop = function(dx,dy)
   {
     Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()-dy);
     Editor.sizer.target.move(0,dy);
+    autoScale(Editor.sizer.target);
   }
   this.onDelete = function()
   {

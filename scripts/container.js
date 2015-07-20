@@ -29,8 +29,21 @@ requirejs(['TweenMax.min',"interact","app","camera","gem","networking"]);
 //
 this.containerData = {};
 containerData.containerIndex = 0;
+containerData.reffTree = {}; //quick reference tree
+
+function findContainer(uid){
+	return containerData.reffTree[uid];
+}
+
 this.container = function(_properties)
 {
+	function addToTree(container) {
+		containerData.reffTree[container.UID] = container;
+	}
+	function removeFromTree(container) {
+		delete containerData.reffTree[container.UID];
+	}
+
 	this.UID = 0;
 	this.DOMreference = 0;
 	this.parent = 0;
@@ -45,6 +58,16 @@ this.container = function(_properties)
 	this.angle = 0;
 	this.scaleX = 1;
 	this.scaleY = 1;
+	//TODO:
+	this.autoWidth  = 0;//size in percentage out of parent w
+	this.autoHeight = 0;//size in percentage out of parent h
+	this.autoX      = undefined;//x in percentage from (0,0) of parent
+	this.autoY      = undefined;//y in percentage from (0,0) of parent
+	this.autoAspect = 1;
+	this.preserveAspect = true;//preserves the aspect ratio of the container when scaling to parent
+	//TODO: add save code for these properties ( VERY IMPORTANT )
+	//todo implement functions for size setting
+
 	this.properties = utils.merge({},_properties,true);
 
 	this.child = 0; //not sure if used anywhere - save and load seem to have had something to do with it
@@ -76,7 +99,15 @@ this.container = function(_properties)
 		if(this.parent)
 			return false;
 
-		this.UID = containerData.containerIndex++;
+		//enforce UID preservation
+		if( this.properties['UID'] && findContainer(this.properties['UID']) == undefined ){
+			this.UID = this.properties['UID']
+			if(containerData.containerIndex < this.UID)
+				containerData.containerIndex = this.UID + 1;
+		}
+		else
+			this.UID = containerData.containerIndex++;
+
 		var DOMtype = "div";
 		if(typeof(this.properties['type']) == "string")
 			DOMtype = this.properties['type'];
@@ -189,6 +220,7 @@ this.container = function(_properties)
 		this.properties['width'] = this.getWidth();
 		this.properties['height']= this.getHeight();
 
+		addToTree(this);
 		//EVENT
 		if( this.events['loadContainer'] || ( GEM.events['loadContainer'] && GEM.events['loadContainer']['_global'] ) )
 			GEM.fireEvent({event:"loadContainer",target:this})
@@ -306,6 +338,7 @@ this.container = function(_properties)
 		if(this.discarded)//already discarded
 			return;
 
+		removeFromTree(this);
 		//console.log("Container.discard()>"+this.UID);
 		//discard all children
 		for( k in this.children )
@@ -678,6 +711,69 @@ this.container = function(_properties)
 			GEM.fireEvent({event:"changePosition",target:this})
 	}
 
+	this.sampleAutoSizePos = function(){ //use to calculate precentages for saving
+		if(this.parent == undefined)
+			return;
+
+		this.autoAspect = this.getWidth() / this.getHeight();
+		this.autoWidth  = this.getWidth() / this.parent.getWidth();
+		this.autoHeight = this.getHeight() / this.parent.getHeight();
+		var pos = this.getPos(0,0);
+		this.autoX      = pos.x / this.parent.getWidth();
+		this.autoY      = pos.y / this.parent.getHeight();
+	}
+	this.updateAutoSizePos = function(){ //use to impose percentages
+		if(this.parent == undefined)
+			return;
+
+		if(!this.preserveAspect){
+			if( this.autoWidth != 0 )
+				this.setWidth( this.parent.getWidth() * this.autoWidth );
+			if( this.autoHeight != 0 )
+				this.setHeight( this.parent.getHeight() * this.autoHeight );
+		}
+		else { //preserve aspect
+			var w = this.parent.getWidth(), h = this.parent.getHeight();
+
+			if( w > h ){ //preserve based on height
+				if( this.autoWidth != 0 ) {
+					this.setHeight( this.parent.getHeight() * this.autoHeight );
+					this.setWidth( this.getHeight() * this.autoAspect );
+				}
+			} else { //preserve based on width
+				if( this.autoHeight != 0 ){
+					this.setWidth( this.parent.getWidth() * this.autoWidth );
+					this.setHeight( this.getWidth() * (1/this.autoAspect) );
+				}
+			}
+		}
+
+		var pos = this.getPos();
+		if( this.autoX != undefined )
+			pos.x = this.parent.getWidth() * this.autoX;
+		if( this.autoY != undefined)
+			pos.y = this.parent.getHeight() * this.autoY;
+
+		this.putAt(pos.x,pos.y,0,0);
+		this.autoAspect = this.getWidth() / this.getHeight();
+	}
+	this.setAutoWidth = function(w){
+		this.autoWidth = w;
+		this.updateAutoSizePos();
+	}
+	this.setAutoHeight = function(h){
+		this.autoHeight = h;
+		this.updateAutoSizePos();
+	}
+	this.setAutoX = function(x){
+		this.autoX = x;
+		this.updateAutoSizePos();
+	}
+	this.setAutoY = function(y){
+		this.autoY = y;
+		this.updateAutoSizePos();
+	}
+
 	this.scale = function(amount,ox,oy,delay)
 	{
 		if(!ox)
@@ -873,8 +969,7 @@ this.container = function(_properties)
 			this.children[c].maintainLinks();
 	}
 	//EVENTs support
-	this.addEventListener = function( event , handler , context )
-	{
+	this.addEventListener = function( event , handler , context ) {
 		if(!context)
 			context = this;
 
@@ -885,8 +980,7 @@ this.container = function(_properties)
 
 		GEM.addEventListener( event, this, handler, context );
 	}
-	this.removeEventListener = function( event , handler , context )
-	{
+	this.removeEventListener = function( event , handler , context ) {
 		if(!context)
 			context = this;
 
@@ -931,18 +1025,3 @@ this.container = function(_properties)
 		}
 	}
 }
-/*
-BAD IDEA, global function event handler is a bottleneck
-function maintainLinks(data)
-{
-	var ctx = data['target'];
-	for( k in ctx.outgoing )
-		ctx.maintainLink( ctx.outgoing[k]['target'] )
-
-	for( t in ctx.incoming )
-	{
-		var trg = ctx.incoming[t]['target'];
-		trg.maintainLink( ctx );
-	}
-}
-*/
