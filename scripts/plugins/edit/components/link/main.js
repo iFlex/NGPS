@@ -4,9 +4,9 @@ this.Editor = this.Editor || {};
 loadAppCode("edit/components/link",function(data){
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
-	this.parent.permissions.save = false;
-	this.parent.permissions.connect = false;
-	
+	this.parent.setPermission('save',false);
+  this.parent.setPermission('connect',false);
+
 	Editor.link = this;
 
 	var startFrom = data['lastInterfaceContainer'] || 2 ;
@@ -44,7 +44,7 @@ loadAppCode("edit/components/link",function(data){
 		}
 
 		var target = data['target'];
-		if(!target.permissions.connect)
+		if(!target.getPermission('connect'))
 			return;
 
 		if( target.UID < startFrom || (linkParent && target.UID == linkParent.UID ) )//clicked on root

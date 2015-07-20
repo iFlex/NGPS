@@ -5,8 +5,8 @@ loadAppCode("edit/components/sizer",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.permissions.save = false;
-  this.parent.permissions.connect = false;
+  this.parent.setPermission('save',false);
+  this.parent.setPermission('connect',false);
 
   this.target = 0;
   var currentInterface = 0;
@@ -47,7 +47,7 @@ loadAppCode("edit/components/sizer",function(data)
 
   function attachInterfaceTrigger(e){
     var c = e.child;
-    if(c.permissions.edit == true)
+    if(c.getPermission('edit') == true)
     {
       console.log("attaching edit interface to:"+utils.debug(c)+" perm:"+utils.debug(c.permissions));
       c.addEventListener("triggered",Editor.sizer._show);
@@ -81,7 +81,7 @@ loadAppCode("edit/components/sizer",function(data)
   {
     console.log("SHOW");
     console.log(target);
-    if(!target || !target.permissions.edit)
+    if(!target || !target.getPermission('edit'))
       return;
     Editor.mainActiveUI.activate({
       activate:Editor.sizer.show,

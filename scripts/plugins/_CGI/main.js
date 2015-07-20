@@ -32,7 +32,7 @@ loadAppCode("_CGI",function(data){
   var miniInterf;
   this.init = function(){
     if(hasInterface){
-      Interface = factory.base.addChild({width:"100%",height:interfHeight+"px",x:"0px",bottom:"0%",background:"rgba(0,0,0,0.1)",cssText:"overflow:scroll;padding-left:5px;padding-top:3px"});
+      Interface = factory.base.addChild({permissions:{save:false},width:"100%",height:interfHeight+"px",x:"0px",bottom:"0%",background:"rgba(0,0,0,0.1)",cssText:"overflow:scroll;padding-left:5px;padding-top:3px"});
       if( Editor && Editor.headerHeight )
         this.adjInterf = factory.base.addChild({width:"10%",height:"auto",x:"-10%",bottom:interfHeight+"px",border_radius:[0,"10px",0,0],style:"padding-left:5px;padding-right:5px;",background:"rgba(0,0,0,0.05)"});
     }

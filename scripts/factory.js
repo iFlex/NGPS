@@ -48,6 +48,7 @@ factory.init = function(mode,manualSetup) // editor init
 		//creating factory.root ( place where dynamic content is placed )
 		factory.base = new container(Descriptors.containers['base']);
 		factory.base.load();
+		factory.base.setPermissions({save:true,connect:false,edit:false,children:true,connect:true});
 
 		factory.root = factory.base.addChild(Descriptors.containers['root']);
 		factory.root.extend(Interactive);
@@ -58,7 +59,6 @@ factory.init = function(mode,manualSetup) // editor init
 		//center camera
 		var s = factory.root.getSurface();
 		factory.root.c_move(-s['width']/2,-s['height']/2);
-
 		factory.initialised = true;
 		requirejs(["constructors/editor"],_init);
 	}

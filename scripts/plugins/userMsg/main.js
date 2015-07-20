@@ -3,8 +3,8 @@ loadAppCode("userMsg",function(data){
 	this.config = {interface:"none"};
 	var parent = data['parent'];
 	var currentBoard = 0;
-	parent.permissions.save = false;
-	parent.permissions.track = false;
+	parent.setPermission('save',false);
+  parent.setPermission('connect',false);
 	this.init = function() //called only once when bound with container
 	{
 		console.log(parent.appPath+" - init.");

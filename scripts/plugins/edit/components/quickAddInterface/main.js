@@ -4,8 +4,9 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   Editor.addInterface = this;
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.permissions.save = false;
-  this.parent.permissions.connect = false;
+  this.parent.setPermission('save',false);
+  this.parent.setPermission('connect',false);
+
   this.overrideEdit = false;
   this.interface = {};
   this.active = true;
@@ -22,7 +23,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       return;
 
     Editor.addInterface.event = e;
-    if( (e.target.permissions.edit) || e.target.UID < 3 )
+    if( (e.target.getPermission('edit')) || e.target.UID < 3 )
     {
       if(connectActive)
       {
@@ -48,10 +49,8 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     Editor.addInterface.setInterface(0);
   }
   function show( globalX, globalY , parent){
-    if(parent && parent.permissions.quickAddInterface == false)
+    if(parent && parent.getPermission('quickAddInterface') == false)
       return;
-
-    console.log("Adding to container:"+utils.debug(parent)+" >> "+utils.debug(parent.permissions));
 
     Editor.mainActiveUI.activate({hide:Editor.addInterface.hide});
     if(parent.UID < 3)

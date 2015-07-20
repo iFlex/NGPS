@@ -8,8 +8,9 @@ loadAppCode("edit/components/configureContainer",function(data)
   //code
   this.config = { interface:"none" };
   var parent = data['parent'];
-  parent.permissions.save = false;
-  parent.permissions.connect = false;
+  parent.setPermission('save',false);
+  parent.setPermission('connect',false);
+
   var interfaces = [];
   var w = 60;
   var h = 60;

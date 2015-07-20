@@ -48,7 +48,7 @@ this.container = function(_properties)
 	this.DOMreference = 0;
 	this.parent = 0;
 	this.discarded = false;
-	this.permissions = {save:true,connect:false,edit:false,children:true}//connect:true};//savable, connectable, extend in future
+	permissions = {};//save:true,connect:false,edit:false,children:true,connect:true};//savable, connectable, extend in future
 	//content properties
 	this.isLeaf = false;
 	this.isApp = false;
@@ -81,12 +81,10 @@ this.container = function(_properties)
 	this.onMoved = 0; //this overrides the default container move function ( for camera use )
 	this.onMouseDown = 0;
 	this.onMouseUp  = 0;
-	//DOM manipulation
-	//TODO: Add possibility to  style with CSS
-	//inherit permissions
+
+	//override default permissions with ones from descriptor
 	if(_properties['permissions'])
-		this.permissions = utils.merge(this.permissions,_properties['permissions'],true);
-	//properties['permissions'] = this.permissions;
+		permissions = utils.merge(permissions,_properties['permissions'],true);
 
 	if(_properties['isLink'])
 		this.isLink = true;
@@ -98,16 +96,25 @@ this.container = function(_properties)
 	{
 		if(this.parent)
 			return false;
-
 		//enforce UID preservation
-		if( this.properties['UID'] && findContainer(this.properties['UID']) == undefined ){
+		if( this.properties['UID'] ){
+			var victim = findContainer(this.properties['UID']);
+			if( victim != undefined && !victim.getPermission('noOverride') )//conflicts with existing container - abort if container can't be overriden
+				return false;
+			else
+				victim.discard(); //override old container
+
 			this.UID = this.properties['UID']
 			if(containerData.containerIndex < this.UID)
 				containerData.containerIndex = this.UID + 1;
 		}
-		else
+		else {
 			this.UID = containerData.containerIndex++;
+			if( this.UID == 0 )
+				permissions.noOverride = true;
+		}
 
+		//DOM manipulation
 		var DOMtype = "div";
 		if(typeof(this.properties['type']) == "string")
 			DOMtype = this.properties['type'];
@@ -220,6 +227,10 @@ this.container = function(_properties)
 		this.properties['width'] = this.getWidth();
 		this.properties['height']= this.getHeight();
 
+		//inherit permissions without overriding the descriptor ones
+		if(this.parent)
+			permissions = utils.merge(permissions,parent.permissions);
+
 		addToTree(this);
 		//EVENT
 		if( this.events['loadContainer'] || ( GEM.events['loadContainer'] && GEM.events['loadContainer']['_global'] ) )
@@ -293,6 +304,19 @@ this.container = function(_properties)
 				delete this[k];
 	}
 
+	this.setPermission = function(name,value){
+		permissions[name] = value;
+	}
+
+	this.setPermissions = function(perms){
+		for( k in perms )
+			permissions[k] = perms[k];
+	}
+
+	this.getPermission = function(name){
+		return permissions[name];
+	}
+
 	this.hasChildren = function()
 	{
 			var nrc = 0;
@@ -303,14 +327,10 @@ this.container = function(_properties)
 
 	this.addChild = function(properties)
 	{
-		if(this.permissions.children == false)
+		if(permissions.children == false)
 			return;
-		//inherit permissions
-		var props = utils.merge({},utils.merge(properties,{permissions:this.permissions},false),true);
-		//if(!properties['permissions'])
-			//properties['permissions'] = this.permissions;
 
-		this.children[ containerData.containerIndex ] = new container( props );
+		this.children[ containerData.containerIndex ] = new container( properties );
 		var reff = this.children[ containerData.containerIndex ]
 		reff.load( this );
 
@@ -374,7 +394,7 @@ this.container = function(_properties)
 
 	this.changeParent = function(parent)
 	{
-		 if(parent.permissions.children == false)
+		 if(parent.getPermission('children') == false)
 			return;
 
 		var oldP = 0;
@@ -842,7 +862,7 @@ this.container = function(_properties)
 	}
 	this.link = function (target,descriptor)
 	{
-		if( this.permissions.connect == false || target.permissions.connect == false )
+		if( permissions.connect == false || target.getPermission('connect') == false )
 			return;
 		//delete already existing link
 		if(this.outgoing[target.UID])
@@ -905,7 +925,7 @@ this.container = function(_properties)
 	}
 	this.changeLinkTarget = function(oldTarget,newTarget)
 	{
-		if(newTarget.permissions.connect == false)
+		if(newTarget.getPermission('connect') == false)
 			return;
 
 		//delete form incoming (oldTarget)

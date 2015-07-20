@@ -2,8 +2,8 @@
 loadAppCode("edit/components/linkEdit",function(data){
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.permissions.save = false;
-  this.parent.permissions.connect = false;
+  this.parent.setPermission('save',false);
+  this.parent.setPermission('connect',false);
 
   var uiPerm = {save:false,connect:false};
   var link   = 0;

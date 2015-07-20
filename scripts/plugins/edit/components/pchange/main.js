@@ -6,8 +6,8 @@ loadAppCode("edit/components/pchange",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.permissions.save = false;
-  this.parent.permissions.connect = false;
+  this.parent.setPermission('save',false);
+  this.parent.setPermission('connect',false);
 
   this.active = true;
 
@@ -27,8 +27,8 @@ loadAppCode("edit/components/pchange",function(data)
     var g = c.addPrimitive({type:"span",content:{class:(last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in"}});
     g.style.cssText = "font-size:"+interfSize*0.9+"px";
     c.destination = obj;
-    c.permissions.save = false;
-    c.permissions.connect = false;
+    c.setPermission('save',false);
+    c.setPermission('connect',false);
     c.addEventListener("triggered",trigger);
     return c;
   }
@@ -90,7 +90,7 @@ loadAppCode("edit/components/pchange",function(data)
     //check kids on same level
     for( k in ch )
     {
-      if( ch[k].permissions.track && ch[k].UID != target.UID )
+      if( ch[k].getPermission('track') && ch[k].UID != target.UID )
       {
         var pos = areOverlapping(target,ch[k]);
         if( pos )
@@ -152,7 +152,7 @@ loadAppCode("edit/components/pchange",function(data)
 
   var onAddedChild = function(e){
     var c = e.child;
-    if(c.permissions.track)
+    if(c.getPermission('track'))
     {
       //console.log("_pchange:: Added child:"+utils.debug(c));
       c.addEventListener('changePosition',track);

@@ -15,8 +15,8 @@ loadAppCode("edit",function(data)
 	Editor.dock.clistatus = 0;
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
-	this.parent.permissions.save = false;
-	this.parent.permissions.connect = false;
+	this.parent.setPermission('save',false);
+	this.parent.setPermission('connect',false);
 
 	this.heightCoeficient = 0.1;
 	this.interfaces = {};
@@ -69,7 +69,7 @@ loadAppCode("edit",function(data)
 	this.UI = function(info){
 		this.parent = info['parent'];
 		this.parts = {};
-		this.parts['root']  = factory.base.addChild({width:"100%",height:"32px",x:"0px",y:"0px",background:"rgba(0,0,0,0.05)",style:"z-index:100;padding-left:5px;padding-top:3px,padding-bottom:3px"});
+		this.parts['root']  = factory.base.addChild({permissions:{save:false},width:"100%",height:"32px",x:"0px",y:"0px",background:"rgba(0,0,0,0.05)",style:"z-index:100;padding-left:5px;padding-top:3px,padding-bottom:3px"});
 		this.parts['title'] = this.parts['root'].addChild({type:"input",style:"display:inline-block;height:100%;width:20%;background:rgba(0,0,0,0);"});
 		this.parts['interfaceRight'] = this.parts['root'].addChild({style:"position:relative;display:table;float:right;height:100%;width:auto"});
 		Editor.headerHeight = this.parts['root'].getHeight();
@@ -162,7 +162,8 @@ loadAppCode("edit",function(data)
 
 		Editor.dock.parent.setWidth(0);
 		Editor.dock.parent.setHeight(0);
-
+		//Editor.dock.parent.permissions.save = false;
+		//Editor.dock.parent.permissions.connect = false;
 		//init interface
 		Editor.dock.interfaces['main']	= new Editor.dock.UI({parent:Editor.dock.parent,title:"Title, click to change"});//"NGPS - "+factory.presentation.name});
 		if(platform.isMobile || factory.base.getWidth() < 450)
@@ -243,7 +244,7 @@ loadAppCode("edit",function(data)
 	}
 	this.load = function(){
 		var pcnt = window.prompt("presentation content:");
-		factory.init('editor');
+		//factory.init('editor');
 		pLOAD.proceed(pcnt);
 	}
 	this.toggleMobile = function(){

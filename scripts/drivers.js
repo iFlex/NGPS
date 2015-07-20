@@ -32,7 +32,7 @@ var HTTPrequest = function(method,url,params,oncomplete,pass_to_listener)
 	http.send( params );
 }
 
-utils.merge = function(a,b,option){
+utils.merge = function(a,b,override){
 	var nw = {}
 	for( k in a)
 		nw[k] = a[k];
@@ -40,7 +40,7 @@ utils.merge = function(a,b,option){
 	for( k in b )
 	{
 		if(nw.hasOwnProperty(k))
-			if( !option )
+			if( !override )
 				continue;
 
 		nw[k] = b[k];

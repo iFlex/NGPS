@@ -1,8 +1,8 @@
 loadAppCode("zoom",function(data){
 	this.config = {interface:"none"};
 	var parent = data['parent'];
-	parent.permissions.save = false;
-	parent.permissions.track = false;
+	parent.setPermission('save',false);
+	parent.setPermission('track',false);
 
 	this.parent = factory.base; //WARNING: this depends on the structure of the standard factory.js setup
 	this.buttonNames = ['zup','zdn'];
@@ -34,7 +34,7 @@ loadAppCode("zoom",function(data){
 			ctl.interactive(true);
 			ctl.onMoved = function(){};
 			ctl.DOMreference.type = "button";
-			ctl.permissions.save = false;
+			ctl.setPermission('save',false);
 
 			this.buttons[this.buttonNames[i]] = ctl;
 		}

@@ -27,8 +27,8 @@ loadAppCode("edit/components/text",function(data)
 {
 	this.config = {};
 	this.parent = data['parent'];
-	this.parent.permissions.save = false;
-	this.parent.permissions.connect = false;
+	this.parent.setPermission('save',false);
+  this.parent.setPermission('connect',false);
 
 	this.startWorker = data['startWorker'];
 	this.stopWorker = data['stopWorker'];

@@ -4,8 +4,9 @@ loadAppCode("edit/components/saveDisplay",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.permissions.save = false;
-  this.parent.permissions.connect = false;
+  this.parent.setPermission('save',false);
+  this.parent.setPermission('connect',false);
+  
   this.textarea = 0;
   var doClose = false;
   Editor.saveAid = this;

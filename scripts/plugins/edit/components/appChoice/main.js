@@ -7,8 +7,9 @@ loadAppCode("edit/components/appChoice",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.permissions.save = false;
-  this.parent.permissions.connect = false;
+  this.parent.setPermission('save',false);
+  this.parent.setPermission('connect',false);
+  
   var path = this.parent.appFullPath;
   var root = 0;
   var main = 0;
@@ -105,7 +106,7 @@ loadAppCode("edit/components/appChoice",function(data)
     host.getInstalledUserApps(function(data){
       if( data.success == true ) {
         apps = data.apps;
-        
+
         root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"grey",style:"padding-left:5px;padding-right:5px",permissions:{save:false,connect:false}});
         main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],background:"transparent",permissions:{save:false,connect:false}});
         active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],background:"grey",permissions:{save:false,connect:false}});

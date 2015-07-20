@@ -7,8 +7,8 @@ loadAppCode("edit/components/aligner",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.permissions.save = false;
-  this.parent.permissions.connect = false;
+  this.parent.setPermission('save',false);
+  this.parent.setPermission('connect',false);
 
   this.active = true;
 
@@ -122,7 +122,7 @@ loadAppCode("edit/components/aligner",function(data)
     //check kids on same level
     for( k in ch )
     {
-      if(ch[k].permissions.track && ch[k].UID != target.UID )
+      if(ch[k].getPermission('track') && ch[k].UID != target.UID )
       {
         var l = isCloseEnough(target,ch[k]);
         for( i in l)
@@ -153,7 +153,7 @@ loadAppCode("edit/components/aligner",function(data)
 
   var onAddedChild = function(e){
     var c = e.child;
-    if(c.permissions.track)
+    if(c.getPermission('track'))
     {
       c.addEventListener('changePosition',track);
     }

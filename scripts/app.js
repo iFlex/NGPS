@@ -74,7 +74,7 @@ AppCtl.ainit = function(app,params)
 	{
 		if(data && data['cover'])
 		{
-			data['cover'].permissions = _permissions;
+			data['cover'].setPermissions(_permissions);
 			this.cover = this.addChild(data['cover'])
 		}
 		else
@@ -82,7 +82,7 @@ AppCtl.ainit = function(app,params)
 
 		if(data && data['exit'])
 		{
-			data['exit'].permissions = _permissions;
+			data['exit'].setPermissions(_permissions);
 			this.exit = this.addChild(data['exit'])
 		}
 		else

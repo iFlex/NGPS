@@ -41,7 +41,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 		}
 
 		//save for referencing
-		LOADreferences[node.UID] = croot;
+		//LOADreferences[node.UID] = croot;
 
 		if(node.camera)
 		{
@@ -77,7 +77,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			croot.appData = node.appData;
 	}
 	else
-		croot = LOADreferences[node.UID];
+		croot = findContainer(node.UID);//LOADreferences[node.UID];
 	//extensions
 	for(k in node.children)
 	{
@@ -93,8 +93,8 @@ pLOAD.loadLinks = function(){
 	for( l in _LINKS )
 	{
 		link = _LINKS[l];
-		left = LOADreferences[link.linkData.left];
-		right = LOADreferences[link.linkData.right];
+		left = findContainer(link.linkData.left);//LOADreferences[link.linkData.left];
+		right = findContainer(link.linkData.right);//LOADreferences[link.linkData.right];
 		if(left && right)
 			left.link(right,{container:link.properties,anchors:link.linkData});
 	}
@@ -109,7 +109,7 @@ pLOAD.activateCameras = function(){
 		{
 			console.log("Adding relation with:"+r+" dsc:"+utils.debug(rels[r]));
 			if( rels[r].root )
-				rels[r].root = LOADreferences[rels[r].root];
+				rels[r].root = findContainer(rels[r].root);//LOADreferences[rels[r].root];
 		}
 	}
 }
@@ -120,7 +120,9 @@ pLOAD.loadApps = function(apps){
 		for( j in apps[app] )
 		{
 			console.log(">> On container:"+j);
-			LOADreferences[apps[app][j]].loadApp(app,LOADreferences[apps[app][j]].appData);
+			var contain = findContainer(apps[app][j]);
+			contain.loadApp(app,contain.appData);
+			//LOADreferences[apps[app][j]].loadApp(app,LOADreferences[apps[app][j]].appData);
 		}
 	}
 }
@@ -135,13 +137,6 @@ pLOAD.proceed = function(jsn)
 	{
 		if(LOADtree)
 		{
-			//prepare the references for containers needing apps
-			delete LOADreferences;
-			LOADreferences = {};
-			for( app in LOADtree.requirements.apps )
-				for( j in LOADtree.requirements.apps[app] )
-					LOADreferences[LOADtree.requirements.apps[app][j]] = true;
-			//
 			LOADcontent = LOADtree.content;
 			var jae = -1;
 			if( factory.base && factory.base.UID != undefined ) //neet to jump over base and root
@@ -155,7 +150,7 @@ pLOAD.proceed = function(jsn)
 			}
 
 			var k = Object.keys(LOADcontent)[0];
-			console.log(">>LD>>Starging load at:"+k);
+			console.log(">>LD>>Starting load at:"+k);
 			pLOAD._unit(LOADcontent[k],undefined,jae);
 			pLOAD.loadLinks();
 			pLOAD.activateCameras();

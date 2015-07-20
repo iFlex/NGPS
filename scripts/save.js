@@ -45,14 +45,17 @@ save.clear = function(){
 //init
 save.clear();
 
-function pack(){
+function pack(noStringify){
 	var output = {};
 	output.metadata = {};
 	output.requirements = {
 		apps:save.requiredApps
 	};
 	output.content = save.saveTree;
-	return JSON.stringify(output);
+	if(!noStringify)
+		return JSON.stringify(output);
+
+	return output
 }
 //TODO check if memory allows a ram save
 
@@ -67,7 +70,7 @@ save._unit = function(node,operation_mode)
 	var nostore = {x:true,y:true,top:true,bottom:true,left:true,right:true,width:true,height:true}
 
 	//console.log("NODE:"+node.UID);
-	if(!node.permissions.save)
+	if(!node.getPermission('save'))
 		return;
 	save.nestCount++;
 
@@ -171,9 +174,9 @@ save.RAMsave = function(stringify){
 	save._unit(factory.base,{build:"continuous",iteration:"recursive"});
 	//now stringify
 	if(stringify)
-		return JSON.stringify(save.saveTree);
+		return pack();
 
-	return save.saveTree;
+	return pack(true);
 }
 save.toConsole = function(_alert){
 
