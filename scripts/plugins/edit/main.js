@@ -34,7 +34,7 @@ loadAppCode("edit",function(data)
 	Editor.mainActiveUI.hide = function(){
 		if( mainActiveUI.current &&
 				mainActiveUI.current.hide )
-					mainActiveUI.current.hide.apply(mainActiveUI.current.context,mainActiveUI.current.passToHide);
+				mainActiveUI.current.hide.apply(mainActiveUI.current.context,mainActiveUI.current.passToHide);
 
 		mainActiveUI.current = {hide:0};
 		/*console.log("Prev:");
@@ -191,6 +191,7 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp("edit/components/pchange");
 		factory.newGlobalApp("edit/components/text");
 		factory.newGlobalApp("edit/components/sizer");
+		factory.newGlobalApp("edit/components/importDialog");
 		factory.newGlobalApp("edit/components/addImage");
 		factory.newGlobalApp("edit/components/addVideo");
 		factory.newGlobalApp("edit/components/appChoice");
@@ -198,6 +199,7 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp("edit/components/linkEdit");
 		factory.newGlobalApp("edit/components/configureContainer");
 		factory.newGlobalApp("edit/components/quickAddInterface");
+		factory.newGlobalApp("edit/components/keyBindings");
 		factory.newGlobalApp("_actions",{mode:"edit"});
 		factory.newGlobalApp("_CGI",{mode:"edit"});
 		factory.newGlobalApp("userMsg");

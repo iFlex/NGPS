@@ -36,31 +36,6 @@ loadAppCode("_actions",function(data)
   mode = data['mode'] || 'present';
   Actions = this;
 
-  function getById(id,node){
-      //assume that if in present mode the containers are loaded via LOAD module
-      if( mode == 'present' && LOADreferences[id])
-      {
-        console.log("MODE:"+mode+" id:"+id+" reff:"+LOADreferences[id]);
-        console.log("found reff to:"+id);
-        return LOADreferences[id];
-      }
-      //recursive BFS
-      if(!node)
-        node = factory.base;
-
-      console.log("Recursive BFS.("+node.UID+") ~ "+id);
-      if( node.UID == id )
-        return node;
-
-      var n = undefined;
-      for( c in node.children ) {
-        n = getById(id,node.children[c]);
-        if(n)
-          return n;
-      }
-      return n;
-  }
-
   function getObjectFromID(id,self){
     if( typeof(id) == "string" )
     {
@@ -68,10 +43,11 @@ loadAppCode("_actions",function(data)
         return self;
       var pos = id.search("#:");
       if( pos == 0 )
-        return getById(id.substr(pos+2,id.length));
+        return containerData.reffTree[id.substr(pos+2,id.length)];
     }
     return id;
   }
+
   this.forceTrigger = function(node, _event){
     if(!node.actions || !node.actions.triggers)
       return;
@@ -97,7 +73,7 @@ loadAppCode("_actions",function(data)
           t[a.handler].apply(t,a.params.pass);
         }
         else
-          console.log("Actions: ERROR, handler"+act.handler+" does not exist on object:"+utils.debug(targ));
+          console.log("Actions: ERROR, handler:"+act.handler+" does not exist on object:"+utils.debug(a.target));
       }
     }
   }
@@ -105,6 +81,9 @@ loadAppCode("_actions",function(data)
     processActionDescriptor(node,sl);
   }
   function processActionDescriptor(node,sl){
+    if( !node.actions )
+      return;
+
     var epl = node.actions.triggers;
     console.log("Actions:: processing node descriptor("+node.UID+")");
     if(!node._actrdy) {

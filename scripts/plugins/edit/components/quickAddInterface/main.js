@@ -36,7 +36,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       show(e.nativeEvent.pageX,e.nativeEvent.pageY,e.target);
     }
   }
-  this.hide = function(){
+  this.hide = function() {
     for( k in Editor.addInterface.interface){
       Editor.addInterface.interface[k].hide();
       Editor.addInterface.interface[k].DOMreference.className = "";
@@ -46,8 +46,16 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       closeButton.button.hide();
       closeButton.button.DOMreference.className = "";
     }
-    Editor.addInterface.setInterface(0);
+    hide();
+    //Editor.addInterface.setInterface(0);
   }
+
+  function hide(){
+    for( b in buttons ){
+      Editor.addInterface.interface[b].hide();
+    }
+  }
+
   function show( globalX, globalY , parent){
     if(parent && parent.getPermission('quickAddInterface') == false)
       return;
@@ -72,9 +80,11 @@ loadAppCode("edit/components/quickAddInterface",function(data){
 
     closeButton.button.show();
     closeButton.button.putAt(pos.x,pos.y,0.5,0.5);
-    closeButton.button.DOMreference.className = "sizeTrans";
+    closeButton.button.DOMreference.style.zIndex = containerData.containerIndex+1;
+    //closeButton.button.DOMreference.className = "sizeTrans";
     for( b in buttons ){
       Editor.addInterface.interface[b].show();
+      Editor.addInterface.interface[b].DOMreference.style.zIndex = containerData.containerIndex+1;
       if( index > maxPerRadius )
       {
         r += interfaceSize;
@@ -83,12 +93,13 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         angle = (360 / maxPerRadius )*Math.PI/180;
       }
       Editor.addInterface.interface[b].putAt(pos.x + Math.cos(-angle*index)*r,pos.y + Math.sin(-angle*index)*r,0.5,0.5);
-      Editor.addInterface.interface[b].DOMreference.className = "sizeTrans";
+      //Editor.addInterface.interface[b].DOMreference.className = "sizeTrans";
       index++;
     }
 
   }
   function makeButton(dsc,x,y){
+    console.log("QAinterface making button");
     var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:[interfaceSize/2+"px"],border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
     var cnt = factory.newContainer(descriptor,"simple_rect",factory.root);
     cnt.DOMreference.innerHTML = "<center><span class='"+dsc.icon+"' style='font-size:"+interfaceSize*sizeCoef+"px'></span><i style='font-size:10px'>"//+dsc.name
@@ -123,7 +134,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     console.log(this.parent.appPath+" - initialising...");
     //GEM.addEventListener("triggered",0,clickHandler,this);
     factory.root.addEventListener("triggered",Editor.addInterface.onClick);
-    this.setInterface();
+    this.setInterface(0);
   }
   this.shutdown = function(){
     console.log(this.parent.appPath+" - shutdown...");
@@ -140,7 +151,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     buttons.push(options);
   }
   //adders
-  function _addContainer(noInterface,descriptor){ //causes cyclic references in save tree
+  function _addContainer(noInterface,descriptor,tag){ //causes cyclic references in save tree
     Editor.mainActiveUI.hide();
     var dparent = Editor.addInterface.origin;
     if(dparent.UID < 3 && factory.root.display.UID != dparent.UID)
@@ -152,7 +163,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     height:dparent.getWidth()*0.2,
     permissions:{track:true,connect:true,edit:true}},descriptor,true);
 
-    var container = factory.newContainer(d,"c000000",Editor.addInterface.origin);
+    var container = factory.newContainer(d,((tag)?tag:"c000000"),Editor.addInterface.origin);
     var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
     container.putAt(pos.x,pos.y,0.5,0.5);
 
@@ -190,7 +201,8 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         Editor.sizer.show(container);
     }
   function addText(){
-    var container = _addContainer(true,{type:"textarea",height:32,width:64,ignoreTheme:true,background:"transparent"});
+    var container = _addContainer(true,null,"text_field");
+    container.DOMreference.placeholder = "Type text here";
     //container.permissions.children = false;
     //container.permissions.quickAddInterface = false;
     console.log("New text field:"+utils.debug(container));
@@ -212,27 +224,20 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   function addImage(){
     Editor.mainActiveUI.hide();
     console.log("Adding image");
-    if(Editor.addInterface.origin.UID < 3)
-      Editor.addInterface.origin = factory.base;
-    if(Editor.images)
-      Editor.images.show(Editor.addInterface.origin);
+    if(Editor.addInterface.origin.UID < 3) {
+      Editor.addInterface.origin = factory.root;
+      Editor.images.import();
+    }
+    else
+      Editor.images.import(Editor.addInterface.origin);
   }
   function addWebsite(){
-    Editor.addInterface.x = 0;
     Editor.mainActiveUI.hide();
-    console.log("Adding Website");
-    var container = factory.newContainer({
-    x:0,
-    y:0,
-    width:Editor.addInterface.origin.getWidth(),
-    height:300,
-    permissions:{track:true,connect:true,edit:true}},"c000000",Editor.addInterface.origin,false,true);
-
-    var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
-    container.putAt(pos.x,pos.y,0,0);
-    var website = window.prompt("Please enter url:");
-    container.loadApp('interactiveContent',{url:website,width:"100%",height:"100%"});
-    //container.addPrimitive({type:"iframe",content:{src:"http://www.gla.ac.uk",width:"100%",height:"100%"}});
+    console.log("Adding Video");
+    if(Editor.addInterface.origin.UID < 3)
+      Editor.addInterface.origin = factory.base;
+    if(Editor.videos)
+      Editor.videos.show(Editor.addInterface.origin);
   }
   function connect(){
     Editor.mainActiveUI.hide();

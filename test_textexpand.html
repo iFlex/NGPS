@@ -1,0 +1,16 @@
+<html>
+<head>
+<script src="scripts/support/jquery.js"></script>
+<script src="scripts/support/jquery.autoResize.js"></script>
+</head>
+<body>
+<textarea>test</textarea>
+</body>
+<script>
+$('textarea').each(function(){
+    autosize(this);
+}).on('autosize:resized', function(){
+    console.log('textarea height updated');
+});
+</script>
+</html>

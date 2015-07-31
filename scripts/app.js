@@ -143,12 +143,18 @@ AppCtl.adestroy = function() // completely remove app from container
 
 	if( this.app.shutdown )
 		this.app.shutdown();
+
 	//stop all of the apps workers
 	this.stopWorker();
-
 	delete AppMgr.appHosts[this.appName][this.UID];
-	if( Object.keys(AppMgr.appHosts[this.appName]) == 0 ) //all apps instances destroyed, time to unload the app
+
+	if( Object.keys(AppMgr.appHosts[this.appName]).length() == 0 ){ //all apps instances destroyed, time to unload the app
 		delete AppMgr.loadedApps[this.appName];
+		AppMgr.loadedApps[this.appName] = undefined;
+	}
+	delete this.app;
+	this.app = undefined;
+
 	//EVENT
 	if( this.events['appDestroyed'] || ( GEM.events['appDestroyed'] && GEM.events['appDestroyed']['_global'] ) )
 		GEM.fireEvent({event:"appDestroyed",target:this})

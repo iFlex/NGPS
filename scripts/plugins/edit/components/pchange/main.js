@@ -20,6 +20,14 @@ loadAppCode("edit/components/pchange",function(data)
     //console.log("::"+utils.debug(levelsMap));
   }
 
+  function updateTrigger(i,obj,pos,last){
+      var obj = interfaces[i];
+      obj.show();
+      pos = factory.root.viewportToSurface(pos.x,pos.y);
+      obj.child.className = (last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in";
+      obj.putAt(pos.x,pos.y);
+      obj.DOMreference.style.zIndex = containerData.containerIndex;
+  }
   function makeTrigger(obj,pos,last)
   {
     pos = factory.root.viewportToSurface(pos.x,pos.y);
@@ -34,12 +42,14 @@ loadAppCode("edit/components/pchange",function(data)
   }
   function hideTriggers(){
     for( i in interfaces)
-      interfaces[i].discard();
-    interfaces = [];
+      interfaces[i].hide();
   }
   function showTriggers(selection,poslist){
     for(i in selection){
-      interfaces.push(makeTrigger(selection[i],poslist[i],poslist[i].isexit));
+      if( i >= interfaces.length)
+        interfaces.push(makeTrigger(selection[i],poslist[i],poslist[i].isexit));
+      else
+        updateTrigger(i,selection[i],poslist[i],poslist[i].isexit);
     }
   }
 

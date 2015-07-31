@@ -102,6 +102,9 @@ loadAppCode("edit/components/text",function(data)
 		if(Editor.addInterface)
 			Editor.addInterface.hide();
 
+		if(Editor.keyBind)
+				Editor.keyBind.deactivate();
+
 		keyboard.interface.parent.show();
 		//assigns the editable DOM object
 		_target = target;
@@ -124,6 +127,9 @@ loadAppCode("edit/components/text",function(data)
 			_target.allowUserMove = true;
 		keyboard.interface.subject = 0;
 		_target = 0;
+
+		if(Editor.keyBind)
+				Editor.keyBind.activate();
 		//keyboard.ops.stopMonitoring();
 	}
 });

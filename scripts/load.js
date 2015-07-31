@@ -19,10 +19,10 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 		return;
 	}
 
-	console.log("jumpAlreadyExisting:"+jumpAlreadyExisting+" UID:"+node.UID);
+	//console.log("jumpAlreadyExisting:"+jumpAlreadyExisting+" UID:"+node.UID);
 	if( jumpAlreadyExisting == undefined || node.UID > jumpAlreadyExisting )
 	{
-		console.log("adding:"+utils.debug(node)+" to:"+utils.debug(root));
+		//console.log("adding:"+utils.debug(node)+" to:"+utils.debug(root));
 		var croot = 0;
 
 		if(!factory.base && !root){
@@ -82,7 +82,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 	//extensions
 	for(k in node.children)
 	{
-		console.log("going to child:"+node.children[k]+">"+LOADcontent[node.children[k]+""]);
+		//console.log("going to child:"+node.children[k]+">"+LOADcontent[node.children[k]+""]);
 		if(LOADcontent[node.children[k]+""])
 			pLOAD._unit( LOADcontent[node.children[k]],croot,jumpAlreadyExisting);
 	}
@@ -96,8 +96,8 @@ pLOAD.loadLinks = function(){
 		link = _LINKS[l];
 		left = findContainer(link.linkData.left);//LOADreferences[link.linkData.left];
 		right = findContainer(link.linkData.right);//LOADreferences[link.linkData.right];
-		console.log("Link attempt("+link.UID+"):"+left+">"+right);
-		console.log(link.linkData);
+		//console.log("Link attempt("+link.UID+"):"+left+">"+right);
+		//console.log(link.linkData);
 		if(left && right)
 			left.link(right,{container:link.properties,anchors:link.linkData});
 	}
@@ -107,10 +107,10 @@ pLOAD.activateCameras = function(){
 	//need to read the UIDs and replace with actual pointer to container
 	for( c in _CAMERAS ){
 		var rels = _CAMERAS[c].crelations;
-		console.log("Checking relations for camera:"+utils.debug(_CAMERAS[c])+" > "+utils.debug(rels));
+		//console.log("Checking relations for camera:"+utils.debug(_CAMERAS[c])+" > "+utils.debug(rels));
 		for( r in rels )
 		{
-			console.log("Adding relation with:"+r+" dsc:"+utils.debug(rels[r]));
+			//console.log("Adding relation with:"+r+" dsc:"+utils.debug(rels[r]));
 			if( rels[r].root )
 				rels[r].root = findContainer(rels[r].root);//LOADreferences[rels[r].root];
 		}
@@ -119,10 +119,10 @@ pLOAD.activateCameras = function(){
 pLOAD.loadApps = function(apps){
 	for( app in apps )
 	{
-		console.log("Attempting to load required app:"+app);
+		//console.log("Attempting to load required app:"+app);
 		for( j in apps[app] )
 		{
-			console.log(">> On container:"+j);
+			//console.log(">> On container:"+j);
 			var contain = findContainer(apps[app][j]);
 			contain.loadApp(app,contain.appData);
 			//LOADreferences[apps[app][j]].loadApp(app,LOADreferences[apps[app][j]].appData);
@@ -153,7 +153,7 @@ pLOAD.proceed = function(jsn)
 			}
 
 			var k = Object.keys(LOADcontent)[0];
-			console.log(">>LD>>Starting load at:"+k);
+			//console.log(">>LD>>Starting load at:"+k);
 			pLOAD._unit(LOADcontent[k],undefined,jae);
 			pLOAD.loadLinks();
 			pLOAD.activateCameras();

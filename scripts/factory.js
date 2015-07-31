@@ -75,7 +75,17 @@ factory.init = function(mode,manualSetup) // editor init
 factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"transparent"}
 
 //FACTORY functions
-factory.newContainer = function(possize,tag,parent,addToFrame,translate)
+factory.container = function(){
+	var parent = factory.root;
+  var w = factory.base.getWidth()/2;
+	var h = factory.base.getHeight()/2;
+	var possize = {x:(w-w/2),y:(h-h/2),width:w,height:h};
+	var actpos = factory.root.display.global2local(possize.x,possize.y);
+	possize.x = actpos.x;
+	possize.y = actpos.y;
+	return factory.newContainer(possize,"",parent);
+}
+factory.newContainer = function(possize,tag,parent)
 {
 	if(!factory.initialised)
 		factory.init();
@@ -91,16 +101,13 @@ factory.newContainer = function(possize,tag,parent,addToFrame,translate)
 		descriptor = factory.defaultDescriptor;
 
 	if(!descriptor['ignoreTheme'])
-		descriptor = utils.merge(descriptor,factory.settings.container,"override");
+		descriptor = utils.merge(descriptor,factory.settings.container,true);
 
-	var obj = parent.addChild( utils.merge(descriptor,possize,true) , addToFrame, translate );
+	var obj = parent.addChild( utils.merge(descriptor,possize,true) , false );
 	obj.extend(Interactive); //make object interactive
 
 	if(obj)
-	{
-	//	obj.load();
 		obj.interactive(true);
-	}
 
 	if(factory.AMS && factory.AMS.tick)
 		factory.AMS.tick( utils.merge(descriptor,possize) , factory.settings.container, factory.AMS );
@@ -108,7 +115,7 @@ factory.newContainer = function(possize,tag,parent,addToFrame,translate)
 	return obj;
 }
 
-factory.createContainer = function(descriptor,parent,addToFrame,translate)
+factory.createContainer = function(descriptor,parent,addToFrame)
 {
 	if(!factory.initialised)
 		factory.init();
@@ -122,6 +129,10 @@ factory.createContainer = function(descriptor,parent,addToFrame,translate)
 		obj.extend(Interactive);
 		obj.interactive(true);
 	}
+
+	if(factory.AMS && factory.AMS.tick)
+		factory.AMS.tick( utils.merge(descriptor,possize) , factory.settings.container, factory.AMS );
+
 	return obj;
 }
 
@@ -137,13 +148,13 @@ factory.newIsolatedContainer = function(descriptor,parent)
 	return obj;
 }
 
-factory.newCamera = function (possize,tag,parent,interval,addToFrame,translate)
+factory.newCamera = function (possize,tag,parent)
 {
 	if(!factory.initialised)
 		factory.init();
 
 	possize.isCamera = true;
-	var obj = factory.newContainer(possize,tag,parent,addToFrame,translate)
+	var obj = factory.newContainer(possize,tag,parent)
 	if(obj)
 	{
 		//possibly fetch camera tag for camera configurations

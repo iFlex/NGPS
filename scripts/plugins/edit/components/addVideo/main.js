@@ -1,4 +1,9 @@
 //TODO: needs to be made configurable: buttons should be able to be hidden, swapped, etc
+/*
+https://www.youtube.com/watch?v=yeSJ2YdhG5k
+https://youtu.be/yeSJ2YdhG5k
+https://www.youtube.com/embed/yeSJ2YdhG5k
+*/
 this.Editor = this.Editor || {};
 loadAppCode("edit/components/addVideo",function(data)
 {
@@ -12,8 +17,31 @@ loadAppCode("edit/components/addVideo",function(data)
   var link = 0;
   var mountPoint = 0;
   var vCTL = 0;
+
+  var correctYoutubeLink = function(link){
+    if(link.indexOf("https://www.youtube.com/") == 0 ||
+       link.indexOf("http://www.youtube.com/") == 0  ||
+       link.indexOf("http://youtu.be/") == 0         ||
+       link.indexOf("https://youtu.be/") == 0        ){
+       var find = "watch?v=";
+       var point = link.indexOf(find);
+       if( point != -1 )
+          point += find.length;
+       else
+          point = link.lastIndexOf("/");
+
+       var end = link.indexOf("&");
+       if( end == -1 )
+          end = link.length;
+
+       return "https://www.youtube.com/embed/"+link.substring(point,end);
+    }
+    return link;
+  }
   var addFromURL = function(link,info)
   {
+    link = correctYoutubeLink(link);
+    console.log("Adding video link:"+link);
     if(!vCTL)
     {
       vCTL = mountPoint || Editor.dock.onAddContainer();
@@ -24,7 +52,7 @@ loadAppCode("edit/components/addVideo",function(data)
     }
     else
       if(vCTL.src != link)
-        vCTL.changeSource(link);
+        vCTL.app.changeSource(link);
   }
   var addFromFile = function(e)
   {
@@ -43,10 +71,6 @@ loadAppCode("edit/components/addVideo",function(data)
     var reader = new FileReader();
     reader.onload = addFromFile;
     reader.readAsDataURL(url);
-  }
-  var _add = function(){
-    if(link && link.value.length > 0)
-      addFromURL(link.value);
   }
 
   this.init = function(){
@@ -82,11 +106,20 @@ loadAppCode("edit/components/addVideo",function(data)
       else
         target = factory.base;
 
+      Editor.importDialog.show({
+        fileHandler:addFromFile,
+        urlHandler:addFromURL,
+        target:target
+      });
+
+      vCTL = 0;
+      /*
       this.hide();
       Editor.videos.container = factory.newContainer({width:"100%",height:"64px",background:"black",permissions:{save:false,connect:false}},"none",target);
       if(!sp)
         sp = (target.getHeight() - Editor.videos.container.getHeight())/2;
       Editor.videos.container.putAt(0,sp);
+
       //midBody = Editor.videos.container.addChild({height:"100%",background:"blue",cssText:"margin-left:auto;margin-right:auto"});
       midBody = factory.newContainer({height:"100%",background:"transparent",cssText:"margin-left:auto;margin-right:auto"},"none",Editor.videos.container);
       midBody.DOMreference.style.width = "auto";
@@ -115,6 +148,6 @@ loadAppCode("edit/components/addVideo",function(data)
         }
       }],midBody.DOMreference);
       midBody.putAt((target.getWidth() - midBody.getWidth())/2,0)
-      //Regional.inspectObject(minBody);
+      //Regional.inspectObject(minBody);*/
     }
 });

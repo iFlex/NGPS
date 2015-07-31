@@ -252,8 +252,7 @@ loadAppCode("_CGI",function(data){
   var availableActions = {
     move:[2,{
       //target:,//override target
-      isMember:true,
-      handler:"tween",
+      handler:function(e,f){console.log(e);console.log(f);},//"tween",
       params:[],//parameters to pass
       onAdjustStart:function(o,storage){
         var pos = o.getPos(0,0);
@@ -279,5 +278,4 @@ loadAppCode("_CGI",function(data){
     restyle:[2,true,],
   };
   var availableEvents  = ['click','mouseMove'];
-
 });
