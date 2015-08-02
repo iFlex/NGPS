@@ -107,7 +107,7 @@ loadAppCode("edit/components/appChoice",function(data)
       if( data.success == true ) {
         apps = data.apps;
 
-        root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"rgba(0,0,0,0.65)",style:"padding-left:5px;padding-right:5px",permissions:{save:false,connect:false}});
+        root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"#E6E6E6",style:"padding-left:5px;padding-right:5px",permissions:{save:false,connect:false}});
         main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],background:"transparent",permissions:{save:false,connect:false}});
         active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],background:"#F5F6CE",permissions:{save:false,connect:false}});
 

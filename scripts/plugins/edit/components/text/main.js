@@ -9,19 +9,6 @@
 this.keyboard = {};
 keyboard.ops;
 keyboard.editor = 0;
-//NOT REQUIRED ANYMORE
-keyboard.cursor = "|";
-keyboard.cursor_interval = 250;
-
-keyboard.keys = {}
-keyboard.keys.caps_lock = 20;
-keyboard.keys.shift = 16;
-keyboard.keys.alt = 18;
-keyboard.keys.ctrl = 17;
-keyboard.keys.command = 91; //apple only
-keyboard.keys.back_space = 8;
-keyboard.keys.enter = 13;
-keyboard.uppercase = false;
 
 loadAppCode("edit/components/text",function(data)
 {
@@ -33,6 +20,7 @@ loadAppCode("edit/components/text",function(data)
 	this.startWorker = data['startWorker'];
 	this.stopWorker = data['stopWorker'];
 	this.rootDir = "plugins/text";
+	Editor.text = this;
 	keyboard.uppercase = 0;
 	keyboard.ops = this;
 	var _target = 0;
@@ -97,6 +85,25 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.editor.hide();
 		factory.root.addEventListener("triggered",keyboard.hide);
 	}
+	this.makeTextContainer = function(container){
+		var ghostTable = utils.makeHTML([{
+      div:{
+        style:"display: table;width: 100%;height:100%;background:transparent"
+      }
+    }]);
+    var divContainer = utils.makeHTML([{
+      div:{
+        style:"display: table-cell;text-align: center;vertical-align: middle;background:transparent"
+      }}]);
+    ghostTable.appendChild(divContainer);
+		container.textField = utils.makeHTML([{
+			textarea:{
+				style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;"
+			}
+		}])
+		divContainer.appendChild(container.textField);
+		container.DOMreference.appendChild(ghostTable);
+	}
 	keyboard.focus = function(target)
 	{
 		if(Editor.addInterface)
@@ -109,7 +116,7 @@ loadAppCode("edit/components/text",function(data)
 		//assigns the editable DOM object
 		_target = target;
 		keyboard.interface.target = target;
-		keyboard.interface.subject = target.DOMreference;//.subject;
+		keyboard.interface.subject = target.textField;//.subject;
 
 		var pos = target.local2global();
 		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.interface.originalHeight-10);

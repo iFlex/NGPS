@@ -201,8 +201,9 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         Editor.sizer.show(container);
     }
   function addText(){
-    var container = _addContainer(true,null,"text_field");
-    container.DOMreference.placeholder = "Type text here";
+    //var container = _addContainer(true,null,"text_field");
+    var container = _addContainer();
+    Editor.text.makeTextContainer(container);
     //container.permissions.children = false;
     //container.permissions.quickAddInterface = false;
     console.log("New text field:"+utils.debug(container));

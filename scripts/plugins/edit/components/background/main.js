@@ -26,7 +26,6 @@ loadAppCode("edit/components/background",function(data){
     console.log( this.parent.appPath + " - initialising..." );
     this.parent.onTrigger = this.toggle;
     this.parent.DOMreference.className = "glyphicon glyphicon-picture";
-    this.parent.toggle(this.parent);
   }
 
   this.shutdown = function() //called only when app is unloaded from container
