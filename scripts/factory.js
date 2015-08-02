@@ -100,17 +100,16 @@ factory.newContainer = function(possize,tag,parent)
 	if(!descriptor)
 		descriptor = factory.defaultDescriptor;
 
+	//apply theme
+	if(factory.AMS && factory.AMS.generate)
+		factory.AMS.generate( parent , factory.settings.container, factory.AMS );
+
 	if(!descriptor['ignoreTheme'])
 		descriptor = utils.merge(descriptor,factory.settings.container,true);
 
 	var obj = parent.addChild( utils.merge(descriptor,possize,true) , false );
 	obj.extend(Interactive); //make object interactive
-
-	if(obj)
-		obj.interactive(true);
-
-	if(factory.AMS && factory.AMS.tick)
-		factory.AMS.tick( utils.merge(descriptor,possize) , factory.settings.container, factory.AMS );
+	obj.interactive(true);
 
 	return obj;
 }
@@ -122,29 +121,25 @@ factory.createContainer = function(descriptor,parent,addToFrame)
 
 	if(!parent)
 		parent = factory.root;
+
+	if(factory.AMS && factory.AMS.generate)
+		factory.AMS.generate( parent , factory.settings.container, factory.AMS );
+
 	var obj = parent.addChild(descriptor,addToFrame,translate);
 	if(obj)
 	{
-		//obj.load();
 		obj.extend(Interactive);
 		obj.interactive(true);
 	}
-
-	if(factory.AMS && factory.AMS.tick)
-		factory.AMS.tick( utils.merge(descriptor,possize) , factory.settings.container, factory.AMS );
-
 	return obj;
 }
 
 factory.newIsolatedContainer = function(descriptor,parent)
 {
-	descriptor['*isolated'] = true;
+	descriptor['*isolated'] = parent;
 	var obj = new container(descriptor);
-	//obj.load(parent);
 	obj.extend(Interactive);
 	obj.interactive(true);
-	//safety
-	obj.parent = factory.root;
 	return obj;
 }
 

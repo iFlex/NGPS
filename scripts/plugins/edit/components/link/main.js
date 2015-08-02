@@ -87,13 +87,13 @@ loadAppCode("edit/components/link",function(data){
 
 			linkData['right_container_xreff'] = localPos.x / target.getWidth();
 			linkData['right_container_yreff'] = localPos.y / target.getHeight();
-			var cDescriptor = Descriptors.links["l000001"];
+			var cDescriptor = Descriptors.links["l000000"];
 
 			var l = linkParent.link(target,{
 				container:cDescriptor,
 				anchors:linkData
 			});
-
+			l.setPermission("edit",false);
 			linkParent = 0;
 			temp.hide();
 		}
@@ -110,7 +110,6 @@ loadAppCode("edit/components/link",function(data){
 		g.style.cssText = "font-size:32px";
 		temp.hide();
 
-		//GEM.addEventListener("triggered",0,"trigger",this);
 		factory.root.addEventListener("triggered",cancel);
 
 		this.toggle(this.parent);

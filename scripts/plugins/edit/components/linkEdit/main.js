@@ -33,19 +33,19 @@ loadAppCode("edit/components/linkEdit",function(data){
 
     if(ileft)
     {
-      ileft.discard();
-      iright.discard();
-      ldel.discard();
-      //rdel.discard();
+      ileft.hide();
+      iright.hide();
+      ldel.hide();
+      //rdel.hide();
     }
-
+/*
     iright = 0;
     ileft = 0;
     left = 0;
     right = 0;
     link = 0;
     //rdel = 0;
-    ldel = 0;
+    ldel = 0;*/
   }
 
   function deleteLink(){
@@ -76,12 +76,19 @@ loadAppCode("edit/components/linkEdit",function(data){
     //rdel.putAt(pos2.x,pos2.y,0.5,0.5);
   }
   function showInterface(){
-
-    ileft = makeDot(left);
-    iright = makeDot(right);
-    ldel = makeDel(factory.root);
-    //rdel = makeDel(factory.base);
-
+    if(!ileft) {
+      ileft = makeDot(left);
+      iright = makeDot(right);
+      ldel = makeDel(factory.root);
+      //rdel = makeDel(factory.base);
+    } else {
+      ileft.show(true);
+      iright.show(true);
+      ldel.show(true);
+      ileft.changeParent(left);
+      iright.changeParent(right);
+      //rdel.show();
+    }
     ileft.putAt(
       link.linkData['left_container_xreff']*left.getWidth(),
       link.linkData['left_container_yreff']*left.getHeight(),0.5,0.5);
@@ -100,6 +107,7 @@ loadAppCode("edit/components/linkEdit",function(data){
     ldel.onMoved = 0;
     ldel.onZoomed = 0;
     ldel.onRotated = 0;
+
   }
 
   function linkClick(e){

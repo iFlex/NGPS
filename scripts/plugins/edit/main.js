@@ -106,6 +106,7 @@ loadAppCode("edit",function(data)
 
 			var span = document.createElement('span');
 			span.className = icon;
+			a.appendChild(span);
 
 			var name = 0;
 			if(description)
@@ -114,7 +115,6 @@ loadAppCode("edit",function(data)
 				name.value = description;
 				Regional.inspectObject(name);
 			}
-			a.appendChild(span);
 			if(name)	a.appendChild(name);
 
 			if(isMob)
@@ -122,25 +122,25 @@ loadAppCode("edit",function(data)
 			else
 				this.parts['interfaceRight'].DOMreference.appendChild(a);
 
-			return span;
+			return a;
 		}
-		this.addCustom = function(element)
+		this.addCustom = function(icon)
 		{
 			var a = document.createElement('a');
 			a.href = "#";
+			a.className = "MenuButtons";
 			a.style.cssText = cellStyle;
 
-			var span = 0;
-			if(typeof(element) == "string")
-				span = document.createElement(element);
-
+			var span = document.createElement('span');
+			span.className = icon;
 			a.appendChild(span);
+
 			if(isMob)
 				this.parts['mobile'].DOMreference.appendChild(a);
 			else
 				this.parts['interfaceRight'].DOMreference.appendChild(a);
 
-			return a;
+			return [a,span];
 		}
 		this.destroy = function()
 		{
@@ -208,7 +208,6 @@ loadAppCode("edit",function(data)
 			Editor.dock.tags.push(k);
 
 		//Editor.dock.dockApp('edit/components/aligner',{lastInterfaceContainer:5});
-		//factory.newGlobalApp("edit/components/saveDisplay"); //this app messes up saving - used to, possibly fixed
 		setTimeout(function(){
 			console.log("Editor Components:"+utils.debug(Editor));
 		},1000);
@@ -267,36 +266,9 @@ loadAppCode("edit",function(data)
 	this.zoomOut = function(){
 		factory.root.czoom(0.6);
 	}
-	this.onAddContainer = function(noEvent,descriptor){
-		var pos = {}
-		if(!Editor.sizer.target)
-			pos = factory.root.getViewportXY(0.5,0.5);
-		else
-		{
-			pos.x = (Editor.sizer.target.getWidth() - Editor.dock.possize.width)/2;
-			pos.y = (Editor.sizer.target.getHeight() - Editor.dock.possize.height)/2;
-		}
-		var container = factory.newContainer(utils.merge({
-			x:pos.x,
-			y:pos.y,
-			width:Editor.dock.possize.width,
-			height:Editor.dock.possize.height,
-			permissions:{track:true,connect:true,edit:true}},descriptor),"c000000",Editor.sizer.target,false,true);
-
-		if(noEvent == true)
-			return container;
-
-		if(userMessages)
-			userMessages.inform(
-			"To add elements to the screen, simply click anywhere and a round interface will appear:<br>\
-				to add a container press on <span class='glyphicon glyphicon-unchecked' style='color:white;'></span><br>\
-				to add text press on <span class='glyphicon glyphicon-font' style='color:white;'></span><br>\
-				to add an image press on <span class='glyphicon glyphicon-picture' style='color:white;'></span><br>\
-				to add a video press on <span class='glyphicon glyphicon-film' style='color:white;'></span><br>\
-				to add a website view press on <span class='glyphicon glyphicon-globe' style='color:white;'></span><br>\
-				");
-
-		Editor.sizer.show(container);
+	this.onAddContainer = function(){
+		var c = factory.container();
+		Editor.sizer.show(c);
 		return container;
 	}
 
@@ -333,20 +305,25 @@ loadAppCode("edit",function(data)
 	}
 
 	//DOCK code
+
 	this.dockApp = function(app,passTo){
 		if(!Editor.dock.dockedApps[app])
 		{
-			/*Editor.dock.dockedApps[app] = {};
-			var parent = Editor.dock.interfaces['main'].addCustom();
-			Editor.dock.dockedApps[app].host = factory.newIsolatedContainer({type:"span"},parent);
+			console.log("Docking app:"+app);
+			Editor.dock.dockedApps[app] = {};
+			var ret = Editor.dock.interfaces['main'].addCustom("glyphicon glyphicon-flash");
+			var parent = ret[0];
+			Editor.dock.dockedApps[app].host = factory.newIsolatedContainer({type:"a",class:"MenuButtons",style:cellStyle},parent);
 			Editor.dock.dockedApps[app].host.onMoved = function(){};//cancel movement
-			Editor.dock.dockedApps[app].host.loadApp(app,passTo);*/
+			Editor.dock.dockedApps[app].host.loadApp(app,passTo);
+			ret[1].style.opacity = 0;
 		}
 	}
 	this.undockApp = function(app){
 		if(Editor.dock.dockedApps[app])
 		{
 			Editor.dock.dockedApps[app].host.discard();
+			delete Editor.dock.dockedApps[app];
 			//rearrange others
 		}
 	}

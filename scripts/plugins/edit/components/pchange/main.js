@@ -21,12 +21,13 @@ loadAppCode("edit/components/pchange",function(data)
   }
 
   function updateTrigger(i,obj,pos,last){
-      var obj = interfaces[i];
-      obj.show();
+      var o = interfaces[i];
+      o.show();
+      o.destination = obj;
       pos = factory.root.viewportToSurface(pos.x,pos.y);
-      obj.child.className = (last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in";
-      obj.putAt(pos.x,pos.y);
-      obj.DOMreference.style.zIndex = containerData.containerIndex;
+      o.child.className = (last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in";
+      o.putAt(pos.x,pos.y);
+      o.DOMreference.style.zIndex = containerData.containerIndex;
   }
   function makeTrigger(obj,pos,last)
   {
@@ -174,6 +175,7 @@ loadAppCode("edit/components/pchange",function(data)
     console.log(this.parent.appPath+" - initialising...");
     GEM.addEventListener("addChild",0,onAddedChild,this);
   }
+
   this.shutdown = function(){
     console.log(this.parent.appPath+" - shutdown...");
     GEM.removeEventListener("addChild",0,onAddedChild,this);

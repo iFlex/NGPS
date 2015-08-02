@@ -13,10 +13,7 @@ factory.AMS = {
 	minHeight : 100,
 	direction : -50,
 	index     :   0,
-	init: function( set, store){
-
-	},
-	tick: function( data, set, store){
+	generate : function( parent, set, store){
 		var r,g,b;
 		r = Math.floor(Math.random()*1000%256);
 		g = Math.floor(Math.random()*1000%256);

@@ -14,5 +14,7 @@ loadAppCode("fps",function(data){
       setInterval(render,20);
     });
   }
-
+  this.shutdown = function(){
+    //TODO
+  }
 });

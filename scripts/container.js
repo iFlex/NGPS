@@ -382,9 +382,11 @@ this.container = function(_properties,_parent)
 		}
 	}
 
-	this.show = function()
+	this.show = function(bringToFront)
 	{
 		this.DOMreference.style.display = "block";
+		if(bringToFront)
+			this.DOMreference.style.zIndex = containerData.containerIndex+1;
 		//EVENT
 		if( this.events['showContainer'] || ( GEM.events['showContainer'] && GEM.events['showContainer']['_global'] ) )
 			GEM.fireEvent({event:"showContainer",target:this})
@@ -940,9 +942,9 @@ this.container = function(_properties,_parent)
 		}
 
 		//Custom Styling
-		if(this.properties['class']) //custom CSS styling ()
+		if(this.properties['class']){ //custom CSS styling ()
 			this.DOMreference.setAttribute('class',this.properties['class']);
-
+		}
 		for( k in {cssText:true,style:true})
 			if(this.properties[k]) // custom CSS styling ( works more efficient, only needs CSS )
 				this.DOMreference.style.cssText = this.properties[k];
@@ -1007,8 +1009,8 @@ this.container = function(_properties,_parent)
 			{
 				switch(i)
 				{
-					case 0:this.DOMreference.style.borderTopLeftRadius 		= ( borders[i%borders.length] || "0px");break;
-					case 1:this.DOMreference.style.borderTopRightRadius 	= ( borders[i%borders.length] || "0px");break;
+					case 0:this.DOMreference.style.borderTopLeftRadius 		  = ( borders[i%borders.length] || "0px");break;
+					case 1:this.DOMreference.style.borderTopRightRadius 	  = ( borders[i%borders.length] || "0px");break;
 					case 2:this.DOMreference.style.borderBottomRightRadius 	= ( borders[i%borders.length] || "0px");break;
 					case 3:this.DOMreference.style.borderBottomLeftRadius 	= ( borders[i%borders.length] || "0px");break;
 				}
@@ -1022,10 +1024,9 @@ this.container = function(_properties,_parent)
 			else //this is the master object ( root )
 				document.body.appendChild(this.DOMreference);
 		}
-		else{ //add the isolated container
-			if(!this.parent)
-				this.parent = document.body;
-			this.parent.appendChild(this.DOMreference);
+		else { //add the isolated container
+			this.properties['*isolated'].appendChild(this.DOMreference);
+			this.parent = undefined;
 		}
 
 		this.properties['width']  = this.getWidth();
@@ -1034,7 +1035,7 @@ this.container = function(_properties,_parent)
 		//inherit and set new specific permissions
 		if(this.UID == 0 )
 			this.setPermission('noOverride',true);
-		if(this.parent)
+		if(this.parent && this.parent.UID)
 			this.setPermissions(this.parent.getPermissions());
 		this.setPermissions(_properties['permissions']);
 

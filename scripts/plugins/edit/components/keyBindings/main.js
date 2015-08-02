@@ -40,7 +40,7 @@ loadAppCode("edit/components/keyBindings",function(data){
   }
 
   bindings = {
-    13:{action:Editor.addInterface.newContainer},
+    13:{action:factory.container},
     8:{action:Editor.sizer.onDelete},
     46:{action:Editor.sizer.onDelete},
   }
