@@ -25,7 +25,7 @@
 */
 //include dependencies
 //requirejs(['TweenMax.min',"interact","app","camera","gem"]);
-requirejs(['TweenMax.min',"interact","app","camera","gem","networking"]);
+requirejs(["support/TweenMax.min","drivers","interact","app","camera","gem"]);
 //
 this.containerData = {};
 containerData.containerIndex = 0;

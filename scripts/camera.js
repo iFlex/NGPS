@@ -11,16 +11,16 @@
 //Definitions
 /*
 +-------------------------------+
-|	+---------------------+   	|
-|	|  *Camera Frame      |		|
-|	|  contains all the   |		|
-|	|  visible content    |		|
-|	|                     |		|
-|	+---------------------+		|
-|								|
-|	*Camera Surface	     		|
-|	all the content that the 	|
-|   camera contains				|
+|	+---------------------+   	  |
+|	|  *Camera Frame      |		    |
+|	|  contains all the   |		    |
+|	|  visible content    |		    |
+|	|                     |		    |
+|	+---------------------+		    |
+|								                |
+|	*Camera Surface	     		      |
+|	all the content that the 	    |
+|   camera contains				      |
 +-------------------------------+
 */
 //CAMERA OPTIONS:
