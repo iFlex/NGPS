@@ -2,15 +2,11 @@ function _INIT(onReady){
   var modules = {
     "essentials":["support/TweenLite.min","support/jquery","container","networking","factory","save","load"],
     "os":["OSdriver","host"],
-    "CSSPlugin":"support/plugins/CSSPlugin.min",
-    "EasePack":"support/easing/EasePack.min",
-    "Draggable":"support/utils/Draggable.min",
     "Bootstrap":"support/bootstrap/js/bootstrap.min",
-    "BootstrapDialog":"support/bootstrap-dialog/js/bootstrap-dialog.min"
   }
   var configs = {
-    editor:["essentials","os","CSSPlugin","EasePack","Bootstrap","BootstrapDialog"],
-    present:["essentials"]
+    editor:["essentials","os","Bootstrap"],
+    present:["essentials","Bootstrap"]
   }
 
   function loadConfig(name){
