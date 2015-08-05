@@ -17,7 +17,7 @@ loadAppCode("edit/components/background",function(data){
     Editor.importDialog.show({
       fileHandler:add,
       urlHandler:add,
-      target:0,
+      target:factory.base,
       title:"Choose a background"
     })
   }

@@ -251,8 +251,7 @@ loadAppCode("_CGI",function(data){
   }
   var availableActions = {
     move:[2,{
-      //target:,//override target
-      handler:function(e,f){console.log(e);console.log(f);},//"tween",
+      handler:"tween",
       params:[],//parameters to pass
       onAdjustStart:function(o,storage){
         var pos = o.getPos(0,0);

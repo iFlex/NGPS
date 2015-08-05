@@ -289,14 +289,7 @@ loadAppCode("edit",function(data)
 
 	this.onAddText = function()
 	{
-		var container = Editor.dock.onAddContainer(true,{type:"textarea",ignoreTheme:true,background:"transparent"});
-		container.editInterface = 'text';
-		//container.subject = container.addPrimitive({type:"textarea",content:{style:"width:100%;height:100%;border:none;resize: none;"}});
-		//Editor.sizer.hide();
-		container.addEventListener("triggered",function(data){ Editor.sizer.show(data['target']);});
-		Editor.sizer.show(container);
-		keyboard.focus(container);
-		container.addEventListener("triggered",function(){ keyboard.focus(container); });
+		Editor.text.quickMake();
 	}
 
 	this.onAddVideo = function()

@@ -59,21 +59,25 @@ loadAppCode("_actions",function(data)
       exec(_event);
 
     function exec(event){
-      var act = node.actions.triggers[event];
+      var act = node.actions.triggers[ event ];
       var a,t;
-      for( i in act){
+      for( i in act ) {
         a = act[i];
         t = a.target;
         if(!t[a.handler] && a.isMember)
           t = factory.root;
         console.log("Force trigger target:"+t.UID);
+        console.log("Target:"+a.handler);
         if( t[a.handler] ) {
           if(a.params.initial)
             t.DOMreference.style.cssText = a.params.initial;
           t[a.handler].apply(t,a.params.pass);
         }
-        else
+        else if( typeof(a.handler) == "function" ){
+          a.handler(a.params.pass);
+        } else {
           console.log("Actions: ERROR, handler:"+act.handler+" does not exist on object:"+utils.debug(a.target));
+        }
       }
     }
   }

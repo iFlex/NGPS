@@ -85,6 +85,11 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.editor.hide();
 		factory.root.addEventListener("triggered",keyboard.hide);
 	}
+	this.quickMake = function(){
+		var c = factory.container();
+		this.makeTextContainer(c);
+		keyboard.focus(c);
+	}
 	this.makeTextContainer = function(container){
 		var ghostTable = utils.makeHTML([{
       div:{
@@ -100,9 +105,12 @@ loadAppCode("edit/components/text",function(data)
 			textarea:{
 				style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;"
 			}
-		}])
+		}]);
 		divContainer.appendChild(container.textField);
 		container.DOMreference.appendChild(ghostTable);
+		container.editInterface = 'text';
+    container.addEventListener("triggered",function(data){ keyboard.focus(data['target']); });
+		container.setPermission("children",false);
 	}
 	keyboard.focus = function(target)
 	{

@@ -204,12 +204,6 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     //var container = _addContainer(true,null,"text_field");
     var container = _addContainer();
     Editor.text.makeTextContainer(container);
-    //container.permissions.children = false;
-    //container.permissions.quickAddInterface = false;
-    console.log("New text field:"+utils.debug(container));
-    container.editInterface = 'text';
-    container.addEventListener("triggered",function(data){ console.log("focusing on text");keyboard.focus(data['target']); });
-
     Editor.sizer.show(container);
     keyboard.focus(container);
   }
