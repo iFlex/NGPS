@@ -18,7 +18,6 @@ loadAppCode("edit/components/appChoice",function(data)
   var all = 0;
   var apps = [];
 
-  Editor.apps = this;
   function showActive(){
     _buildActive();
     active.tween({top:"0%"},1);
@@ -102,6 +101,7 @@ loadAppCode("edit/components/appChoice",function(data)
   }
 
   this.init = function(){
+    Editor.apps = this;
     console.log("edit/components/appChoice - initialising...");
     host.getInstalledUserApps(function(data){
       if( data.success == true ) {
@@ -124,6 +124,7 @@ loadAppCode("edit/components/appChoice",function(data)
   this.shutdown = function(){
     console.log("edit/components/appChoice - shutdown.");
     root.discard();
+    delete Editor.apps;
   }
 
   this.show = function(){

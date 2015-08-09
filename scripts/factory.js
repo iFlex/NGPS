@@ -156,10 +156,7 @@ factory.newCamera = function (possize,tag,parent)
 		obj.extend(Camera);
 		obj.extend(Interactive);
 		obj.interactive(true);
-
-		if(!interval)
-			interval = 30;
-		obj.cstart(interval);
+		obj.cstart();
 	}
 	return obj;
 }

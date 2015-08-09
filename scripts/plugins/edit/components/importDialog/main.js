@@ -94,6 +94,12 @@ loadAppCode("edit/components/importDialog",function(data)
     this.parent.DOMreference.appendChild(this.input);
     this.hide();
   }
+  this.shutdown = function(){
+    console.log("edit/components/importDialog - shutting down...");
+    this.container.discard();
+    this.parent.removeChild(this.input);
+    delete Editor.importDialog;
+  }
 
   this.hide = function(){
     if(this.container)

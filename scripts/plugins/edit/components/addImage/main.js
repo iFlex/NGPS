@@ -98,4 +98,9 @@ loadAppCode("edit/components/addImage",function(data)
   this.init = function(){
     console.log("edit/components/addImage - initialising...");
   }
+
+  this.init = function(){
+    console.log("edit/components/addImage - shutting down...");
+    delete Editor.images;
+  }
 });

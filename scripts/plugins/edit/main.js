@@ -142,9 +142,26 @@ loadAppCode("edit",function(data)
 
 			return [a,span];
 		}
+		//TODO: shutdown is not fully proper
 		this.destroy = function()
 		{
-			this.parent.DOMreference.removeChild(this.parts['root']);
+			this.parts['root'].discard();
+
+			factory.removeGlobalApp("edit/components/pchange");
+			factory.removeGlobalApp("edit/components/text");
+			factory.removeGlobalApp("edit/components/sizer");
+			factory.removeGlobalApp("edit/components/importDialog");
+			factory.removeGlobalApp("edit/components/addImage");
+			factory.removeGlobalApp("edit/components/addVideo");
+			factory.removeGlobalApp("edit/components/appChoice");
+			factory.removeGlobalApp('edit/components/link',{lastInterfaceContainer:5});
+			factory.removeGlobalApp("edit/components/linkEdit");
+			factory.removeGlobalApp("edit/components/configureContainer");
+			factory.removeGlobalApp("edit/components/quickAddInterface");
+			factory.removeGlobalApp("edit/components/keyBindings");
+			factory.removeGlobalApp("_actions",{mode:"edit"});
+			factory.removeGlobalApp("_CGI",{mode:"edit"});
+			factory.removeGlobalApp("userMsg");
 		}
 	}
 
@@ -220,6 +237,10 @@ loadAppCode("edit",function(data)
 		Editor.dock.dockedApps = {};
 
 	};
+	this.shutdown = function(){
+			Editor.dock.interfaces['main'].destroy();
+			delete Editor.dock;
+	}
 
 	this.toggleCli = function()
 	{

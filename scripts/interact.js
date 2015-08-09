@@ -21,7 +21,7 @@
 *		onTrigger
 *		onMoved
 */
-this.Interactive = {}
+var Interactive = {}
 //What to do with interaction events( In some cases it's necessary to pass them to the parent )
 Interactive.propagation = 0;
 // 0 no propagation;

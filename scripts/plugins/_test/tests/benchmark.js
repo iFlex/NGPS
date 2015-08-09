@@ -36,7 +36,7 @@ benchmark.heavyGrid = function(nr)
 		else
 			elem.addPrimitive({type:"img",adapt_content:true,content:{src:"./res/a.jpg"}});
 		nextSector();
-	}	
+	}
 }
 benchmark.scroll = function(i,am)
 {
@@ -61,7 +61,7 @@ benchmark.rotate = function(i,am)
 		factory.root.crotate(am*Math.PI/180)
 		setTimeout(rot,i)
 	}
-	rot();	
+	rot();
 }
 
 benchmark.zoom = function(i)

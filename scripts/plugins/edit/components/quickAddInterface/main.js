@@ -1,7 +1,6 @@
 this.Editor = this.Editor || {};
 
 loadAppCode("edit/components/quickAddInterface",function(data){
-  Editor.addInterface = this;
   this.config = {interface:"none"};
   this.parent = data['parent'];
   this.parent.setPermission('save',false);
@@ -131,6 +130,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     }
   }
   this.init = function(){
+    Editor.addInterface = this;
     console.log(this.parent.appPath+" - initialising...");
     //GEM.addEventListener("triggered",0,clickHandler,this);
     factory.root.addEventListener("triggered",Editor.addInterface.onClick);
@@ -141,6 +141,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     //GEM.removeEventListener("triggered",0,clickHandler,this);
     factory.root.removeEventListener("triggered",Editor.addInterface.onClick);
     discardInterface();
+    delete Editor.addInterface;
   }
   //apps can attach buttons to this interface
   //TODO: function should require the app's name and listen for the app's shutdown event, when that happens the buttons whould be deleted from the interface

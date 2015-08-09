@@ -44,7 +44,7 @@
 //			LOrotate => 0   	//allows the camera to rotate between 0 and 25 degrees
 
 //NOTE: when camera frame is an automatically positioned object the child display must be the same
-this.Camera = {};
+var Camera = {};
 
 Camera.cstart = function(interval)
 {

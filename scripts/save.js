@@ -30,7 +30,7 @@ Format:
 	}
 }
 */
-this.save = {};
+var save = {};
 
 save.clear = function(){
 	for( k in save )

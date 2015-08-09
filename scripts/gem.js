@@ -11,7 +11,7 @@
 //      problems with identifying anonymous handlers
 //			investigate strange additional null handlers appearing after loaiding "simple_connector" app on factory.root
 
-this.GEM = {};
+var GEM = {};
 GEM.events = {};
 GEM.debug = false;
 GEM.bubble = true;

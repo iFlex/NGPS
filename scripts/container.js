@@ -27,7 +27,7 @@
 //requirejs(['TweenMax.min',"interact","app","camera","gem"]);
 requirejs(["support/TweenMax.min","drivers","interact","app","camera","gem"]);
 //
-this.containerData = {};
+var containerData = {};
 containerData.containerIndex = 0;
 containerData.reffTree = {}; //quick reference tree
 
@@ -103,7 +103,7 @@ this.container = function(_properties,_parent)
 		console.log("Container:Restyling:"+utils.debug(data));
 		//Custom Styling
 		if(data['class']) //custom CSS styling ()
-			this.DOMreference.setAttribute('class',data['class']);
+			this.DOMreference.className = data['class'];
 
 		for( k in {cssText:true,style:true})
 			if(data[k]) // custom CSS styling ( works more efficient, only needs CSS )

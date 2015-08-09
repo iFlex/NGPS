@@ -6,12 +6,12 @@
 * This is utilises a python server to service os level requests
 */
 
-this.OSdriver = new (function(){
+var OSdriver = new (function(){
   this.fs = {};
 
   this.fs.list = function(callback,path){
 
-  } 
+  }
   this.fs.save = function(callback,name,data){
     network.POST("save",data,function(){
       callback({success:false});
@@ -27,5 +27,5 @@ this.OSdriver = new (function(){
   }
   this.fs.loadChunked = function(callback,name,size){
 
-  }  
+  }
 })();

@@ -35,8 +35,8 @@
 *		startWorker returns the id of the worker or -1 in case the worker was not started
 */
 
-this.AppCtl = {};
-this.AppMgr = {};
+var AppCtl = {};
+var AppMgr = {};
 AppMgr.status = "idle";
 AppMgr.maxAppWorkers = 10;
 AppMgr.running_app_parent = 0;
@@ -148,13 +148,11 @@ AppCtl.adestroy = function() // completely remove app from container
 	this.stopWorker();
 	delete AppMgr.appHosts[this.appName][this.UID];
 
-	if( Object.keys(AppMgr.appHosts[this.appName]).length() == 0 ){ //all apps instances destroyed, time to unload the app
+	if( Object.keys(AppMgr.appHosts[this.appName]).length == 0 ) //all apps instances destroyed, time to unload the app
 		delete AppMgr.loadedApps[this.appName];
-		AppMgr.loadedApps[this.appName] = undefined;
-	}
-	delete this.app;
-	this.app = undefined;
 
+	delete this.app;
+	this.isApp = false;
 	//EVENT
 	if( this.events['appDestroyed'] || ( GEM.events['appDestroyed'] && GEM.events['appDestroyed']['_global'] ) )
 		GEM.fireEvent({event:"appDestroyed",target:this})

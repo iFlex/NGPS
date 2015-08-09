@@ -22,7 +22,10 @@ function init(){
 tests = {
 	relations: function()
 	{
-		var cam = factory.newCamera({x:25,y:250,width:500,height:350},"rounded_rect",null,32);
+		var cam = factory.newCamera({x:250,y:250,width:500,height:350},"rounded_rect");
+		var child = cam.addChild({x:100,y:100,width:100,height:100,background:"black"});
+		console.log("New camera");
+		console.log(cam);
 		//this creates a cross referrence between the two cameras ( should be ok ) antiCrossReff system is in place
 		//allowing only one instance of actuator function to be called per object in one tick
 		//cam.addRelated(factory.root,{x:1,y:1,zoom:0.1});

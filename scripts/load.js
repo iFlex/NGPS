@@ -5,7 +5,7 @@
 * 	This module reads the index.html, builds the object tree and renders the presentation
 	WARNING: the UID of the LOADcontent will not tally with the UIDs created when building the tree
 */
-this.pLOAD = {}
+var pLOAD = {}
 pLOAD.root = 0;
 var LOADtree = {};
 var LOADreferences = {};

@@ -167,7 +167,6 @@ loadAppCode("userMsg",function(data){
 		}
 
 		function makeLane(evt,trg,act,_k){
-			type = NGPS_Modal.TYPE_DEFAULT;
 			var rootdesc = {width:"100%",height:"auto",autopos:true,background:"rgba(255,255,255,0.2)",style:"display:table;padding-top:5px;padding-bottom:5px;padding-left:5px"};
 			var k = _k || currentBoard.addChild(rootdesc);
 			var i = (_k != undefined ) ? 0 : lanes.length;
@@ -243,10 +242,10 @@ loadAppCode("userMsg",function(data){
 			a.onMoved = function(){};
 			a.onTrigger = function(crt){
 				currentActive = crt.reff;
-				NGPS_Modal.show({
+				NGPS_Dialogue.show({
 					title:"Choose what triggers the animation",
-					type:type,
-					buttons:eventsList
+					selection:eventsList,
+					selection_item:[{button:{class:"btn btn-warning",style:"width:99%;margin-top:2px;margin-left:2px"}}]
 				});
 			};
 
@@ -263,10 +262,10 @@ loadAppCode("userMsg",function(data){
 			a.onMoved = function(){};
 			a.onTrigger = function(crt){
 				currentActive = crt.reff;
-				NGPS_Modal.show({
+				NGPS_Dialogue.show({
 					title: "Choose how to start animation",
-					type:type,
-					buttons:chevButton
+					selection:chevButton,
+					selection_item:[{button:{class:"btn btn-warning",style:"width:99%;margin-top:2px;margin-left:2px"}}]
 				});
 			};
 
@@ -285,10 +284,10 @@ loadAppCode("userMsg",function(data){
  			a.onMoved = function(){};
 			a.onTrigger = function(crt){
 				currentActive = crt.reff;
-				NGPS_Modal.show({
+				NGPS_Dialogue.show({
 					title:"Choose what to do",
-					type:type,
-					buttons: actionsList
+					selection: actionsList,
+					selection_item:[{button:{class:"btn btn-warning",style:"width:99%;margin-top:2px;margin-left:2px"}}]
 				});
 			};
 

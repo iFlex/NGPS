@@ -3,7 +3,7 @@
 * 	Author: Milorad Liviu Felix
 *	30 May 2014 07:13 GMT
 */
-this.utils = {};
+var utils = {};
 var HTTPrequest = function(method,url,params,oncomplete,pass_to_listener)
 {
 

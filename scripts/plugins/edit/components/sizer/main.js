@@ -53,12 +53,21 @@ loadAppCode("edit/components/sizer",function(data)
       c.addEventListener("triggered",Editor.sizer._show);
     }
   }
+
   this.init = function(){
     console.log(this.parent.appPath+" - initialising. Default interface:"+defaultInterface);
     this.configure(this.interfaces[defaultInterface]);
     currentInterface = defaultInterface;
     factory.root.addEventListener("triggered",Editor.sizer.hide);
     GEM.addEventListener("addChild",0,attachInterfaceTrigger);
+  }
+
+  this.shutdown = function(){
+    console.log(this.parent.appPath+" - shutting down");
+    this.hide();
+    factory.root.removeEventListener("triggered",Editor.sizer.hide);
+    GEM.removeEventListener("addChild",0,attachInterfaceTrigger);
+    delete Editor.sizer;
   }
 
   this._show = function(data)

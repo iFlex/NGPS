@@ -29,7 +29,11 @@ loadAppCode("edit/components/keyBindings",function(data){
       }
     }
   }
-
+  this.shutdown = function(){
+    console.log("edit/components/keyBind - shutting down...");
+    window.onkeyup = null;
+    delete Editor.keyBind;
+  }
   this.setBindings = function(_bindings){
     bindings = _bindings;
   }

@@ -7,10 +7,7 @@ loadAppCode("edit/components/link",function(data){
 	this.parent.setPermission('save',false);
   this.parent.setPermission('connect',false);
 
-	Editor.link = this;
-
 	var startFrom = data['lastInterfaceContainer'] || 2 ;
-
 	var temp = 0;
 	this.active = false;
 
@@ -101,6 +98,7 @@ loadAppCode("edit/components/link",function(data){
 
 	this.init = function() //called only one when bound with container
 	{
+		Editor.link = this;
 		console.log(this.parent.appPath+" - initialising...");
 		this.parent.onTrigger = this.toggle;
 
@@ -120,5 +118,6 @@ loadAppCode("edit/components/link",function(data){
 		temp.discard();
 		factory.root.removeEventListener("triggered",cancel);
 		GEM.removeEventListener("triggered",0,"trigger",this);
+		delete Editor.link;
 	}
 });

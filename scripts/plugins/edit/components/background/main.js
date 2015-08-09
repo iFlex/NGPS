@@ -6,7 +6,6 @@ loadAppCode("edit/components/background",function(data){
   this.parent = data['parent'];
   this.parent.setPermission('save',false);
   this.parent.setPermission('connect',false);
-  Editor.background = this;
   var temp = 0;
   this.isActive = false;
 
@@ -24,13 +23,14 @@ loadAppCode("edit/components/background",function(data){
   this.init = function() //called only one when bound with container
   {
     console.log( this.parent.appPath + " - initialising..." );
+    Editor.background = this;
     this.parent.onTrigger = this.toggle;
     this.parent.DOMreference.className = "glyphicon glyphicon-picture";
   }
-
   this.shutdown = function() //called only when app is unloaded from container
   {
     console.log(this.parent.appPath+" - shutdown.");
+    delete Editor.background;
   }
 
   add = function(e)

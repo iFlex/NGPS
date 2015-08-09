@@ -6,7 +6,7 @@
 * This varies depending on what Host app solution is chosen for running the NGPS system
 * requires a driver object
 */
-this.host = new (function(){
+var host = new (function(){
   this.fs = {};
 
   this.fs = OSdriver.fs;
@@ -15,9 +15,9 @@ this.host = new (function(){
     if(callback)
       callback({success:true,apps:[{name:"collision",local:true},{name:"debug",local:false,global:true},{name:"fps",local:false,global:true},{name:"2048",local:true,global:false}]});
   }
-  
+
   this.getUserName = function(callback){
 
   }
-  
+
 })();

@@ -75,23 +75,11 @@ loadAppCode("edit/components/addVideo",function(data)
 
   this.init = function(){
     console.log("edit/components/addVideo - initialising...");
-
-    //prepare image from file import
-    Editor.videos.input = document.createElement("input");
-    Editor.videos.input.type = "file";
-    Editor.videos.input.multiple = "multiple"
-    Editor.videos.input.display = "none";
-    Editor.videos.input.onchange = function () {
-      // assuming there is a file input with the ID `my-input`...
-      var files = this.files;
-      for (var i = 0; i < files.length; i++)
-        loadFromDataURL(files[i]);
-      };
-      Editor.videos.parent.DOMreference.appendChild(Editor.videos.input);
-
-      Editor.videos.interface = {};
-      factory.root.addEventListener("triggered",Editor.videos.hide);
-    }
+  }
+  this.shutdown = function(){
+    console.log("edit/components/addVideo - shutting down...");
+    delete Editor.videos;
+  }
     this.hide = function(){
       if(Editor.videos.container)
         Editor.videos.container.discard();
@@ -113,41 +101,5 @@ loadAppCode("edit/components/addVideo",function(data)
       });
 
       vCTL = 0;
-      /*
-      this.hide();
-      Editor.videos.container = factory.newContainer({width:"100%",height:"64px",background:"black",permissions:{save:false,connect:false}},"none",target);
-      if(!sp)
-        sp = (target.getHeight() - Editor.videos.container.getHeight())/2;
-      Editor.videos.container.putAt(0,sp);
-
-      //midBody = Editor.videos.container.addChild({height:"100%",background:"blue",cssText:"margin-left:auto;margin-right:auto"});
-      midBody = factory.newContainer({height:"100%",background:"transparent",cssText:"margin-left:auto;margin-right:auto"},"none",Editor.videos.container);
-      midBody.DOMreference.style.width = "auto";
-      utils.loadRawStyle(".adimgmrg{margin-right:10px;font-size:20px}");
-      link = utils.makeHTML([{
-        input:{
-          class:"adimgmrg",
-          onchange:_add,
-          onpaste:_add,
-          onkeydown:_add,
-          placeholder:"URL",
-          style:"width:100%;border-radius:0px 0px 0px 0px;border-width:0px;text-align:center;background:transparent"
-        }
-      }]);
-      utils.makeHTML([link,{
-        button:{
-          class:"btn btn-success glyphicon glyphicon-open adimgmrg",
-          onclick:fileDialog,
-          style:"width:100%;border-radius:0px 0px 0px 0px;border-width:0px",
-          children:[{
-            i:{
-              id:"#REG:EDIT_Add_Picture:innerHTML",
-              innerHTML:"Browse",
-            }
-          }]
-        }
-      }],midBody.DOMreference);
-      midBody.putAt((target.getWidth() - midBody.getWidth())/2,0)
-      //Regional.inspectObject(minBody);*/
     }
 });

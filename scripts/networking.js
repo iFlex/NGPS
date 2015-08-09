@@ -1,4 +1,4 @@
-this.network = function(){
+var network = function(){
   var server = "http://localhost:8081/";
   var HTTPrequest = function(method,url,params,oncomplete,error,pass_to_listener)
   {
@@ -18,7 +18,7 @@ this.network = function(){
       var http = new XMLHttpRequest();
       http.open(method, url, true);
       http.setRequestHeader("Content-type", "application/x-www-form-urlencoded"); //WARNING: This encoding will replace all base64 '+' with ' ' so PHP needs to deal with that
-      
+
       http.onreadystatechange = function() {//Call a function when the state changes.
         if(http.readyState == 4 && http.status == 200) {
           console.log(http);
