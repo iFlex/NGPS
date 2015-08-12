@@ -1,4 +1,5 @@
-function _INIT(onReady){
+var _INITIALISED = false;
+function _INIT(onReady,mode){
   var modules = {
     "essentials":["support/TweenLite.min","support/jquery","container","networking","factory","save","load"],
     "os":["OSdriver","host"],
@@ -21,6 +22,19 @@ function _INIT(onReady){
     }
     requirejs(scripts,onReady);
   }
+  _INITIALISED = true;
+  loadConfig(mode||"editor");
+}
 
-  loadConfig("editor");
+function _TOTAL_INIT(presentation_data){
+  function _total_init(){
+    pLOAD.proceed(atob(presentation_data));
+  }
+
+  if(!_INITIALISED) {
+    _INIT(_total_init,"view");
+  }
+  else {
+    _total_init();
+  }
 }

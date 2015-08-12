@@ -31,7 +31,7 @@ Format:
 }
 */
 var save = {};
-
+var direct_save = 0;
 save.clear = function(){
 	for( k in save )
 		delete save[k];
@@ -179,7 +179,6 @@ save.RAMsave = function(stringify){
 	return pack(true);
 }
 save.toConsole = function(_alert){
-
 	save.RAMsave();
 	var dta = pack();
 	if(_alert)
@@ -191,4 +190,17 @@ save.toConsole = function(_alert){
 
 save.jsonTree = function(){
 	console.log( JSON.stringify(factory.base));
+}
+//TODO: make it show dialog for save as
+save.toFile = function(filename){
+	serverLocation = "localhost/ngps";
+	requireJSlocation = "http://requirejs.org/docs/release/2.1.20/minified/require.js";
+	if(!direct_save)
+		direct_save = document.createElement("a");
+	header  = '<html><head><script src="'+requireJSlocation+'"></script></head><body><script type="text/javascript">var _presentation="';
+	trailer = '";requirejs(["'+serverLocation+'/scripts/support/main"],function(){_TOTAL_INIT(_presentation));</script></body></html>';
+	data = btoa(JSON.stringify(save.RAMsave()));
+	direct_save.href = "data:application/xml;charset=utf-8,"+header+data+trailer;
+	direct_save.download= filename+".html";
+	direct_save.click();
 }

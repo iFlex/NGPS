@@ -132,10 +132,12 @@ pLOAD.loadApps = function(apps){
 
 pLOAD.proceed = function(jsn)
 {
+	console.log("ldg:"+jsn);
 	if(typeof(jsn) == "string")
 		LOADtree = JSON.parse(jsn);
 	else
 		LOADtree = jsn;
+
 	function waitForJson()
 	{
 		if(LOADtree)
@@ -166,4 +168,13 @@ pLOAD.proceed = function(jsn)
 			setTimeout(waitForJson,50);
 	}
 	waitForJson();
+}
+
+pLOAD.fromHTML = function(data){
+	var start_of_data= 'var _presentation="';
+	var start   = data.indexOf(start_of_data);
+	var end     = data.indexOf('"',start+start_of_data.length);
+	console.log(start+","+end);
+	var b64data = data.substring(start+start_of_data.length,end);
+	_TOTAL_INIT(b64data);
 }

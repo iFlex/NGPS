@@ -1,5 +1,5 @@
 var network = function(){
-  var server = "http://localhost:8081/";
+  var server = "http://localhost:8080/";
   var HTTPrequest = function(method,url,params,oncomplete,error,pass_to_listener)
   {
     if( method == "GET"){
@@ -33,13 +33,13 @@ var network = function(){
   }
 
   this.GET = function(path,success,error,pass){
-    if( path.indexOf("http://") < 0 )
+    if( path.indexOf("http://") < 0 || path.indexOf("https://") < 0 )
       path = server + path;
 
     HTTPrequest("GET",path,null,success,error,pass);
   }
   this.POST = function(path,data,success,error,pass){
-    if( path.indexOf("http://") < 0 )
+    if( path.indexOf("http://") < 0 || path.indexOf("https://") < 0 )
       path = server + path;
     HTTPrequest("POST",path,data,success,error,pass);
   }

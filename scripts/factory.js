@@ -68,6 +68,22 @@ factory.init = function(mode,manualSetup) // editor init
 		factory.initialised = true;
 		requirejs(["constructors/view"]);
 	}
+	if( mode == "webshow" )
+	{
+		factory.base = new container(Descriptors.containers['base']);
+
+		factory.root = factory.base.addChild(Descriptors.containers['root']);
+		factory.root.extend(Interactive);
+		factory.root.extend(Camera);
+		factory.root.interactive(true);
+		factory.root.cstart(5);
+
+		//center camera
+		var s = factory.root.getSurface();
+		factory.root.c_move(-s['width']/2,-s['height']/2);
+		factory.initialised = true;
+		requirejs(["constructors/webshow"],_init);
+	}
 
 	if(factory.AMS && factory.AMS.init)
 		factory.AMS.init( factory.settings.container, factory.AMS);
