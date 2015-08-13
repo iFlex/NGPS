@@ -13,7 +13,7 @@ loadAppCode("edit/components/background",function(data){
   {
     var app = ctx.app;
     app.isActive = !app.isActive;
-    Editor.importDialog.show({
+    Dialogue.import.show({
       fileHandler:add,
       urlHandler:add,
       target:factory.base,
@@ -37,7 +37,7 @@ loadAppCode("edit/components/background",function(data){
   {
     factory.root.DOMreference.style.backgroundImage="url('"+e.target.result+"')";
     factory.root.DOMreference.style.backgroundSize = "cover";
-    Editor.importDialog.hide();
+    Dialogue.import.hide();
   }
 
 });

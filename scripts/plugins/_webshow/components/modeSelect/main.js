@@ -8,8 +8,6 @@ loadAppCode("_webshow/components/modeSelect",function(data){
   }
 
   function loadSelectDialog(fileHandle,urlHandle){
-    $('#webshow_chooser').fadeOut({duration:1500});
-    data.chaining.add.app.activate();
     /*data.chaining.importer.app.show({
       title:"Choose presentation",
       fileHandler:fileHandle,
@@ -22,11 +20,18 @@ loadAppCode("_webshow/components/modeSelect",function(data){
   }
 
   function initPresent(){
-    loadSelectDialog(function(){},function(){});
+    $('#webshow_chooser').fadeOut({duration:1500});
+    data.chaining.add.app.activate();
   }
 
   function initWatch(){
-    loadSelectDialog(function(){},function(){});
+    $('#webshow_wrapper').fadeOut({duration:1500});
+    data.chaining.importer.app.show({
+      title:"Choose presentation",
+      fileHandler:function(e){data.chaining.loadFromFile(e.target.result);},
+      urlHandler:function(){},
+      target:factory.base
+    });
   }
   this.activate = function(){
     $('#webshow_container').fadeOut(250);

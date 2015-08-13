@@ -20,9 +20,18 @@ function _INIT(onReady,mode){
         for( j in modules[moduleList[i]])
           scripts.push(modules[moduleList[i]][j]);
     }
-    requirejs(scripts,onReady);
+
+    function isReady(){
+      if(factory.ready && containerData.ready) {
+        _INITIALISED = true;
+        if(onReady)
+          onReady();
+      }
+      else
+        setTimeout(isReady,100);
+    }
+    requirejs(scripts,isReady);
   }
-  _INITIALISED = true;
   loadConfig(mode||"editor");
 }
 
@@ -38,3 +47,23 @@ function _TOTAL_INIT(presentation_data){
     _total_init();
   }
 }
+this.factory = this.factory || {};
+factory.setup ={
+editor:function(){
+  factory.newGlobalApp('dialogue');
+  factory.newGlobalApp('edit');
+  factory.newGlobalApp('_test');
+  console.log("loaded edit setup");
+},
+view:function(){
+  factory.newGlobalApp('dialogue');
+  factory.newGlobalApp('zoom',{offsetY:0});
+  factory.newGlobalApp('_actions',{mode:'present'});
+  console.log("Loaded view setup");
+},
+webshow:function(){
+  factory.newGlobalApp('dialogue');
+  factory.newGlobalApp('_webshow');
+  console.log("loaded webshow setup");
+}};
+console.log(factory);

@@ -49,7 +49,7 @@ loadAppCode("edit/components/sizer",function(data)
     var c = e.child;
     if(c.getPermission('edit') == true)
     {
-      console.log("attaching edit interface to:"+utils.debug(c)+" perm:"+utils.debug(c.permissions));
+      //console.log("attaching edit interface to:"+utils.debug(c)+" perm:"+utils.debug(c.permissions));
       c.addEventListener("triggered",Editor.sizer._show);
     }
   }
@@ -72,8 +72,8 @@ loadAppCode("edit/components/sizer",function(data)
 
   this._show = function(data)
   {
-    console.log("_show");
-    console.log(data);
+    //console.log("_show");
+    //console.log(data);
     //show add interface rather than edit
     if( (Editor.sizer.target && Editor.sizer.target.UID == data['target'].UID) || ( Editor.addInterface && Editor.addInterface.overrideEdit == true) )
     {
@@ -88,8 +88,8 @@ loadAppCode("edit/components/sizer",function(data)
 
   this.show = function(target)
   {
-    console.log("SHOW");
-    console.log(target);
+    //console.log("SHOW");
+    //console.log(target);
     if(!target || !target.getPermission('edit'))
       return;
     Editor.mainActiveUI.activate({
@@ -123,7 +123,7 @@ loadAppCode("edit/components/sizer",function(data)
 
   this.hide = function()
   {
-    console.log("sizer:hide()");
+    //console.log("sizer:hide()");
     if(Editor.sizer.target)
     {
       //remove event listeners
@@ -315,7 +315,7 @@ loadAppCode("edit/components/sizer",function(data)
             Editor.configureContainer.setTarget(Editor.sizer.target);
             Editor.addInterface.setInterface(1);
             var pos = Editor.sizer.target.local2global(0.5,0.5,0);
-            console.log(pos);
+            //console.log(pos);
             Editor.addInterface.onClick({nativeEvent:{pageX:pos.x,pageY:pos.y},target:Editor.sizer.target});
           }
           Editor.sizer.hide();}},

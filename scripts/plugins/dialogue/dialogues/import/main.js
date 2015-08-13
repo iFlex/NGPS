@@ -1,4 +1,3 @@
-this.Editor = this.Editor || {};
 loadAppCode("dialogue/dialogues/import",function(data)
 {
   this.config = {interface:"none"};
@@ -7,30 +6,30 @@ loadAppCode("dialogue/dialogues/import",function(data)
   this.parent.setPermission('connect',false);
   this.container = 0;
   this.config = {}
-  Editor.importDialog = this;
 
   function onFileReceived(file){
     var reader = new FileReader();
-    if( Editor.importDialog.config.fileHandler )
-      reader.onload = Editor.importDialog.config.fileHandler;
+    if( data.Dialogue.import.config.fileHandler )
+      reader.onload = data.Dialogue.import.config.fileHandler;
     reader.readAsDataURL(file);
   }
 
   function _change(){
-    if( Editor.importDialog.config.urlHandler )
-      Editor.importDialog.config.urlHandler(Editor.importDialog.link.value);
+    if( data.Dialogue.import.config.urlHandler )
+      data.Dialogue.import.config.urlHandler(data.Dialogue.import.link.value);
   }
 
   function fileDialog(){
-    Editor.importDialog.input.click();
+    data.Dialogue.import.input.click();
   }
 
   function close(){
-    Editor.importDialog.hide();
+    data.Dialogue.import.hide();
   }
 
   this.init = function(){
     console.log(data.parent.appFullPath+" - initialising...");
+    data.Dialogue.import = this;
     this.container = factory.base.addChild({x:0,y:0,height:600,width:300,background:"rgba(0,0,0,0.65)"});
     var ghostTable = utils.makeHTML([{
       div:{
@@ -98,7 +97,7 @@ loadAppCode("dialogue/dialogues/import",function(data)
     console.log("edit/components/importDialog - shutting down...");
     this.container.discard();
     this.parent.removeChild(this.input);
-    delete Editor.importDialog;
+    delete data.Dialogue.import;
   }
 
   this.hide = function(){

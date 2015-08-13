@@ -25,7 +25,7 @@
 */
 //include dependencies
 //requirejs(['TweenMax.min',"interact","app","camera","gem"]);
-requirejs(["support/TweenMax.min","drivers","interact","app","camera","gem"]);
+requirejs(["support/TweenMax.min","drivers","interact","app","camera","gem"],function(){containerData.ready = true});
 //
 var containerData = {};
 containerData.containerIndex = 0;
@@ -1035,10 +1035,13 @@ this.container = function(_properties,_parent)
 		//inherit and set new specific permissions
 		if(this.UID == 0 )
 			this.setPermission('noOverride',true);
-		if(this.parent && this.parent.UID)
+		if( this.parent && this.parent.UID != undefined )
 			this.setPermissions(this.parent.getPermissions());
+		//console.log(this.UID);
+		//console.log(this.getPermissions());
 		this.setPermissions(_properties['permissions']);
-
+		//console.log(this.getPermissions());
+		//console.log("#####");
 		//EVENT
 		addToTree(this);
 		if( this.events['loadContainer'] || ( GEM.events['loadContainer'] && GEM.events['loadContainer']['_global'] ) )

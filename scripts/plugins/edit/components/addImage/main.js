@@ -88,7 +88,7 @@ loadAppCode("edit/components/addImage",function(data)
       _target = 0;
     }
 
-    Editor.importDialog.show({
+    Dialogue.import.show({
       fileHandler:addFromFile,
       urlHandler:addFromURL,
       target:target
@@ -99,7 +99,7 @@ loadAppCode("edit/components/addImage",function(data)
     console.log("edit/components/addImage - initialising...");
   }
 
-  this.init = function(){
+  this.shutdown = function(){
     console.log("edit/components/addImage - shutting down...");
     delete Editor.images;
   }

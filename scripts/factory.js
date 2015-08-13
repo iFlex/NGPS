@@ -14,7 +14,9 @@
 */
 
 //NGPS Factory creates 2 main objects: foot ( dymanic object holder ) overlay ( a static holder that allows headers or interfaces to be independent from the main camera)
-requirejs(["descriptors/containers","descriptors/links","themes/default","regional/regionalLoader"]);
+requirejs(["","descriptors/containers","descriptors/links","themes/default","regional/regionalLoader"],function(){
+	factory.ready = true;
+});
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
 this.factory.initialised = false;
@@ -22,9 +24,10 @@ this.factory.initialised = false;
 factory.init = function(mode,manualSetup) // editor init
 {
 	function _init() {
-		if(factory.setup && !manualSetup) //if custom setup is loaded, run it
-			factory.setup();
+		if(!manualSetup) //if custom setup is loaded, run it
+			factory.setup[mode]();
 	}
+
 	console.log("Factory initialised:"+factory.initialised);
 	if(factory.initialised)
 	{
@@ -33,9 +36,6 @@ factory.init = function(mode,manualSetup) // editor init
 		factory.base.discard();
 		containerData.containerIndex = 0;
 	}
-	//global initalisation operations
-	factory.presentation = {};
-	factory.presentation.name = "Not Decided Yet";
 	//settings
 	factory.settings = factory.settings || {};
 	factory.settings.debug = false;
@@ -58,7 +58,8 @@ factory.init = function(mode,manualSetup) // editor init
 		var s = factory.root.getSurface();
 		factory.root.c_move(-s['width']/2,-s['height']/2);
 		factory.initialised = true;
-		requirejs(["constructors/editor"],_init);
+		console.log("setup basics for mode:"+mode);
+		_init();
 	}
 	if( mode == "view" )
 	{
@@ -66,7 +67,7 @@ factory.init = function(mode,manualSetup) // editor init
 		factory.base = 0;
 		factory.root = 0;
 		factory.initialised = true;
-		requirejs(["constructors/view"]);
+		_init();
 	}
 	if( mode == "webshow" )
 	{
@@ -82,7 +83,7 @@ factory.init = function(mode,manualSetup) // editor init
 		var s = factory.root.getSurface();
 		factory.root.c_move(-s['width']/2,-s['height']/2);
 		factory.initialised = true;
-		requirejs(["constructors/webshow"],_init);
+		_init();
 	}
 
 	if(factory.AMS && factory.AMS.init)
@@ -141,7 +142,7 @@ factory.createContainer = function(descriptor,parent,addToFrame)
 	if(factory.AMS && factory.AMS.generate)
 		factory.AMS.generate( parent , factory.settings.container, factory.AMS );
 
-	var obj = parent.addChild(descriptor,addToFrame,translate);
+	var obj = parent.addChild(descriptor,addToFrame);
 	if(obj)
 	{
 		obj.extend(Interactive);

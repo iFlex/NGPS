@@ -17,8 +17,8 @@ loadAppCode("_webshow/components/add",function(data){
     $('#webshow_wrapper').fadeOut({duration:500,complete:function(){
       data.chaining.importer.app.show({
         title:"Choose presentation",
-        fileHandler:function(e){pLOAD.fromHTML(atob(e.target.result.split(",")[1]));},
-        urlHandler:function(){data.chaining.add.app.activate();},
+        fileHandler:function(e){data.chaining.loadFromFile(e.target.result);},
+        urlHandler:function(){},
         target:factory.base
       });
     }});

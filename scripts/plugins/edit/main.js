@@ -208,7 +208,6 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp("edit/components/pchange");
 		factory.newGlobalApp("edit/components/text");
 		factory.newGlobalApp("edit/components/sizer");
-		factory.newGlobalApp("edit/components/importDialog");
 		factory.newGlobalApp("edit/components/addImage");
 		factory.newGlobalApp("edit/components/addVideo");
 		factory.newGlobalApp("edit/components/appChoice");
@@ -262,7 +261,8 @@ loadAppCode("edit",function(data)
 			Editor.saveAid.show();
 		else
 			window.prompt("Presenation content",save.toConsole());*/
-			save.proceed();
+			//save.proceed();
+			save.toFile(Editor.dock.interfaces['main'].parts['title'].DOMreference.value);
 	}
 	this.load = function(){
 		var pcnt = window.prompt("presentation content:");

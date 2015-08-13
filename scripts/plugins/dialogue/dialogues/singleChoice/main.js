@@ -1,8 +1,8 @@
-var Dialogue = 0;
 loadAppCode("dialogue/dialogues/singleChoice",function(data){
   this.config = {interface:"none"};
   this.init = function(){
     console.log(data.parent.appFullPath);
+    data.Dialogue.singleChoice = this;
   }
 
   this.shutdown = function(){

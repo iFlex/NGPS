@@ -94,7 +94,7 @@ loadAppCode("edit/components/addVideo",function(data)
       else
         target = factory.base;
 
-      Editor.importDialog.show({
+      Dialogue.import.show({
         fileHandler:addFromFile,
         urlHandler:addFromURL,
         target:target
