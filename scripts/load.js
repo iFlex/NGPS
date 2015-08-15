@@ -19,15 +19,14 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 		return;
 	}
 
-	//console.log("jumpAlreadyExisting:"+jumpAlreadyExisting+" UID:"+node.UID);
+	console.log("jumpAlreadyExisting:"+jumpAlreadyExisting+" UID:"+node.UID);
 	if( jumpAlreadyExisting == undefined || node.UID > jumpAlreadyExisting )
 	{
-		//console.log("adding:"+utils.debug(node)+" to:"+utils.debug(root));
+		console.log("adding:"+utils.debug(node)+" to:"+utils.debug(root));
 		var croot = 0;
 
 		if(!factory.base && !root){
 			croot = new container(node.properties)
-			//croot.load();
 			factory.base = croot;
 		}
 		else
@@ -40,9 +39,6 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 				factory.initialised = true;
 			}
 		}
-
-		//save for referencing
-		//LOADreferences[node.UID] = croot;
 
 		if(node.camera)
 		{
@@ -78,7 +74,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			croot.appData = node.appData;
 	}
 	else
-		croot = findContainer(node.UID);//LOADreferences[node.UID];
+		croot = findContainer(node.UID);
 	//extensions
 	for(k in node.children)
 	{
@@ -132,7 +128,7 @@ pLOAD.loadApps = function(apps){
 
 pLOAD.proceed = function(jsn)
 {
-	console.log("ldg:"+jsn);
+	//console.log("ldg:"+jsn);
 	if(typeof(jsn) == "string")
 		LOADtree = JSON.parse(jsn);
 	else
@@ -145,14 +141,8 @@ pLOAD.proceed = function(jsn)
 			LOADcontent = LOADtree.content;
 			var jae = -1;
 			if( factory.base && factory.base.UID != undefined ) //neet to jump over base and root
-			{
-
-				LOADreferences[0] = factory.base;
-				LOADreferences[1] = factory.root;
-				LOADreferences[2] = factory.root.display;
-
 				jae = 2;
-			}
+
 
 			var k = Object.keys(LOADcontent)[0];
 			//console.log(">>LD>>Starting load at:"+k);

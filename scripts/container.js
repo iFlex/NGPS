@@ -907,10 +907,13 @@ this.container = function(_properties,_parent)
 		if( this.properties['UID'] ) {
 			var victim = findContainer(this.properties['UID']);
 			if( victim ) {
-				if( !victim.getPermission('noOverride') )//conflicts with existing container - abort if container can't be overriden
+				if( victim.getPermission('noOverride') == true ) {//conflicts with existing container - abort if container can't be overriden
+					console.log("Container "+victim.UID+" has canceled override. New container has not been created!");
 					return false;
-				else
+				} else {
+					console.log("Container "+victim.UID+" has been overriden by a new one!");
 					victim.discard(); //override old container
+				}
 			}
 
 			this.UID = this.properties['UID']

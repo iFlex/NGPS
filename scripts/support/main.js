@@ -39,11 +39,13 @@ function _TOTAL_INIT(presentation_data){
   function _total_init(){
     pLOAD.proceed(atob(presentation_data));
   }
-
+  console.log("_TOTAL_INIT: is env initialised?:"+_INITIALISED);
   if(!_INITIALISED) {
+    console.log("_TOTAL_INIT: cold start..");
     _INIT(_total_init,"view");
   }
   else {
+    console.log("_TOTAL_INIT: warm start..");
     _total_init();
   }
 }
