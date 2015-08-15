@@ -8,16 +8,13 @@
 */
 var host = new (function(){
   this.fs = {};
-
   this.fs = OSdriver.fs;
   //returns object with status = true | false and apps array
   this.getInstalledUserApps = function(callback){
     if(callback)
       callback({success:true,apps:[{name:"collision",local:true},{name:"debug",local:false,global:true},{name:"fps",local:false,global:true},{name:"2048",local:true,global:false}]});
   }
-
   this.getUserName = function(callback){
 
   }
-
 })();

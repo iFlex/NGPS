@@ -22,6 +22,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       return;
 
     Editor.addInterface.event = e;
+    console.log("qai:"+e.target.getPermission('edit'));
     if( (e.target.getPermission('edit')) || e.target.UID < 3 )
     {
       if(connectActive)
@@ -31,6 +32,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         Editor.link.trigger(e);
         return;
       }
+      console.log("qai:showing:"+e.nativeEvent.pageX+":"+e.nativeEvent.pageY);
       //use pagex & pagey or screenx & screeny
       show(e.nativeEvent.pageX,e.nativeEvent.pageY,e.target);
     }
@@ -56,6 +58,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   }
 
   function show( globalX, globalY , parent){
+    //console.log("perms:"+parent.getPermission('quickAddInterface'));
     if(parent && parent.getPermission('quickAddInterface') == false)
       return;
 
@@ -203,7 +206,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     }
   function addText(){
     //var container = _addContainer(true,null,"text_field");
-    var container = _addContainer();
+    var container = (Editor.addInterface.origin.UID>2)?Editor.addInterface.origin:_addContainer();
     Editor.text.makeTextContainer(container);
     Editor.sizer.show(container);
     keyboard.focus(container);

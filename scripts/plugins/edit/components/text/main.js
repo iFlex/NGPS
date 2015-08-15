@@ -110,7 +110,7 @@ loadAppCode("edit/components/text",function(data)
 		container.DOMreference.appendChild(ghostTable);
 		container.editInterface = 'text';
     container.addEventListener("triggered",function(data){ keyboard.focus(data['target']); });
-		container.setPermission("children",false);
+		//container.setPermission("children",false);
 	}
 	keyboard.focus = function(target)
 	{
