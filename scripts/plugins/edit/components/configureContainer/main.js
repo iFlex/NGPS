@@ -103,8 +103,7 @@ loadAppCode("edit/components/configureContainer",function(data)
   }
   var showing = 0;
   this.show = function(interface){
-    Editor.mainActiveUI.hide();
-    Editor.mainActiveUI.activate({hide:Editor.configureContainer.hide});
+    Editor.addCloseCallback(Editor.configureContainer.hide);
     showing = interface;
     if(interfaces[interface])
       interfaces[interface].show();

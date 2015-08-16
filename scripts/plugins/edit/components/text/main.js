@@ -83,7 +83,7 @@ loadAppCode("edit/components/text",function(data)
 			keyboard.interface.init();
 		})
 		keyboard.editor.hide();
-		factory.root.addEventListener("triggered",keyboard.hide);
+
 	}
 	this.quickMake = function(){
 		var c = factory.container();
@@ -114,9 +114,7 @@ loadAppCode("edit/components/text",function(data)
 	}
 	keyboard.focus = function(target)
 	{
-		if(Editor.addInterface)
-			Editor.addInterface.hide();
-
+		Editor.addCloseCallback(keyboard.hide);
 		if(Editor.keyBind)
 				Editor.keyBind.deactivate();
 

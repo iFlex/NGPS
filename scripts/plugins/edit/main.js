@@ -15,26 +15,43 @@ loadAppCode("edit",function(data)
 	data.parent.setPermission('save',false);
 	data.parent.setPermission('connect',false);
 	Editor = this;
-	var descriptor = {autopos:true,width:"100%",height:33,backrgound:"rgba(0,0,0,0.5);",style:"margin-top:2px"};
-	//main interface exclusive access to system
-	var mainActiveUI = {
-		current:{},
-		previous:{},
-	};//storage for descriptor
-	Editor.mainActiveUI = {};
-	Editor.mainActiveUI.hide = function(){
-		if( mainActiveUI.current &&
-				mainActiveUI.current.hide )
-				mainActiveUI.current.hide.apply(mainActiveUI.current.context,mainActiveUI.current.passToHide);
-		mainActiveUI.current = {hide:0};
-	}
-	Editor.mainActiveUI.activate = function( descriptor, _context, activate){
-		Editor.mainActiveUI.hide();
 
-		mainActiveUI.current = descriptor;
-		mainActiveUI.current.context = _context;
-		if( activate && mainActiveUI.current.activate )
-			mainActiveUI.current.activate.apply( _context , mainActiveUI.current );
+	//shared variables that allow subapps to easily interact and share data - like current selected container
+	Editor.shared = {
+		selected:{},
+	};
+
+	var descriptor = {autopos:true,width:"100%",height:33,backrgound:"rgba(0,0,0,0.5);",style:"margin-top:2px"};
+
+	var InterfaceSequencing = {
+		main:0,
+		secondary:0,
+		override:0,
+		lastClicked:0,
+		lastClickedDepth:0,
+		toClose:{},
+		toCloseIndex:0,
+	}
+
+	function hideActiveInterfaces(){
+		console.log("Hiding active interfaces");
+		for( k in InterfaceSequencing.toClose )
+			try{
+				InterfaceSequencing.toClose[k]();
+			} catch (e){
+
+			}
+			delete InterfaceSequencing.toClose[k];
+	}
+
+	Editor.addCloseCallback = function(callback){
+		InterfaceSequencing.toClose[InterfaceSequencing.toCloseIndex++] = callback;
+	}
+	Editor.requestNextClick = function(callback){
+		InterfaceSequencing.noCancelOverride = true;
+		console.log("Requested next click");
+		InterfaceSequencing.override = callback;
+		console.log(InterfaceSequencing);
 	}
 
 	function attachTextIcon(ct,text,icon,hook){
@@ -46,7 +63,7 @@ loadAppCode("edit",function(data)
 			input:{
 				type:"button",
 				class:"form-control",
-				style:"background:rgba(0,0,0,0);",
+				style:"background-color: Transparent;background-repeat:no-repeat;border: none;color: white;",
 				value:text
 			}
 		}],ct.DOMreference);
@@ -62,7 +79,7 @@ loadAppCode("edit",function(data)
 	}
 	function buildInterface(){
 		var defaultDock = ["menuToggle","zoomOut","zoomIn","addContainer","addText","save","load","apps"]
-		Editor.interface = factory.base.addChild({x:0,y:0,width:"15%",height:"100%",background:"rgba(0,0,0,0.25)"});
+		Editor.interface = factory.base.addChild({x:0,y:0,width:"15%",height:"100%",class:"menu"});
 		Editor.dock.title = Editor.interface.addChild({type:"input",autopos:true,width:"99%",height:32,style:"margin-top:5px;margin-left:auto;mergin-right:auto;padding-left:2px;background:rgba(0,0,0,0);text-aling:center"});
 		Editor.dock.title.DOMreference.value = "Title, click to change";
 
@@ -82,8 +99,8 @@ loadAppCode("edit",function(data)
 		Editor.dock = {};
 		Editor.dockedApps = {};
 		buildInterface();
+		GEM.addEventListener("triggered",0,"changeSelected",this);
 		//this.dockApp('edit/components/background',{lastInterfaceContainer:5});
-
 		factory.newGlobalApp("edit/components/pchange");
 		factory.newGlobalApp("edit/components/text");
 		factory.newGlobalApp("edit/components/sizer");
@@ -98,10 +115,12 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp("_actions",{mode:"edit"});
 		factory.newGlobalApp("_CGI",{mode:"edit"});
 		factory.newGlobalApp("userMsg");
+		setTimeout(function(){
+			InterfaceSequencing.main = Editor.sizer._show;
+			InterfaceSequencing.secondary = Editor.addInterface.onClick;
+		},1000);
 	};
 	this.shutdown = function(){
-		delete Editor.dock;
-		delete Editor;
 
 		factory.removeGlobalApp("edit/components/pchange");
 		factory.removeGlobalApp("edit/components/text");
@@ -117,8 +136,46 @@ loadAppCode("edit",function(data)
 		factory.removeGlobalApp("_actions",{mode:"edit"});
 		factory.removeGlobalApp("_CGI",{mode:"edit"});
 		factory.removeGlobalApp("userMsg");
-	}
 
+		Editor.interface.discard();
+		delete Editor;
+
+	}
+	this.changeSelected = function(e){
+		console.log("Editor click registered");
+		if(e.target.getPermission("edit") == true && e.target.UID > 2) {
+			Editor.shared.selected = e.target;
+			hideActiveInterfaces()
+			if(	e.target.UID == InterfaceSequencing.lastClicked ){
+				InterfaceSequencing.lastClickedDepth++;
+			} else {
+				InterfaceSequencing.lastClickedDepth = 0;
+				InterfaceSequencing.lastClicked = e.target.UID;
+			}
+
+			//Sequence interfaces
+			if(InterfaceSequencing.override != 0){
+				InterfaceSequencing.override(e);
+				if(InterfaceSequencing.noCancelOverride)
+					InterfaceSequencing.noCancelOverride = false;
+				else
+					InterfaceSequencing.override = 0;
+			} else {
+				if(InterfaceSequencing.lastClickedDepth > 0)
+					InterfaceSequencing.secondary(e);
+				else
+					InterfaceSequencing.main(e);
+			}
+		}
+		else {
+			Editor.shared.selected = factory.base;
+			if( e.target.UID < 3 ) {
+				InterfaceSequencing.override = 0;
+				hideActiveInterfaces()
+				InterfaceSequencing.secondary(e);
+			}
+		}
+	}
 	//functions
 	this.toggleMenu = function(){
 		if(Editor.interface.w){
@@ -156,14 +213,23 @@ loadAppCode("edit",function(data)
 		return container;
 	}
 
-	this.onAddPicture = function()
+	this.onAddImage = function()
 	{
-		Editor.images.show(Editor.sizer.target);
+		if(Editor.shared.selected.UID < 3) {
+      Editor.shared.selected = factory.root;
+      Editor.images.import();
+    }
+    else
+      Editor.images.import(Editor.shared.selected);
 	}
 
 	this.onAddText = function()
 	{
-		Editor.text.quickMake();
+		console.log("Selected UID:"+Editor.shared.selected.UID);
+		var container = ( Editor.shared.selected.UID > 2 ) ? Editor.shared.selected : factory.container();
+    Editor.text.makeTextContainer(container);
+    Editor.sizer.show(container);
+    keyboard.focus(container);
 	}
 
 	this.onAddVideo = function()
@@ -205,5 +271,14 @@ pointer-events: none;\
 .right-addon .glyphicon { right: 0px;}\
 /* add padding  */\
 .left-addon input  { padding-left:  30px; }\
-.right-addon input { padding-right: 30px; }");
+.right-addon input { padding-right: 30px; }\
+.menu{\
+	opacity:50%;\
+  background: #50a3a2;\
+  background: -webkit-linear-gradient(top left, #50a3a2 0%, #53e3a6 100%);\
+  background: linear-gradient(to bottom right, #50a3a2 0%, #53e3a6 100%);\
+	font-family: 'Source Sans Pro', sans-serif;\
+  color: white;\
+  font-weight: 300;\
+}");
 });

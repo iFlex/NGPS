@@ -2,7 +2,7 @@ var _INITIALISED = false;
 function _INIT(onReady,mode){
   var modules = {
     "essentials":["support/TweenLite.min","support/jquery","container","networking","factory","save","load"],
-    "os":["OSdriver","host"],
+    "os":["support/host"],
     "Bootstrap":"support/bootstrap/js/bootstrap.min",
   }
   var configs = {

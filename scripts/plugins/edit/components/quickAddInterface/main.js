@@ -6,36 +6,21 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   this.parent.setPermission('save',false);
   this.parent.setPermission('connect',false);
 
-  this.overrideEdit = false;
   this.interface = {};
   this.active = true;
   this.x = 0;
   this.y = 0;
 
+  Editor.addInterface = this;
   var buttons;
   var interfaceSize = 32;
   var sizeCoef = 0.75;
   var radius = 48;
-  var connectActive = false;
   this.onClick = function(e){
     if(!Editor.addInterface.active)
       return;
-
     Editor.addInterface.event = e;
-    console.log("qai:"+e.target.getPermission('edit'));
-    if( (e.target.getPermission('edit')) || e.target.UID < 3 )
-    {
-      if(connectActive)
-      {
-        connectActive = false;
-        Editor.addInterface.overrideEdit = false;
-        Editor.link.trigger(e);
-        return;
-      }
-      console.log("qai:showing:"+e.nativeEvent.pageX+":"+e.nativeEvent.pageY);
-      //use pagex & pagey or screenx & screeny
-      show(e.nativeEvent.pageX,e.nativeEvent.pageY,e.target);
-    }
+    show(e.nativeEvent.pageX,e.nativeEvent.pageY,e.target);
   }
   this.hide = function() {
     for( k in Editor.addInterface.interface){
@@ -48,7 +33,6 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       closeButton.button.DOMreference.className = "";
     }
     hide();
-    //Editor.addInterface.setInterface(0);
   }
 
   function hide(){
@@ -61,12 +45,13 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     //console.log("perms:"+parent.getPermission('quickAddInterface'));
     if(parent && parent.getPermission('quickAddInterface') == false)
       return;
+    Editor.addCloseCallback(Editor.addInterface.hide);
 
-    Editor.mainActiveUI.activate({hide:Editor.addInterface.hide});
     if(parent.UID < 3)
       parent = factory.root;
 
-    Editor.addInterface.origin = parent; //this causes cyclic references in save tree
+    Editor.shared.selected = parent; //this causes cyclic references in save tree
+    Editor.shared.selected = parent;
     Editor.addInterface.x = globalX;
     Editor.addInterface.y = globalY;
     //console.log("Click happened on:"+utils.debug(parent)+" @ "+globalX+"|"+globalY);
@@ -133,16 +118,11 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     }
   }
   this.init = function(){
-    Editor.addInterface = this;
     console.log(this.parent.appPath+" - initialising...");
-    //GEM.addEventListener("triggered",0,clickHandler,this);
-    factory.root.addEventListener("triggered",Editor.addInterface.onClick);
     this.setInterface(0);
   }
   this.shutdown = function(){
     console.log(this.parent.appPath+" - shutdown...");
-    //GEM.removeEventListener("triggered",0,clickHandler,this);
-    factory.root.removeEventListener("triggered",Editor.addInterface.onClick);
     discardInterface();
     delete Editor.addInterface;
   }
@@ -156,8 +136,8 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   }
   //adders
   function _addContainer(noInterface,descriptor,tag){ //causes cyclic references in save tree
-    Editor.mainActiveUI.hide();
-    var dparent = Editor.addInterface.origin;
+    Editor.addInterface.hide();
+    var dparent = Editor.shared.selected;
     if(dparent.UID < 3 && factory.root.display.UID != dparent.UID)
       dparent = factory.base;
 
@@ -167,7 +147,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     height:dparent.getWidth()*0.2,
     permissions:{track:true,connect:true,edit:true}},descriptor,true);
 
-    var container = factory.newContainer(d,((tag)?tag:"c000000"),Editor.addInterface.origin);
+    var container = factory.newContainer(d,((tag)?tag:"c000000"),Editor.shared.selected);
     var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
     container.putAt(pos.x,pos.y,0.5,0.5);
 
@@ -184,8 +164,8 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     _addContainer();
   }
   function addCamera(){
-    Editor.mainActiveUI.hide();
-    var dparent = Editor.addInterface.origin;
+    Editor.addInterface.hide();
+    var dparent = Editor.shared.selected;
     if(dparent.UID < 3)
       dparent = factory.base;
 
@@ -196,7 +176,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       height:dparent.getHeight()*0.8,
       surfaceWidth:50000,surfaceHeight:50000,CAMERA_type:"scroller",
       permissions:{track:false,connect:true,edit:true}},"c000000",
-      Editor.addInterface.origin,false,true);
+      Editor.shared.selected,false,true);
 
       var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
       container.putAt(pos.x,pos.y,0.5,0.5);
@@ -206,47 +186,40 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     }
   function addText(){
     //var container = _addContainer(true,null,"text_field");
-    var container = (Editor.addInterface.origin.UID>2)?Editor.addInterface.origin:_addContainer();
+    var container = (Editor.shared.selected.UID>2)?Editor.shared.selected:_addContainer();
     Editor.text.makeTextContainer(container);
     Editor.sizer.show(container);
     keyboard.focus(container);
   }
 
   function addVideo(){
-    Editor.mainActiveUI.hide();
+    Editor.addInterface.hide();
     console.log("Adding Video");
-    if(Editor.addInterface.origin.UID < 3)
-      Editor.addInterface.origin = factory.base;
+    if(Editor.shared.selected.UID < 3)
+      Editor.shared.selected = factory.base;
     if(Editor.videos)
-      Editor.videos.show(Editor.addInterface.origin);
+      Editor.videos.show(Editor.shared.selected);
   }
   function addImage(){
-    Editor.mainActiveUI.hide();
+    Editor.addInterface.hide();
     console.log("Adding image");
-    if(Editor.addInterface.origin.UID < 3) {
-      Editor.addInterface.origin = factory.root;
-      Editor.images.import();
-    }
-    else
-      Editor.images.import(Editor.addInterface.origin);
+    Editor.onAddImage();
   }
   function addWebsite(){
-    Editor.mainActiveUI.hide();
+    Editor.addInterface.hide();
     console.log("Adding Video");
-    if(Editor.addInterface.origin.UID < 3)
-      Editor.addInterface.origin = factory.base;
+    if(Editor.shared.selected.UID < 3)
+      Editor.shared.selected = factory.base;
     if(Editor.videos)
-      Editor.videos.show(Editor.addInterface.origin);
+      Editor.videos.show(Editor.shared.selected);
   }
   function connect(){
-    Editor.mainActiveUI.hide();
-    connectActive = true;
-    Editor.addInterface.overrideEdit = true;
+    Editor.addInterface.hide();
     Editor.link.trigger(Editor.addInterface.event);
   }
   function addCGI(e){
-    Editor.mainActiveUI.hide();
-    var dparent = Editor.addInterface.origin;
+    Editor.addInterface.hide();
+    var dparent = Editor.shared.selected;
     if(dparent.UID < 3)
       dparent = factory.base;
     var pos = dparent.getPos(0.5,0.5);
@@ -257,7 +230,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     name:"close",
     description:"Close interface",
     icon:"glyphicon glyphicon-remove",
-    callbacks:{onTrigger:Editor.mainActiveUI.hide}
+    callbacks:{onTrigger:Editor.addInterface.hide}
   }
 
   var button_store = [[{

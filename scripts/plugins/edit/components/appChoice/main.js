@@ -56,8 +56,9 @@ loadAppCode("edit/components/appChoice",function(data)
       hr:{}
     }],main.DOMreference);
 
-    popular = main.addChild({autopos:true,background:"transparent",style:"overflow-x:scroll;height:auto"});
-
+    popular = main.addChild({autopos:true,background:"transparent","overflow-x":"scroll","overflow-y":"hidden",style:"white-space:nowrap;"});
+    console.log("OVERFLOWWW");
+    console.log(popular);
     utils.makeHTML([{
       h4:{
         innerHTML:"All Apps",
@@ -103,22 +104,14 @@ loadAppCode("edit/components/appChoice",function(data)
   this.init = function(){
     Editor.apps = this;
     console.log("edit/components/appChoice - initialising...");
-    host.getInstalledUserApps(function(data){
-      if( data.success == true ) {
-        apps = data.apps;
-
+    host.getInstalledUserApps(function(_apps){
+        apps = _apps;
+        console.log(apps);
         root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"#E6E6E6",style:"padding-left:5px;padding-right:5px",permissions:{save:false,connect:false}});
-        main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],background:"transparent",permissions:{save:false,connect:false}});
-        active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],background:"#F5F6CE",permissions:{save:false,connect:false}});
-
-        main.DOMreference.style.overflowY = "scroll";
-        active.DOMreference.style.overflowY = "scroll";
-
+        main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],"overflow-y":"scroll","overflow-x":"hidden",permissions:{save:false,connect:false},style:bkgStyle});
+        active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],permissions:{save:false,connect:false},"overflow-y":"scroll","overflow-x":"hidden",style:activeBkg});
         _buildMain();
         _buildActive();
-      } else {
-        console.error("edit/components/appChoice failed to list user's apps!");
-      }
     });
   }
   this.shutdown = function(){
@@ -159,20 +152,17 @@ loadAppCode("edit/components/appChoice",function(data)
   var loadTheApp = function(e){
     console.log("Target:"+utils.debug(e.target));
     var info = e.target.info;
-    if(Editor.sizer.target)
+    if(info.local)
     {
-      if(info.local)
-        Editor.sizer.target.loadApp(info.name);
-    }
-    else if( info.local && !info.global ){
-      userMessages.inform("Sorry, this type of app needs to be loaded on a container!<br>Click anywhere on the screen and select container then load the app.");
+      if(Editor.shared.selected)
+        Editor.shared.selected.loadApp(info.name);
     }
     else if( info.global ){
       factory.newGlobalApp(info.name);
     }
   }
   var makeAppRecord = function(info,mp,onclick){
-    var record = mp.addChild({width:"100px",height:"125px",border_radius:["10px","10px",0,0],autopos:true,style:"display: inline-block;margin-right:20px"});
+    var record = mp.addChild({width:100,height:125,border_radius:["10px","10px",0,0],autopos:true,style:"display:inline-block;white-space:normal;margin-right:20px"});
     record.extend(Interactive);
     record.interactive(true);
     record.info = info;
@@ -193,4 +183,16 @@ loadAppCode("edit/components/appChoice",function(data)
     for( k in apps)
       makeAppRecord(apps[k],popular);
   }
+  var bkgStyle = "background-size: 50px 50px;\
+background-color: #cdd1d2;\
+background-image: -webkit-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
+background-image: -moz-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
+background-image: linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
+-pie-background: linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent) 0 0 / 50px #0ae;";
+  var activeBkg = "background-size: 50px 50px;\
+background-color: #77ce74;\
+background-image: -webkit-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
+background-image: -moz-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
+background-image: linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
+-pie-background: linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent) 0 0 / 50px #0ae;";
 });

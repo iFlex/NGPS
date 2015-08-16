@@ -181,14 +181,12 @@ factory.newCamera = function (possize,tag,parent)
 factory._glApps = {};
 factory.newGlobalApp = function ( app , passToApp )
 {
-	var host = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"global_app",factory.base);
-	host.loadApp(app,passToApp);
-
 	//keep track of all global apps
-	factory._glApps[app] = factory._glApps[app] || [];
-	factory._glApps[app].push(host);
-
-	return host;
+	if(!factory._glApps[app]) {
+		factory._glApps[app] = factory.newContainer({x:0,y:0,width:1,height:1,background:"transparent"},"global_app",factory.base);
+		factory._glApps[app].loadApp(app,passToApp);
+	}
+	return factory._glApps[app];
 }
 
 factory.removeGlobalApp = function ( app,unsafe )
@@ -196,11 +194,7 @@ factory.removeGlobalApp = function ( app,unsafe )
 	console.log("removing global app:"+app);
 	if( factory._glApps[app] )
 	{
-		for( a in factory._glApps[app] )
-		{
-			console.log("found instance of "+app+":"+utils.debug(factory._glApps[app][a]));
-			factory._glApps[app][a].discard();
-		}
+		factory._glApps[app].discard();
 		delete factory._glApps[app];
 		return true;
 	}

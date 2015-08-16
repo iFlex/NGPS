@@ -13,9 +13,6 @@ loadAppCode("edit/components/addVideo",function(data)
   this.parent.setPermission('connect',false);
 
   Editor.videos = this;
-  var midBody = 0;
-  var link = 0;
-  var mountPoint = 0;
   var vCTL = 0;
 
   var correctYoutubeLink = function(link){
@@ -44,7 +41,7 @@ loadAppCode("edit/components/addVideo",function(data)
     console.log("Adding video link:"+link);
     if(!vCTL)
     {
-      vCTL = mountPoint || Editor.dock.onAddContainer();
+      vCTL = mountPoint || Editor.onAddContainer();
       vCTL.loadApp('interactiveContent',{url:link});
       vCTL.src = link;
       //primitiveCTL = container.addPrimitive({type:'iframe',width:420,height:345,content:{src:link,width:"420",height:"345"}});
@@ -56,7 +53,7 @@ loadAppCode("edit/components/addVideo",function(data)
   }
   var addFromFile = function(e)
   {
-    var container = mountPoint || Editor.dock.onAddContainer();
+    var container = mountPoint || Editor.onAddContainer();
     var img = container.addPrimitive({type:"iframe",adapt_container:true,content:{src:e.target.result}});
     Editor.sizer.show(container);
   }

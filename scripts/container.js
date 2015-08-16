@@ -316,9 +316,8 @@ this.container = function(_properties,_parent)
 			{
 				container.setWidth( child.clientWidth );
 				container.setHeight( child.clientHeight	);
-
 				if(onready)
-					onready();
+					onready(this);
 			}
 		}
 		else
@@ -347,7 +346,7 @@ this.container = function(_properties,_parent)
 					child.height = nh;
 
 					if(onready)
-						onready();
+						onready(this);
 				}
 
 			}
@@ -962,8 +961,18 @@ this.container = function(_properties,_parent)
 		if(!this.DOMreference.style.position && !this.properties['autopos'])
 			this.DOMreference.style.position 	= 'absolute';
 
+
 		if(!this.DOMreference.style.overflow && this.properties['autosize'] != true )
 			this.DOMreference.style.overflow 	= "hidden";
+
+			if(this.properties['overflow-x'])
+				this.DOMreference.style.overflowX 	= this.properties['overflow-x'];
+
+			if(this.properties['overflow-y'])
+				this.DOMreference.style.overflowY 	= this.properties['overflow-y'];
+
+			if(this.properties['overflow'])
+				this.DOMreference.style.overflow 	= this.properties['overflow'];
 
 		if(this.properties['x'])
 		{

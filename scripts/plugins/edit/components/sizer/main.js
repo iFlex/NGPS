@@ -45,58 +45,29 @@ loadAppCode("edit/components/sizer",function(data)
       }
   }
 
-  function attachInterfaceTrigger(e){
-    var c = e.child;
-    if(c.getPermission('edit') == true)
-    {
-      //console.log("attaching edit interface to:"+utils.debug(c)+" perm:"+utils.debug(c.permissions));
-      c.addEventListener("triggered",Editor.sizer._show);
-    }
-  }
-
   this.init = function(){
     console.log(this.parent.appPath+" - initialising. Default interface:"+defaultInterface);
     this.configure(this.interfaces[defaultInterface]);
     currentInterface = defaultInterface;
-    factory.root.addEventListener("triggered",Editor.sizer.hide);
-    GEM.addEventListener("addChild",0,attachInterfaceTrigger);
   }
 
   this.shutdown = function(){
     console.log(this.parent.appPath+" - shutting down");
     this.hide();
-    factory.root.removeEventListener("triggered",Editor.sizer.hide);
-    GEM.removeEventListener("addChild",0,attachInterfaceTrigger);
     delete Editor.sizer;
   }
 
-  this._show = function(data)
-  {
-    //console.log("_show");
-    //console.log(data);
-    //show add interface rather than edit
-    if( (Editor.sizer.target && Editor.sizer.target.UID == data['target'].UID) || ( Editor.addInterface && Editor.addInterface.overrideEdit == true) )
-    {
-      if(Editor.addInterface)
-      {
-        Editor.addInterface.onClick(data);
-        return;
-      }
-    }
-    Editor.sizer.show(data['target']);
+  this._show = function(e){
+    Editor.sizer.show(e.target);
   }
-
   this.show = function(target)
   {
+
     //console.log("SHOW");
     //console.log(target);
     if(!target || !target.getPermission('edit'))
       return;
-    Editor.mainActiveUI.activate({
-      activate:Editor.sizer.show,
-      passToActivate:target,
-      hide:Editor.sizer.hide
-    },Editor.sizer,false);
+    Editor.addCloseCallback(Editor.sizer.hide);
     Editor.sizer.target = target;
     console.log("Showing interface for:"+utils.debug(target)+" prefered interface:"+target.editInterface);
     //debug

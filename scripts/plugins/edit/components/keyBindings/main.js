@@ -39,8 +39,13 @@ loadAppCode("edit/components/keyBindings",function(data){
   }
 
   function actUponKey(key) {
-    if(bindings[key] && bindings[key].action )
-      bindings[key].action(bindings[key].parameters);
+    if(bindings[key]) {
+      if(bindings[key].action )
+        bindings[key].action(bindings[key].parameters);
+    } else {
+      if( Editor.shared.selected )//&& Editor.shared.selected.children.length == 0 )
+        Editor.onAddText();
+    }
   }
 
   bindings = {

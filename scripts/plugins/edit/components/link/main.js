@@ -15,18 +15,7 @@ loadAppCode("edit/components/link",function(data){
 	var linkParent = 0;
 	var linkData = {};
 	this.descriptor = {};
-	this.isActive = false;
 
-	this.toggle = function(ctx)
-	{
-		var app = ctx.app;
-		app.isActive = !app.isActive;
-		//change icon
-		if(app.isActive)
-			ctx.DOMreference.innerHTML = "<img src='"+app.parent.appFullPath+"resources/0.png"+"' style='width:16px;height:16px'></img>";
-		else
-			ctx.DOMreference.innerHTML = "<img src='"+app.parent.appFullPath+"resources/1.png"+"' style='width:16px;height:16px'></img>";
-	}
   function cancel(){
 		if(temp)
 			temp.hide();
@@ -34,11 +23,7 @@ loadAppCode("edit/components/link",function(data){
 	}
 	this.trigger = function(data)
 	{
-		if(!this.isActive)
-		{
-			temp.hide();
-			return;
-		}
+		console.log(data);
 
 		var target = data['target'];
 		if(!target.getPermission('connect'))
@@ -74,6 +59,8 @@ loadAppCode("edit/components/link",function(data){
 			temp.changeParent(target);
 			temp.show();
 			temp.putAt(localPos.x,localPos.y,0.5,0.5);
+
+			Editor.requestNextClick(Editor.link.trigger);
 		}
 		else
 		{
@@ -100,24 +87,17 @@ loadAppCode("edit/components/link",function(data){
 	{
 		Editor.link = this;
 		console.log(this.parent.appPath+" - initialising...");
-		this.parent.onTrigger = this.toggle;
-
 		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true,permissions:{save:false,connect:false,edit:false}},'link_dot',factory.root);
 		console.log("link.init> created pointer:"+utils.debug(temp));
 		var g = temp.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-record"}});//<span class="glyphicon glyphicon-record"></span>
 		g.style.cssText = "font-size:32px";
 		temp.hide();
 
-		factory.root.addEventListener("triggered",cancel);
-
-		this.toggle(this.parent);
 	}
 	this.shutdown = function() //called only when app is unloaded from container
 	{
 		console.log(this.parent.appPath+" - shutdown.");
 		temp.discard();
-		factory.root.removeEventListener("triggered",cancel);
-		GEM.removeEventListener("triggered",0,"trigger",this);
 		delete Editor.link;
 	}
 });

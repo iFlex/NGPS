@@ -7,10 +7,6 @@ loadAppCode("edit/components/addImage",function(data)
   this.parent.setPermission('save',false);
   this.parent.setPermission('connect',false);
   Editor.images = this;
-  var midBody = 0;
-  var link = 0;
-  var mountPoint = 0;
-  var primitiveCTL = 0;
   var _target = false;
 
   function resizeToFit(c){
@@ -49,39 +45,26 @@ loadAppCode("edit/components/addImage",function(data)
 
   }
 
-  var addFromURL = function(link,info)
+  var addFromURL = function(img)
   {
-    if(!primitiveCTL)
-    {
-      var container = Editor.addInterface.newContainer();//mountPoint || Editor.dock.onAddContainer();
-      primitiveCTL = container.addPrimitive({type:"img",adapt_container:true,content:{src:link}},function(){resizeToFit(container)});
-    }
-    else
-      if(primitiveCTL.src != link)
-        primitiveCTL.src = link;
-
-    //Editor.images.hide();
+    var container = 0;
+    if(_target){
+      container = _target.addChild({x:0,y:0,width:0,height:0})
+      container.extend(Interactive);
+      container.interactive(true);
+    } else
+      container = factory.container();
+    container.addPrimitive({type:"img",adapt_container:true,content:{src:img}},function(){resizeToFit(container)});
   }
 
   var addFromFile = function(e)
   {
-    var container = Editor.addInterface.newContainer();//mountPoint || Editor.dock.onAddContainer();
-    var img = container.addPrimitive({type:"img",adapt_container:true,content:{src:e.target.result}},function(){resizeToFit(container)});
-    //Editor.images.hide();
-  }
-
-  var _add = function(){
-    if(link && link.value.length > 0)
-      addFromURL(link.value);
+    addFromURL(e.target.result);
   }
 
   this.import = function(target){
     if(target)
-    {
-      if(!target.hasChildren())
-        mountPoint = target;
       _target = target;
-    }
     else
     {
       target = factory.base;
