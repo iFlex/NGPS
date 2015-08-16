@@ -54,7 +54,7 @@ factory.setup ={
 editor:function(){
   factory.newGlobalApp('dialogue');
   factory.newGlobalApp('edit');
-  factory.newGlobalApp('_test');
+  //factory.newGlobalApp('_test');
   console.log("loaded edit setup");
 },
 view:function(){

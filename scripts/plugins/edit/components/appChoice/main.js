@@ -127,13 +127,24 @@ loadAppCode("edit/components/appChoice",function(data)
     delete Editor.apps;
   }
 
+  this.toggle = function(){
+      if(this.showing == true)
+        this.hide();
+      else
+        this.show();
+  }
+
   this.show = function(){
-    if(root)
+    if(root) {
       root.tween({top:"50%"},1);
+      this.showing = true;
+    }
   }
   this.hide = function(){
-    if(root)
+    if(root) {
       root.tween({top:"100%"},1);
+      this.showing = false;
+    }
   }
 
   var shutdownApp = function(e){
