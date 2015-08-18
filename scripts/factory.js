@@ -53,7 +53,7 @@ factory.init = function(mode,manualSetup) // editor init
 		factory.root.extend(Camera);
 		factory.root.interactive(true);
 		factory.root.cstart(5);
-
+		containerData.cameraCtx = factory.root;
 		//center camera
 		var s = factory.root.getSurface();
 		factory.root.c_move(-s['width']/2,-s['height']/2);

@@ -30,9 +30,14 @@ requirejs(["support/TweenMax.min","drivers","interact","app","camera","gem"],fun
 var containerData = {};
 containerData.containerIndex = 0;
 containerData.reffTree = {}; //quick reference tree
+containerData.cameraCtx = 0;
 
 function findContainer(uid){
 	return containerData.reffTree[uid];
+}
+
+function setZoomLevelForContainers(zl){
+	containerData.zoomLevel = 1/zl;
 }
 
 this.container = function(_properties,_parent)
@@ -573,6 +578,12 @@ this.container = function(_properties,_parent)
 	{
 		//if(this.DOMreference.style.position != 'absolute')
 		//	this.DOMreference.style.position = 'absolute';
+		//adapt to camera context
+		if(containerData.cameraCtx){
+			var zl = 1/containerData.cameraCtx.czoomLevel;
+			dx *= zl;
+			dy *= zl;
+		}
 
 		this.DOMreference.style.left = this.DOMreference.offsetLeft + dx + "px";
 		this.DOMreference.style.top  = this.DOMreference.offsetTop  + dy + "px";

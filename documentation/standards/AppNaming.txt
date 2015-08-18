@@ -1,0 +1,18 @@
+How to name your application depending on what type of app it is:
+
+Types of apps:
+0. Internal
+1. Global
+2. Local
+
+Internal app names must start with an underscore _
+
+Global apps are services that facilitate functionality, they are concerned with multiple containers not just one
+application_name.g - must contain the suffix g
+
+Local apps are concerned with just one container - they add functionality to that container only
+application_name.l - should contain the suffix l but can be omited
+
+Applications that can be loaded both locally and globally:
+
+application_name.gl or .lg

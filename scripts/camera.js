@@ -46,7 +46,7 @@
 //NOTE: when camera frame is an automatically positioned object the child display must be the same
 var Camera = {};
 
-Camera.cstart = function(interval)
+Camera.cstart = function()
 {
 	console.log("Creating camera");
 	//now adding camera specific functions
@@ -58,6 +58,9 @@ Camera.cstart = function(interval)
 	this.zoomDY = 0;
 	//rotate
 	this.cangle = 0;
+	//ViewportXY
+	this.cViewPortX = 0;
+	this.cViewPortY = 0;
 	//inertia
 	this.tInertia = 0;
 	this.xInertia = 0;
@@ -65,15 +68,6 @@ Camera.cstart = function(interval)
 	//operations flags
 	this.callow = true;
 	this.cops = {};
-
-	if(!this.cinterval)
-	{
-		//used for time based animations and corrections
-		if(!interval || interval < 0 )
-			interval = 32;
-
-		this.cinterval = interval;
-	}
 
 	this.c_allowInertia = true;
 	this.allowInertia = true;
