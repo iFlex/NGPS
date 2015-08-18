@@ -606,16 +606,9 @@ Camera.applyInertia = function(){
 	}
 }
 
-//TODO	Calculate boundaries and enforce zoom limits
 Camera.czoom = function(level,ox,oy,delay)
 {
 	if(!this.callow)
-		return false;
-
-	//TODO: check boundaries
-	if( this.boundaries["HIzoom"] && level > this.boundaries['HIzoom'])
-		return false;
-	if( this.boundaries["LOzoom"] && level < this.boundaries['LOzoom'])
 		return false;
 
 	if(typeof(ox) == "undefined")
@@ -623,7 +616,6 @@ Camera.czoom = function(level,ox,oy,delay)
 	if(typeof(oy) == "undefined")
 		oy = 0.5;
 
-	this.czoomLevel = level;
 	//check cross referencing
 	if(this.antiCrossReff("czoom",1))
 		return;
@@ -631,8 +623,12 @@ Camera.czoom = function(level,ox,oy,delay)
 	if(delay == undefined)
 		delay = 1;
 
-	var torig = this.cgetTransformOrigin(ox,oy);
-	this.display.scale(level,torig['ox'],torig['oy'],delay);
+	//TODO: find right distance to travel
+	var dx = (this.getWidth()*this.czoomLevel * (1 - level))*ox;
+	var dy = (this.getHeight()*this.czoomLevel * (1 - level))*oy;
+	this.czoomLevel *= level;
+	this.display.scale(level,0,0,delay);
+	this.cmove(dx,dy,delay);
 
 	for( k in this.crelations )
 		if(this.crelations[k]['zoom'] != 0)
