@@ -5,12 +5,7 @@ loadAppCode("_webshow/components/login",function(args){
   args.parent.setPermission('noOverride',true);
 
   this.init = function(){
-    var ctx = this;
-    console.log(args.parent.appFullPath+" - initialising");
-    utils.loadStyle(args.parent.appFullPath+"css/style.css",function(){
-      console.log(args.parent.appFullPath+" styles - OK");
-      ctx.create(factory.base);
-    });
+    this.attach("Welcome");
   }
 
   function login_failed(){
@@ -95,22 +90,6 @@ loadAppCode("_webshow/components/login",function(args){
         }]
       }
     }]);
-  }
-  this.create = function(target){
-    var innerBubbles = [{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}}];
-    var bubbles = utils.makeHTML([{
-      ul:{
-        class:"bg-bubbles",
-        children:innerBubbles
-      }
-    }]);
-    utils.makeHTML([{
-      div:{
-        id:"webshow_wrapper",
-        class:"wrapper",
-        children:[this.buildLoginForm(),bubbles]
-      }
-    }],target.DOMreference);
   }
   this.attach = function(text){
     var form = this.buildLoginForm();

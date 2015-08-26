@@ -1,10 +1,10 @@
 var webshow = 0;
-loadAppCode("_webshow",function(data){
+loadAppCode("_webshow",function(args){
   this.config = {interface:"none"}
   var p_config = 0;
-  data.parent.setPermission('save',false);
-	data.parent.setPermission('connect',false);
-  data.parent.setPermission('noOverride',true);
+  args.parent.setPermission('save',false);
+	args.parent.setPermission('connect',false);
+  args.parent.setPermission('noOverride',true);
 
   this.init = function(){
     p_config = this.getQueryParams();
@@ -17,13 +17,20 @@ loadAppCode("_webshow",function(data){
     }
     if(!dataToLive.doStart) {
       this.importer = factory.newGlobalApp("dialogue/dialogues/import",{Dialogue:{}});
-      this.chooseMode = factory.newGlobalApp(data.parent.appName+"/components/modeSelect",{chaining:this});
-      this.login = factory.newGlobalApp(data.parent.appName+"/components/login",{chaining:this});
-      this.register = factory.newGlobalApp(data.parent.appName+"/components/register",{chaining:this});
-      this.add = factory.newGlobalApp(data.parent.appName+"/components/add",{chaining:this});
+      this.chooseMode = factory.newGlobalApp(args.parent.appName+"/components/modeSelect",{chaining:this});
+      this.login = factory.newGlobalApp(args.parent.appName+"/components/login",{chaining:this});
+      this.register = factory.newGlobalApp(args.parent.appName+"/components/register",{chaining:this});
+      this.add = factory.newGlobalApp(args.parent.appName+"/components/add",{chaining:this});
     }
-    factory.newGlobalApp(data.parent.appName+"/components/live",dataToLive);
+    factory.newGlobalApp(args.parent.appName+"/components/live",dataToLive);
     webshow = this;
+
+    var ctx = this;
+    console.log(args.parent.appFullPath+" - initialising");
+    utils.loadStyle(args.parent.appFullPath+"css/style.css",function(){
+      console.log(args.parent.appFullPath+" styles - OK");
+      ctx.create(factory.base);
+    });
   }
   this.loadFromFile = function(data){
     pLOAD.fromHTML(atob(data.split(",")[1]));
@@ -63,4 +70,22 @@ loadAppCode("_webshow",function(data){
     }
     return query_string;
   }
+
+  this.create = function(target){
+    var innerBubbles = [{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}},{li:{}}];
+    var bubbles = utils.makeHTML([{
+      ul:{
+        class:"bg-bubbles",
+        children:innerBubbles
+      }
+    }]);
+    utils.makeHTML([{
+      div:{
+        id:"webshow_wrapper",
+        class:"wrapper",
+        children:[bubbles]
+      }
+    }],target.DOMreference);
+  }
+
 });
