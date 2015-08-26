@@ -54,8 +54,7 @@ factory.setup ={
 editor:function(){
   factory.newGlobalApp('dialogue');
   factory.newGlobalApp('edit');
-  factory.root.display.DOMreference.style.background = "red";
-  
+  //factory.root.display.DOMreference.style.background = "red";
   //factory.newGlobalApp('_test');
   console.log("loaded edit setup");
 },

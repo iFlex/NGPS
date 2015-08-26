@@ -197,8 +197,14 @@ loadAppCode("edit",function(data)
 		save.toFile(Editor.dock.title.DOMreference.value);
 	}
 	this.load = function(){
-		var pcnt = window.prompt("presentation content:");
-		pLOAD.proceed(pcnt);
+		//var pcnt = window.prompt("presentation content:");
+		//pLOAD.proceed(pcnt);
+		Dialogue.import.show({
+      title:"Choose presentation",
+      fileHandler:function(e){ pLOAD.fromHTML(atob(e.target.result.split(",")[1])); },
+      urlHandler:function(){},
+      target:factory.base
+    });
 	}
 
 	this.zoomIn = function(){

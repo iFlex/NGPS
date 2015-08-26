@@ -624,8 +624,8 @@ Camera.czoom = function(level,ox,oy,delay)
 		delay = 1;
 
 	//TODO: find right distance to travel
-	var dx = (this.getWidth()*this.czoomLevel * (1 - level))*ox;
-	var dy = (this.getHeight()*this.czoomLevel * (1 - level))*oy;
+	var dx = (this.display.getWidth()*this.czoomLevel * (1 - level))*ox;
+	var dy = (this.display.getHeight()*this.czoomLevel * (1 - level))*oy;
 	this.czoomLevel *= level;
 	this.display.scale(level,0,0,delay);
 	this.cmove(dx,dy,delay);

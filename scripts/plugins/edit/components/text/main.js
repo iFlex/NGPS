@@ -91,25 +91,29 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.focus(c);
 	}
 	this.makeTextContainer = function(container){
-		var ghostTable = utils.makeHTML([{
-      div:{
-        style:"display: table;width: 100%;height:100%;background:transparent"
-      }
-    }]);
-    var divContainer = utils.makeHTML([{
-      div:{
-        style:"display: table-cell;text-align: center;vertical-align: middle;background:transparent"
-      }}]);
-    ghostTable.appendChild(divContainer);
-		container.textField = utils.makeHTML([{
-			textarea:{
-				style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;"
-			}
-		}]);
-		divContainer.appendChild(container.textField);
-		container.DOMreference.appendChild(ghostTable);
-		container.editInterface = 'text';
-    container.addEventListener("triggered",function(data){ keyboard.focus(data['target']); });
+		if(!document.getElementById(container.UID+":txtfld")){
+			var ghostTable = utils.makeHTML([{
+	      div:{
+					id:container.UID+":txtaligner",
+	        style:"display: table;width: 100%;height:100%;background:transparent"
+	      }
+	    }]);
+	    var divContainer = utils.makeHTML([{
+	      div:{
+	        style:"display: table-cell;text-align: center;vertical-align: middle;background:transparent"
+	      }}]);
+	    ghostTable.appendChild(divContainer);
+			container.textField = utils.makeHTML([{
+				textarea:{
+					id:container.UID+":txtfld",
+					style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;"
+				}
+			}]);
+			divContainer.appendChild(container.textField);
+			container.DOMreference.appendChild(ghostTable);
+			container.editInterface = 'text';
+    	container.addEventListener("triggered",function(data){ keyboard.focus(data['target']); });
+		}
 		//container.setPermission("children",false);
 	}
 	keyboard.focus = function(target)

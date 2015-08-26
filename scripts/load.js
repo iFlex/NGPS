@@ -3,7 +3,8 @@
 *	Author: Milorad Liviu Felix
 *	3 Jun 2014  00:33 GMT
 * 	This module reads the index.html, builds the object tree and renders the presentation
-	WARNING: the UID of the LOADcontent will not tally with the UIDs created when building the tree
+*	Available events:
+*		loaded
 */
 var pLOAD = {}
 pLOAD.root = 0;
@@ -13,74 +14,78 @@ var _LINKS = [];
 var _CAMERAS = [];
 pLOAD._unit = function(node,root,jumpAlreadyExisting)
 {
-	if(node.isLink)//save link for loading after whole tree is loaded
-	{
-		_LINKS.push(node);
-		return;
-	}
+	try {
+		if(node.isLink)//save link for loading after whole tree is loaded
+		{
+			_LINKS.push(node);
+			return;
+		}
 
-	console.log("jumpAlreadyExisting:"+jumpAlreadyExisting+" UID:"+node.UID);
-	if( jumpAlreadyExisting == undefined || node.UID > jumpAlreadyExisting )
-	{
-		console.log("adding:"+utils.debug(node)+" to:"+utils.debug(root));
-		var croot = 0;
+		console.log("jumpAlreadyExisting:"+jumpAlreadyExisting+" UID:"+node.UID);
+		if( jumpAlreadyExisting == undefined || node.UID > jumpAlreadyExisting )
+		{
+			console.log("adding:"+utils.debug(node)+" to:"+utils.debug(root));
+			var croot = 0;
 
-		if(!factory.base && !root){
-			croot = new container(node.properties)
-			factory.base = croot;
+			if(!factory.base && !root){
+				croot = new container(node.properties)
+				factory.base = croot;
+			}
+			else
+			{
+				node.properties.UID = node.UID;
+				croot = factory.createContainer(node.properties,root);
+				if(!factory.root)
+				{
+					factory.root = croot;
+					factory.initialised = true;
+				}
+			}
+
+			if(node.camera)
+			{
+				croot.extend(Camera);
+				croot.extend(Interactive);
+				croot.interactive(true);
+				croot.cstart(node.camera.interval);
+				//load all camera specific data
+				for( p in node.camera )
+					croot["c"+p] = node.camera[p];
+				//immediately instantiate the display object and replace the display of the above camera
+				var _node = LOADcontent[node.children[0]];
+				node.children.splice(0,1);
+				node = _node;
+
+				_CAMERAS.push(croot);
+			}
+			//add content
+			croot.actions = node.actions;
+			if(node.value)
+				croot.DOMreference.value = node.value;
+
+			if(node.innerHTML)
+				croot.DOMreference.innerHTML = decodeURIComponent(node.innerHTML);
+
+			if(node.child)
+			{
+				var cld = croot.addPrimitive(node.child.descriptor);
+				//cld.innerHTML = node.child.innerHTML;
+			}
+
+			if(node.isApp)
+				croot.appData = node.appData;
 		}
 		else
+			croot = findContainer(node.UID);
+		//extensions
+		for(k in node.children)
 		{
-			node.properties.UID = node.UID;
-			croot = factory.createContainer(node.properties,root);
-			if(!factory.root)
-			{
-				factory.root = croot;
-				factory.initialised = true;
-			}
+			//console.log("going to child:"+node.children[k]+">"+LOADcontent[node.children[k]+""]);
+			if(LOADcontent[node.children[k]+""])
+				pLOAD._unit( LOADcontent[node.children[k]],croot,jumpAlreadyExisting);
 		}
-
-		if(node.camera)
-		{
-			croot.extend(Camera);
-			croot.extend(Interactive);
-			croot.interactive(true);
-			croot.cstart(node.camera.interval);
-			//load all camera specific data
-			for( p in node.camera )
-				croot["c"+p] = node.camera[p];
-			//immediately instantiate the display object and replace the display of the above camera
-			var _node = LOADcontent[node.children[0]];
-			node.children.splice(0,1);
-			node = _node;
-
-			_CAMERAS.push(croot);
-		}
-		//add content
-		croot.actions = node.actions;
-		if(node.value)
-			croot.DOMreference.value = node.value;
-
-		if(node.innerHTML)
-			croot.DOMreference.innerHTML = decodeURIComponent(node.innerHTML);
-
-		if(node.child)
-		{
-			var cld = croot.addPrimitive(node.child.descriptor);
-			//cld.innerHTML = node.child.innerHTML;
-		}
-
-		if(node.isApp)
-			croot.appData = node.appData;
-	}
-	else
-		croot = findContainer(node.UID);
-	//extensions
-	for(k in node.children)
-	{
-		//console.log("going to child:"+node.children[k]+">"+LOADcontent[node.children[k]+""]);
-		if(LOADcontent[node.children[k]+""])
-			pLOAD._unit( LOADcontent[node.children[k]],croot,jumpAlreadyExisting);
+	}catch(e){
+		console.log(e);
 	}
 }
 pLOAD.loadLinks = function(){
@@ -151,8 +156,10 @@ pLOAD.proceed = function(jsn)
 			pLOAD.activateCameras();
 			//now load all the apps
 			console.log("Loading apps:"+utils.debug(LOADtree.requirements.apps));
-			pLOAD.loadApps( LOADtree.requirements.apps  );
+			//pLOAD.loadApps( LOADtree.requirements.apps  );
 
+			//fire presentation loaded event
+			GEM.fireEvent({event:"loaded",isGlobal:true});
 		}
 		else
 			setTimeout(waitForJson,50);

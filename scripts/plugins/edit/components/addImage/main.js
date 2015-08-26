@@ -8,6 +8,7 @@ loadAppCode("edit/components/addImage",function(data)
   this.parent.setPermission('connect',false);
   Editor.images = this;
   var _target = false;
+  var host = 0;
 
   function resizeToFit(c){
     var parent = 0;
@@ -47,14 +48,20 @@ loadAppCode("edit/components/addImage",function(data)
 
   var addFromURL = function(img)
   {
-    var container = 0;
-    if(_target){
-      container = _target.addChild({x:0,y:0,width:0,height:0})
-      container.extend(Interactive);
-      container.interactive(true);
-    } else
-      container = factory.container();
-    container.addPrimitive({type:"img",adapt_container:true,content:{src:img}},function(){resizeToFit(container)});
+    if(!host){
+        if(_target){
+        host = _target.addChild({x:0,y:0,width:0,height:0})
+        host.extend(Interactive);
+        host.interactive(true);
+      } else
+        host = factory.container();
+    } else {
+      if(host.child) {
+        host.DOMreference.removeChild(host.child);
+        host.child = 0;
+      }
+    }
+    host.addPrimitive({type:"img",adapt_container:true,content:{src:img}},function(){resizeToFit(host)});
   }
 
   var addFromFile = function(e)
@@ -63,6 +70,7 @@ loadAppCode("edit/components/addImage",function(data)
   }
 
   this.import = function(target){
+    host = 0;
     if(target)
       _target = target;
     else

@@ -15,12 +15,13 @@ loadAppCode("_webshow",function(data){
         factory.audience = p_config.audience;
         dataToLive.doStart = true;
     }
-
-    this.importer = factory.newGlobalApp("dialogue/dialogues/import",{Dialogue:{}});
-    this.chooseMode = factory.newGlobalApp(data.parent.appName+"/components/modeSelect",{chaining:this});
-    this.login = factory.newGlobalApp(data.parent.appName+"/components/login",{chaining:this});
-    this.register = factory.newGlobalApp(data.parent.appName+"/components/register",{chaining:this});
-    this.add = factory.newGlobalApp(data.parent.appName+"/components/add",{chaining:this});
+    if(!dataToLive.doStart) {
+      this.importer = factory.newGlobalApp("dialogue/dialogues/import",{Dialogue:{}});
+      this.chooseMode = factory.newGlobalApp(data.parent.appName+"/components/modeSelect",{chaining:this});
+      this.login = factory.newGlobalApp(data.parent.appName+"/components/login",{chaining:this});
+      this.register = factory.newGlobalApp(data.parent.appName+"/components/register",{chaining:this});
+      this.add = factory.newGlobalApp(data.parent.appName+"/components/add",{chaining:this});
+    }
     factory.newGlobalApp(data.parent.appName+"/components/live",dataToLive);
     webshow = this;
   }

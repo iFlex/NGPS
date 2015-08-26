@@ -36,6 +36,7 @@ loadAppCode("_webshow/components/modeSelect",function(args){
         if(info.success == true) {
           factory.presentation = info.presentation;
           $('#webshow_chooser').fadeOut({duration:500});
+          factory.rootDevice = info.rootDevice;
           args.chaining.add.app.activate(info.remote,info.audience);
           return;
         }
