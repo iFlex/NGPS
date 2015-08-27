@@ -2,12 +2,11 @@ var DEBUG_LIVE = 0;
 loadAppCode("_webshow/components/live",function(args){
   this.config = {interface:"none"}
   //var http = new XMLHttpRequest();
-  var server = "http://localhost:8080/";
   var endpoint = "live";
-  var presentation  = factory.presentation;
-  var audience = factory.audience;
-  var remote = factory.remote;
-  var rootDevice = factory.rootDevice;
+  var presentation  = (factory.session)?factory.session.presentation:undefined;
+  var audience = (factory.session)?factory.session.audience:undefined;
+  var remote = (factory.session)?factory.session.remote:undefined;
+  var rootDevice = (factory.session)?factory.session.rootDevice:undefined;
   var module = this;
   var socket = 0;
   args.parent.setPermission('save',false);
@@ -22,15 +21,19 @@ loadAppCode("_webshow/components/live",function(args){
       presentation = options.presentation || presentaton;
       audience = options.audience || audience;
       remote = options.remote || remote;
-      rootDevice = factory.rootDevice;
+      if(factory.session)
+        rootDevice = factory.session.rootDevice;
+      else
+        rootDevice = 0;
     }
 
     if(audience)
       GEM.addEventListener("loaded",0,offerPresentation,this);
     if(remote)
-      GEM.addEventListener("triggered",0,sendClick,this);
+      args.remote = factory.newGlobalApp(args.parent.appName+"/remote",{live:this});
 
-    socket = io(server);
+
+    socket = io(network.getServerAddress());
     var data = {action:"register",presentation:presentation};
     if(audience)
       data.audience = audience;
@@ -49,6 +52,17 @@ loadAppCode("_webshow/components/live",function(args){
       }
       actUponData(d);
     });
+  }
+  this.cancelSession = function(){
+    try{
+      socket.disconnect();
+    } catch(e){
+      console.error("Failed disconnect",e);
+    }
+
+    if(args.remote && args.remote.isApp)
+      args.remote.discard();
+    delete factory.session;
   }
 
   function _send(data){
@@ -102,8 +116,22 @@ loadAppCode("_webshow/components/live",function(args){
     if(data.action == "getPresentation")
       sendPresentation(data);
 
-    if(data.action == "setPresentation")
+    if(data.action == "setPresentation" && !factory.session.remoteInitialised){
       pLOAD.proceed(data.data);
+      args.remote.app.continue();
+    }
+
+    if(data.action == "do"){
+      var c = findContainer(data.UID);
+      console.log("Performing action:"+data.x+" "+data.y);
+      c.putAt(data.x,data.y);
+    }
+
+    if(data.action == "doClick"){
+      var c = findContainer(data.UID);
+      console.log("Performing action:"+data.x+" "+data.y);
+      factory.root.cfocusOn(c,{});
+    }
   }
 
   function sendPresentation(data){

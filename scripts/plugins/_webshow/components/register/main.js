@@ -7,10 +7,10 @@ loadAppCode("_webshow/components/register",function(args){
   this.init = function(){
     console.log(args.parent.appFullPath+" - initialiseing...");
   }
-  function back(){
+  function back(noMessage){
     $('.wrapper').removeClass("form-success")
     $('#webshow_chooser').fadeOut({duration:250,complete:function(){$('#webshow_chooser').remove()}})
-    args.chaining.onBackToLogin("Login to your new account");
+    args.chaining.onBackToLogin((noMessage)?null:"Login to your new account");
   }
   function register_failed(){
     $('form').fadeIn(500);
@@ -87,6 +87,15 @@ loadAppCode("_webshow/components/register",function(args){
                   type:"button",
                   innerHTML:"Register",
                   onclick:register
+                }
+              },
+              {br:{}},
+              {
+                a:{
+                  href:"#",
+                  class:"signup",
+                  innerHTML:"back",
+                  onclick:function(){ back(true); }
                 }
               }]
             }

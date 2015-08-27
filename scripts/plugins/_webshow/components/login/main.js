@@ -5,6 +5,7 @@ loadAppCode("_webshow/components/login",function(args){
   args.parent.setPermission('noOverride',true);
 
   this.init = function(){
+    console.log("Attaching login...");
     this.attach("Welcome");
   }
 
@@ -17,8 +18,8 @@ loadAppCode("_webshow/components/login",function(args){
     try {
       data = JSON.parse(data);
       if(data.success == true){
-        factory.token = data.token;
-        args.chaining.onLogin();
+        factory.login.token = data.token;
+        args.chaining.selectMode();
         return;
       }
     }catch(e){
@@ -31,7 +32,8 @@ loadAppCode("_webshow/components/login",function(args){
     $('form').fadeOut(500);
     $('.wrapper').addClass('form-success');
     data = {email:$('#login_user').val(),password:$('#login_password').val()};
-    factory.useremail = $('#login_user').val();
+    factory.login = {};
+    factory.login.useremail = $('#login_user').val();
     data = JSON.stringify(data);
     network.POST("login",data,login_response,login_failed);
   }

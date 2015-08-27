@@ -7,12 +7,14 @@ loadAppCode("_webshow",function(args){
   args.parent.setPermission('noOverride',true);
 
   this.init = function(){
+    network.setServerAddress(window.location.host);
     p_config = this.getQueryParams();
     var dataToLive = {webshow:this}
     if(p_config.p && (p_config.remote||p_config.audience)){ //this endpoint is a remote
-        factory.presentation = p_config.p;
-        factory.remote = p_config.remote;
-        factory.audience = p_config.audience;
+        factory.session = {};
+        factory.session.presentation = p_config.p;
+        factory.session.remote = p_config.remote;
+        factory.session.audience = p_config.audience;
         dataToLive.doStart = true;
     }
     if(!dataToLive.doStart) {
@@ -41,7 +43,7 @@ loadAppCode("_webshow",function(args){
   this.onBackToLogin = function(text){
     this.login.app.attach(text);
   }
-  this.onLogin = function(){
+  this.selectMode = function(){
     this.chooseMode.app.activate();
   }
   this.onRegister = function(){

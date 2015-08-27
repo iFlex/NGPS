@@ -12,6 +12,7 @@ loadAppCode("dialogue/dialogues/import",function(data)
     if( data.Dialogue.import.config.fileHandler )
       reader.onload = data.Dialogue.import.config.fileHandler;
     reader.readAsDataURL(file);
+    data.Dialogue.import.hide();
   }
 
   function _change(){
@@ -25,6 +26,8 @@ loadAppCode("dialogue/dialogues/import",function(data)
 
   function close(){
     data.Dialogue.import.hide();
+    if(data.Dialogue.import.config.onCancel)
+      data.Dialogue.import.config.onCancel();
   }
 
   this.init = function(){

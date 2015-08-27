@@ -27,18 +27,29 @@ loadAppCode("_webshow/components/add",function(data){
       });
     }});
   }
-
+  function cancelSession(){
+    webshow.live.cancelSession();
+    //TODO: remove qr code
+    $("#webshow_add_menu").fadeOut(500);
+    console.log("back to select mode");
+    remoteQr.discard();
+    audienceQr.discard();
+    data.chaining.selectMode();
+  }
   this.continue = function(){
     continueToPresentation();
   }
 
   this.activate = function(remoteLink,audienceLink){
-    factory.audience = audienceLink;
-    factory.remote = remoteLink;
+    if(!factory.session)
+      return false;
+
+    factory.session.audience = audienceLink;
+    factory.session.remote = remoteLink;
 
     remoteLink = network.getServerAddress()+"?R="+remoteLink;
     audienceLink = network.getServerAddress()+"?A="+audienceLink;
-    webshow.live.setup({server:network.getServerAddress(),presentation:factory.presentation,audience:factory.audience});
+    webshow.live.setup({server:network.getServerAddress(),presentation:factory.session.presentation,audience:factory.session.audience});
     //addRemote = factory.base.addChild({x:0,y:0,width:"50%",height:"60%",background:"blue"});
     //addRemote.v
     //encode(remoteLink,addRemote.canvas.DOMreference,addRemote.getWidth(),addRemote.getHeight(),1);
@@ -52,7 +63,7 @@ loadAppCode("_webshow/components/add",function(data){
     var chooser = utils.makeHTML(
     [{
       div:{
-        id:"webshow_chooser",
+        id:"webshow_add_menu",
         class:"container",
         children:[{
           h1:{
@@ -86,6 +97,13 @@ loadAppCode("_webshow/components/add",function(data){
                 type:"button",
                 value:"No thanks, i'll be sitting down",
                 onclick:continueToPresentation
+              }
+            },{
+              a:{
+                href:"#",
+                class:"signup",
+                innerHTML:"back",
+                onclick:cancelSession
               }
             }]
           }

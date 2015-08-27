@@ -4,6 +4,10 @@ var network = function(){
     return server;
   }
   this.setServerAddress = function(s){
+    if(s.indexOf("http://"))
+      s = "http://"+s+"/";
+
+    console.log("Set new networking address:"+s);
     server = s;
   }
   var HTTPrequest = function(method,url,params,oncomplete,error,pass_to_listener)

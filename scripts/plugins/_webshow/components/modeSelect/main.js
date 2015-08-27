@@ -34,9 +34,10 @@ loadAppCode("_webshow/components/modeSelect",function(args){
       try {
         info = JSON.parse(info);
         if(info.success == true) {
-          factory.presentation = info.presentation;
+          factory.session = {};
+          factory.session.presentation = info.presentation;
           $('#webshow_chooser').fadeOut({duration:500});
-          factory.rootDevice = info.rootDevice;
+          factory.session.rootDevice = info.rootDevice;
           args.chaining.add.app.activate(info.remote,info.audience);
           return;
         }
@@ -47,7 +48,7 @@ loadAppCode("_webshow/components/modeSelect",function(args){
     }
     $('#webshow_info').html("One moment...");
     $('#webshow_form_choose').fadeOut({duration:500,complete:function(){$('.wrapper').addClass('form-success');}});
-    data = {token:factory.token,email:factory.useremail};
+    data = {token:factory.login.token,email:factory.login.useremail};
     data = JSON.stringify(data);
     setTimeout(function(){network.POST("newpresentation",data,np_response,np_failed);},1000);
   }
@@ -58,9 +59,15 @@ loadAppCode("_webshow/components/modeSelect",function(args){
       title:"Choose presentation",
       fileHandler:function(e){args.chaining.loadFromFile(e.target.result);},
       urlHandler:function(){},
+      onCancel:onCancel,
       target:factory.base
     });
   }
+
+  function onCancel(){
+    $('#webshow_wrapper').fadeIn({duration:500});
+  }
+
   this.activate = function(){
     $('.wrapper').removeClass('form-success');
     $('#webshow_container').fadeOut(250);
