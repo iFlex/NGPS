@@ -71,13 +71,13 @@ loadAppCode("edit/components/sizer",function(data)
     Editor.sizer.target = target;
     console.log("Showing interface for:"+utils.debug(target)+" prefered interface:"+target.editInterface);
     //debug
-    if( target.editInterface && target.editInterface != currentInterface )
+    if( target.editInterface )
     {
-      currentInterface = target.editInterface;
-      this.configure(this.interfaces[currentInterface]);
-    }
-    else if( currentInterface != defaultInterface )
-    {
+      if( target.editInterface != currentInterface ) {
+        currentInterface = target.editInterface;
+        this.configure(this.interfaces[currentInterface]);
+      }
+    } else {
       currentInterface = defaultInterface;
       this.configure(this.interfaces[currentInterface]);
     }

@@ -30,12 +30,16 @@ loadAppCode("_CGI",function(data){
   interfHeight = (bsz*1.2);
   var lastX,lastY;
   var miniInterf;
+
+  var availableEffects,availableTriggers;
   this.init = function(){
     if(hasInterface){
       Interface = factory.base.addChild({permissions:{save:false},width:"100%",height:interfHeight+"px",x:"0px",bottom:"0%",background:"rgba(0,0,0,0.1)",cssText:"overflow:scroll;padding-left:5px;padding-top:3px"});
       if( Editor && Editor.headerHeight )
         this.adjInterf = factory.base.addChild({width:"10%",height:"auto",x:"-10%",bottom:interfHeight+"px",border_radius:[0,"10px",0,0],style:"padding-left:5px;padding-right:5px;",background:"rgba(0,0,0,0.05)"});
     }
+    availableEffects = effects.getEffects();
+    availableTriggers = ["triggered","mouseDown","mouseUp","mouseMove"];
   }
   this.interfClick = function(e){
     console.log("Focusing...");
@@ -56,27 +60,14 @@ loadAppCode("_CGI",function(data){
     _CGI.adjInterf.tween({left:"-10%"},1);
   }
   function playback(e){
-    if(Actions){
-      Actions.processActionDescriptor(e.target,true);
-      Actions.forceTrigger(e.target);
-    }
+
   }
   function destroy(e){
-    if(e.target.actions) {
-      var rem = parseInt(e.DOMreference.innerHTML);
-      e.target._CGI_ROOT = 0;
-      delete e.target.actions;
-      if( e._CGI_CTL && e._CGI_CTL.UID )
-        e._CGI_CTL.discard();
-      e.discard();
-    }
-    _CGI.hideAdj();
+
   }
 
   function reconfigure(e){
-    _CGI.target = e.target;
-    editEventList();
-    _CGI.hideAdj();
+
   }
   var prevaj = 0;
   this.createInterface = function(v,e){
@@ -249,32 +240,4 @@ loadAppCode("_CGI",function(data){
     _CGI.selected.splice(0,1);
     finalCommit(false);
   }
-  var availableActions = {
-    move:[2,{
-      handler:"tween",
-      params:[],//parameters to pass
-      onAdjustStart:function(o,storage){
-        var pos = o.getPos(0,0);
-        storage[0] = pos.x;
-        storage[1] = pos.y;
-      },// function to be called when starting to adjust
-      onAdjustEnd:function(o,storage){
-        var pos = o.getPos(0,0);
-        storage[0] = {left:pos.x,top:pos.y};
-        storage[1] = 1;
-      },// function to be called when adjust ended
-    }],
-    scale:[2,true],
-    zoom:[2,true],
-    "focus camera":[0,{
-      isMember:true,
-      handler:"cfocusOn",
-      params:[0,{speed:1}],
-      target:factory.root
-    }],
-    fadeIn:[2,false],
-    fadeOut:[2,false],
-    restyle:[2,true,],
-  };
-  var availableEvents  = ['click','mouseMove'];
 });

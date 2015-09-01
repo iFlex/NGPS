@@ -57,8 +57,6 @@ loadAppCode("edit/components/appChoice",function(data)
     }],main.DOMreference);
 
     popular = main.addChild({autopos:true,background:"transparent","overflow-x":"scroll","overflow-y":"hidden",style:"white-space:nowrap;"});
-    console.log("OVERFLOWWW");
-    console.log(popular);
     utils.makeHTML([{
       h4:{
         innerHTML:"All Apps",

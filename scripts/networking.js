@@ -1,5 +1,5 @@
 var network = function(){
-  var server = "http://localhost:8080/";
+  var server = "http://"+window.location.host+"/";
   this.getServerAddress = function(){
     return server;
   }

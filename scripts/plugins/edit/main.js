@@ -112,8 +112,7 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp("edit/components/configureContainer");
 		factory.newGlobalApp("edit/components/quickAddInterface");
 		factory.newGlobalApp("edit/components/keyBindings");
-		factory.newGlobalApp("_actions",{mode:"edit"});
-		factory.newGlobalApp("_CGI",{mode:"edit"});
+		factory.newGlobalApp("edit/components/effects");
 		factory.newGlobalApp("userMsg");
 		setTimeout(function(){
 			InterfaceSequencing.main = Editor.sizer._show;
@@ -133,8 +132,6 @@ loadAppCode("edit",function(data)
 		factory.removeGlobalApp("edit/components/configureContainer");
 		factory.removeGlobalApp("edit/components/quickAddInterface");
 		factory.removeGlobalApp("edit/components/keyBindings");
-		factory.removeGlobalApp("_actions",{mode:"edit"});
-		factory.removeGlobalApp("_CGI",{mode:"edit"});
 		factory.removeGlobalApp("userMsg");
 
 		Editor.interface.discard();

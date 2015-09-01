@@ -1,5 +1,8 @@
 loadAppCode("dialogue/dialogues/singleChoice",function(data){
   this.config = {interface:"none"};
+  data.parent.setPermission('save',false);
+  data.parent.setPermission('connect',false);
+
   this.init = function(){
     console.log(data.parent.appFullPath);
     data.Dialogue.singleChoice = this;
@@ -12,7 +15,7 @@ loadAppCode("dialogue/dialogues/singleChoice",function(data){
     console.log("Dialogue showing");
     console.log(descriptor);
     rect = platform.getScreenSize();
-    var dlg = factory.base.addChild({x:0,y:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.75)"});
+    var dlg = factory.base.addChild({x:0,y:0,width:"100%",height:"100%",background:"rgba(0,0,0,0.75)",permissions:data.parent.getPermissions()});
     var ghostTable = dlg.addChild({autopos:true,width:"100%",height:"100%",background:"transparent",cssText:"display: table"});
     var divContainer = ghostTable.addChild({autopos:true,background:"transparent",cssText:"display: table-cell;text-align:center;vertical-align: middle"})
     var dialogue = divContainer.addChild({autopos:true,width:rect.width*0.65,height:rect.height*0.75,background:"white",border_radius:["10px"],cssText:"margin-left:auto;margin-right:auto"});

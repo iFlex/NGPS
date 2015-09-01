@@ -106,16 +106,43 @@ loadAppCode("edit/components/text",function(data)
 			container.textField = utils.makeHTML([{
 				textarea:{
 					id:container.UID+":txtfld",
-					style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;"
+					style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;overflow-y:hidden"
 				}
 			}]);
+			container.textField.onkeyup = adaptHeight;
+			container.textField.parent = container;
+
 			divContainer.appendChild(container.textField);
 			container.DOMreference.appendChild(ghostTable);
 			container.editInterface = 'text';
     	container.addEventListener("triggered",function(data){ keyboard.focus(data['target']); });
+			container.onTrigger = focusOnTextField;
 		}
 		//container.setPermission("children",false);
 	}
+
+	function adaptHeight(e){
+		console.log(e);
+		e.target.style.height = "1px";
+		var newHeight = (25+e.target.scrollHeight);
+		if(newHeight > e.target.parent.getHeight()){
+			newHeight = e.target.parent.getHeight();
+			e.target.style.overflowY = "scroll";
+		} else {
+			e.target.style.overflowY = "hidden";
+		}
+		e.target.style.height = newHeight+"px";
+	}
+
+	function focusOnTextField(target){
+			if(target.textField)
+				keyboard.focus(target);
+	}
+
+	keyboard.triggerResize = function(target){
+		adaptHeight({target:target});
+	}
+
 	keyboard.focus = function(target)
 	{
 		Editor.addCloseCallback(keyboard.hide);
@@ -126,7 +153,7 @@ loadAppCode("edit/components/text",function(data)
 		//assigns the editable DOM object
 		_target = target;
 		keyboard.interface.target = target;
-		keyboard.interface.subject = target.textField;//.subject;
+		keyboard.interface.subject = target.textField;
 
 		var pos = target.local2global();
 		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.interface.originalHeight-10);
@@ -134,9 +161,8 @@ loadAppCode("edit/components/text",function(data)
 
 		if(keyboard.interface.subject.focus)
 			keyboard.interface.subject.focus();
-
-		///keyboard.ops.startMonitoring();
 	}
+	
 	keyboard.hide = function()
 	{
 		keyboard.interface.parent.hide();
@@ -147,6 +173,5 @@ loadAppCode("edit/components/text",function(data)
 
 		if(Editor.keyBind)
 				Editor.keyBind.activate();
-		//keyboard.ops.stopMonitoring();
 	}
 });

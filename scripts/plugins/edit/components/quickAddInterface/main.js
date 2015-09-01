@@ -222,9 +222,8 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     var dparent = Editor.shared.selected;
     if(dparent.UID < 3)
       dparent = factory.base;
-    var pos = dparent.getPos(0.5,0.5);
-    if(_CGI)
-      _CGI.create(dparent,pos.x,pos.y);
+    if(Editor.effects)
+      Editor.effects.show(dparent);
   }
   var closeButton = {
     name:"close",

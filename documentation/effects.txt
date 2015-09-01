@@ -1,0 +1,17 @@
+Way to store effects
+
+effects : {
+  GEM_TRIGGER_EVENT:{
+    delegated: Boolean,
+    chaining: Boolean,
+    chainIndex: int,
+    fx:[fx,fx,fx, ...]
+  }
+}
+
+fx:{
+  fxname:String,
+  target:UID,
+  parameters:[],
+  initialState:{}
+}

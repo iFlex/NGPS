@@ -25,7 +25,7 @@
 */
 //include dependencies
 //requirejs(['TweenMax.min',"interact","app","camera","gem"]);
-requirejs(["support/TweenMax.min","drivers","interact","app","camera","gem"],function(){containerData.ready = true});
+requirejs(["support/TweenMax.min","drivers","interact","app","camera","gem","effects"],function(){containerData.ready = true});
 //
 var containerData = {};
 containerData.containerIndex = 0;
@@ -243,6 +243,7 @@ this.container = function(_properties,_parent)
 		//EVENT
 		if( this.events['discardContainer'] || ( GEM.events['discardContainer'] && GEM.events['discardContainer']['_global'] ) )
 			GEM.fireEvent({event:"discardContainer",target:this.UID})
+
 
 		//mark container as unusable
 		this.discarded = true;
@@ -870,7 +871,7 @@ this.container = function(_properties,_parent)
 		if(this.events[event])
 			this.events[event]--;
 
-		GEM.removeEventListener( event, context, handler );
+		GEM.removeEventListener( event, context, handler, this );
 	}
 	//App support
 	//TODO: read app descriptor and load accordingly
@@ -1049,7 +1050,11 @@ this.container = function(_properties,_parent)
 		}
 		else { //add the isolated container
 			this.properties['*isolated'].appendChild(this.DOMreference);
-			this.parent = undefined;
+			this.parent = {
+				DOMreference:this.properties['*isolated'],
+				removeChild:function(){},
+				addChild:function(){}
+			};
 		}
 
 		this.properties['width']  = this.getWidth();

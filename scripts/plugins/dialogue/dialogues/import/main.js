@@ -33,7 +33,7 @@ loadAppCode("dialogue/dialogues/import",function(data)
   this.init = function(){
     console.log(data.parent.appFullPath+" - initialising...");
     data.Dialogue.import = this;
-    this.container = factory.base.addChild({x:0,y:0,height:600,width:300,background:"rgba(0,0,0,0.65)"});
+    this.container = factory.base.addChild({x:0,y:0,height:600,width:300,background:"rgba(0,0,0,0.65)",premissions:data.parent.getPermissions()});
     var ghostTable = utils.makeHTML([{
       div:{
         style:"display: table;width: 100%;height:100%;background:transparent"
@@ -41,6 +41,7 @@ loadAppCode("dialogue/dialogues/import",function(data)
     }]);
     var divContainer = utils.makeHTML([{
       div:{
+        class:"wrapper",
         style:"display: table-cell;text-align: center;vertical-align: middle;background:transparent"
       }}]);
     ghostTable.appendChild(divContainer);
