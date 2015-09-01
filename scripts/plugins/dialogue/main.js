@@ -7,6 +7,7 @@ loadAppCode("dialogue",function(data){
     Dialogue = this;
     factory.newGlobalApp(data.parent.appName+"/dialogues/import",{Dialogue:this});
     factory.newGlobalApp(data.parent.appName+"/dialogues/singleChoice",{Dialogue:this});
+    factory.newGlobalApp(data.parent.appName+"/dialogues/toast",{Dialogue:this});
   }
 
   this.shutdown = function(){

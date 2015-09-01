@@ -12,6 +12,7 @@ loadAppCode("edit/components/effects/installer",function(data){
   function nextStage(){
     if(effect) {
       console.log(effect.install_steps[fxrecord.installIndex]);
+      Dialogue.toast.show(effect.install_steps[fxrecord.installIndex],(effect.install_steps.length == fxrecord.installIndex+1)?1500:0);
       effect.configure(fxrecord);
       if(effect.install_steps.length == fxrecord.installIndex)
         endEditing();

@@ -35,26 +35,17 @@ var effects = new (function(){
   }
 
   this.execute = function(fx){
-    var efx = effectSet[fx.fxname];
-    if(efx)
-      if(efx.execute) {
-        try {
-          efx.execute.apply(findContainer(fx.target),fx.parameters);
-        } catch(e)  {
-          console.error("Could not execute fx",e)
-        }
-      }
+    try {
+      effectSet[fx.fxname].execute.apply(findContainer(fx.target),fx.parameters);
+    } catch(e)  {
+      console.error("Could not execute fx",e)
+    }
   }
   this.initialise = function(fx,isDelegate){
-    var efx = effectSet[fx.fxname];
-    if(efx){
-      if(efx.initialise) {
-        try {
-          efx.initialise.call(findContainer(fx.target),fx.initialState);
-        } catch(e)  {
-          console.error("Could not execute fx",e)
-        }
-      }
+    try {
+      effectSet[fx.fxname].initialise.call(findContainer(fx.target),fx.initialState);
+    } catch(e)  {
+      console.error("Could not execute fx",e)
     }
   }
 
@@ -63,6 +54,20 @@ var effects = new (function(){
     this.initialise(fx);
     this.execute(fx);
     //todo: need to bring back to original state after the effect ends
+  }
+
+  this.externalPreview = function(trigger,triggerer,fxname,targetID){
+    //need to find fx
+    try{
+      for( i in triggerer.effects[trigger].fx)
+        if( triggerer.effects[trigger].fx[i].fxname == fxname && triggerer.effects[trigger].fx[i].target == targetID )
+        {
+          this.preview(triggerer.effects[trigger].fx[i]);
+          break;
+        }
+    } catch (e){
+      console.log(e)
+    }
   }
 
   this.installTrigger = function(trigger,triggerer,target){
@@ -152,8 +157,7 @@ var effects = new (function(){
       effects.uninstall(trigger,triggerer,fx);
     },
     execute:function(descriptor){
-      descriptor.delay = 1;
-      this.tween(descriptor);
+      this.putAt(descriptor.x,descriptor.y);
     },
     initialise:function(descriptor){
       this.putAt(descriptor.x,descriptor.y);

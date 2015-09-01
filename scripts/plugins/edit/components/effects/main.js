@@ -1,4 +1,3 @@
-//TODO: add previewing of effect
 //TODO: Add loading of triggers when presentation si loaded
 
 this.Editor = this.Editor || {};
@@ -51,9 +50,10 @@ loadAppCode("edit/components/effects",function(data){
     if(!isInterface){
       var act = contain.addChild({autopos:true,autosize:true,class:"btn btn-default"});
       act.DOMreference.fxctl = contain;
+      act.DOMreference.onclick = previewEffect;
       utils.makeHTML([{
         span:{
-          class:"glyphicon glyphicon-align-justify",
+          class:"glyphicon glyphicon-play",
           fxctl:contain
         }
       }],act.DOMreference);
@@ -140,20 +140,32 @@ loadAppCode("edit/components/effects",function(data){
     for( i in cardUI.children)
       cardUI.children[i].discard();
   }
+
+  function previewEffect(e){
+    var ctl = e.target.fxctl;
+    console.log(e.target);
+    if(ctl){
+      try {
+          effects.externalPreview(ctl.fxtrigger.DOMreference.innerHTML,
+                                   Editor.effects.triggerer,
+                                   ctl.fxname.DOMreference.innerHTML,
+                                   Editor.effects.triggerer.UID);
+      } catch(e) {
+        console.error("Could not preview effect",e);
+      }
+    }
+  }
+
   function uninstallEffect(e) {
     var ctl = e.target.fxctl;
     console.log(e.target);
     if(ctl){
       var fxrecord = effects.getEffect(ctl.fxname.DOMreference.innerHTML);
-      console.log("fxrecord:");
-      console.log(fxrecord);
       try {
-        if(fxrecord) {
           fxrecord.uninstall(
                           ctl.fxtrigger.DOMreference.innerHTML,
                           Editor.effects.triggerer,
                           {target:Editor.effects.triggerer.UID,fxname:ctl.fxname.DOMreference.innerHTML})
-        }
       } catch(e) {
         console.error("Could not discard effect",e);
       }
@@ -166,7 +178,7 @@ loadAppCode("edit/components/effects",function(data){
     if(ctl){
       var fxrecord = effects.getEffect(ctl.fxname.DOMreference.innerHTML);
       var message = "Could not find selected effect";
-      if(fxrecord){
+      try {
         producedFx = fxrecord.install(
                             ctl.fxtrigger.DOMreference.innerHTML,
                             Editor.effects.triggerer,
@@ -175,6 +187,9 @@ loadAppCode("edit/components/effects",function(data){
           Editor.effects.installer.app.show(ctl.fxtrigger.DOMreference.innerHTML,Editor.effects.triggerer,fxrecord,producedFx);
           return;
         }
+      } catch(e){
+        console.log("Could not install effect",e);
+        return;
       }
       console.log(producedFx.error);
     }
