@@ -1,16 +1,18 @@
 loadAppCode("dialogue/dialogues/toast",function(data){
   this.config = {interface:"none"};
-  data.parent.setPermission('save',false);
-  data.parent.setPermission('connect',false);
+  data.parent.setPermissions(factory.UIpermissions)
 
-  var descriptor = {x:0,y:factory.base.getHeight(),width:"100%",autosize:true,background:"black",style:"color:white;text-align:center"};
+  var descriptor = {x:0,y:factory.base.getHeight(),width:"100%",autosize:true,background:"black",style:"color:white;text-align:center",permissions:data.parent.getPermissions};
   var toast = 0;
   var timeout = 0;
   this.show = function(message,timeout){
+    var delay = 1;
+    if(toast)
+      delay = 0;
     this.hide(true);
     toast = factory.base.addChild(descriptor);
     toast.DOMreference.innerHTML = message;
-    toast.tween({top:100*(1-toast.getHeight()/factory.base.getHeight()) +"%"},1);
+    toast.tween({top:100*(1-toast.getHeight()/factory.base.getHeight()) +"%"},delay);
     if(timeout)
       timeout = setTimeout(function(){data.Dialogue.toast.hide();},timeout);
   }

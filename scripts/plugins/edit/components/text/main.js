@@ -40,7 +40,7 @@ loadAppCode("edit/components/text",function(data)
 		monInterval = setInterval(monitor,100);
 
 		if(!ctdiv)
-			ctdiv = factory.base.addChild({x:"100%",y:"100",width:1,height:1,style:"overflow:scroll"});
+			ctdiv = factory.base.addChild({x:"100%",y:"100",width:1,height:1,style:"overflow:scroll",permissions:factory.UIpermissions});
 		ctdiv.DOMreference.innerHTML = _target.DOMreference.innerHTML;
 	}
 
@@ -91,34 +91,16 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.focus(c);
 	}
 	this.makeTextContainer = function(container){
-		if(!document.getElementById(container.UID+":txtfld")){
-			var ghostTable = utils.makeHTML([{
-	      div:{
-					id:container.UID+":txtaligner",
-	        style:"display: table;width: 100%;height:100%;background:transparent"
-	      }
-	    }]);
-	    var divContainer = utils.makeHTML([{
-	      div:{
-	        style:"display: table-cell;text-align: center;vertical-align: middle;background:transparent"
-	      }}]);
-	    ghostTable.appendChild(divContainer);
-			container.textField = utils.makeHTML([{
-				textarea:{
-					id:container.UID+":txtfld",
-					style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;overflow-y:hidden"
-				}
-			}]);
-			container.textField.onkeyup = adaptHeight;
-			container.textField.parent = container;
-
-			divContainer.appendChild(container.textField);
-			container.DOMreference.appendChild(ghostTable);
-			container.editInterface = 'text';
-    	container.addEventListener("triggered",function(data){ keyboard.focus(data['target']); });
-			container.onTrigger = focusOnTextField;
+		if(!container.ghostTable && !container.verticalAligner){
+			container.ghostTable = container.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table",permissions:{interact:false}});
+			container.verticalAligner = container.ghostTable.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table-cell;text-align: center;vertical-align: middle;",permissions:{interact:false}});
+			container.textField = container.verticalAligner.addPrimitive({type:"textarea",style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;overflow-y:hidden"});
+			container.addEventListener("triggered",function(data){keyboard.focus(data['target']);});
 		}
-		//container.setPermission("children",false);
+		container.textField.onkeyup = adaptHeight;
+		container.textField.parent = container;
+		container.editInterface = 'text';
+		container.onTrigger = focusOnTextField;
 	}
 
 	function adaptHeight(e){
@@ -162,7 +144,7 @@ loadAppCode("edit/components/text",function(data)
 		if(keyboard.interface.subject.focus)
 			keyboard.interface.subject.focus();
 	}
-	
+
 	keyboard.hide = function()
 	{
 		keyboard.interface.parent.hide();

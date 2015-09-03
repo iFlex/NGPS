@@ -19,9 +19,9 @@ loadAppCode("edit/components/effects",function(data){
       selectTriggerDlgDesc.selection.push({label:availableTriggers[i]});
 
     for( i in availableEffects)
-      selectEffectDlgDesc.selection.push({label:availableEffects[i].name,description:availableEffects[i].description});
+      selectEffectDlgDesc.selection.push({label:availableEffects[i].name,id:availableEffects[i].fxname,description:availableEffects[i].description});
 
-    cardUI = factory.base.addChild({x:0,y:factory.base.getHeight(),width:"100%",height:"25%",border_radius:["0px"],"overflow-y":"scroll","overflow-x":"hidden",permissions:{save:false,connect:false},style:bkgStyle});
+    cardUI = factory.base.addChild({x:0,y:factory.base.getHeight(),width:"100%",height:"25%",border_radius:["0px"],"overflow-y":"scroll","overflow-x":"hidden",permissions:factory.UIpermissions,style:bkgStyle});
 
     var ghostTable = utils.makeHTML([{
       div:{
@@ -45,10 +45,12 @@ loadAppCode("edit/components/effects",function(data){
     delete Editor.effects;
   }
 
-  function buildEffectDisplay(trigger,effect,delegate,isInterface) {
+  function buildEffectDisplay(trigger,effect,delegate,isInterface,fx) {
     var contain = cardUI.addChild({"*isolated":mountPoint,autopos:true,width:"100%",background:"transparent","overflow":"auto"});
     if(!isInterface){
       var act = contain.addChild({autopos:true,autosize:true,class:"btn btn-default"});
+      contain.fx = fx;
+
       act.DOMreference.fxctl = contain;
       act.DOMreference.onclick = previewEffect;
       utils.makeHTML([{
@@ -120,9 +122,9 @@ loadAppCode("edit/components/effects",function(data){
     //for each event create a record
     buildEffectDisplay("Choose how to trigger effect","Choose effect",false,true);
     if(triggerer) {
-      for( i in triggerer.effects){
-        for( j in triggerer.effects[i].fx){
-          buildEffectDisplay(i,triggerer.effects[i].fx[j].fxname,triggerer.effects[i].delegate,false);
+      for( trig in triggerer.effects){
+        for( efx in triggerer.effects[trig].fx){
+          buildEffectDisplay(trig,triggerer.effects[trig].fx[efx].fxname,triggerer.effects[trig].delegate,false,triggerer.effects[trig].fx[efx]);
         }
       }
       cardUI.tween({top:"75%"},1);
@@ -143,13 +145,10 @@ loadAppCode("edit/components/effects",function(data){
 
   function previewEffect(e){
     var ctl = e.target.fxctl;
-    console.log(e.target);
+    console.log(e.target.fxctl);
     if(ctl){
       try {
-          effects.externalPreview(ctl.fxtrigger.DOMreference.innerHTML,
-                                   Editor.effects.triggerer,
-                                   ctl.fxname.DOMreference.innerHTML,
-                                   Editor.effects.triggerer.UID);
+          effects.preview(ctl.fx);
       } catch(e) {
         console.error("Could not preview effect",e);
       }
@@ -158,14 +157,12 @@ loadAppCode("edit/components/effects",function(data){
 
   function uninstallEffect(e) {
     var ctl = e.target.fxctl;
-    console.log(e.target);
+    console.log(e.target.fxctl);
     if(ctl){
       var fxrecord = effects.getEffect(ctl.fxname.DOMreference.innerHTML);
       try {
-          fxrecord.uninstall(
-                          ctl.fxtrigger.DOMreference.innerHTML,
-                          Editor.effects.triggerer,
-                          {target:Editor.effects.triggerer.UID,fxname:ctl.fxname.DOMreference.innerHTML})
+          fxrecord.uninstall(ctl.fxtrigger.DOMreference.innerHTML,
+                             Editor.effects.triggerer,ctl.fx);
       } catch(e) {
         console.error("Could not discard effect",e);
       }
@@ -176,14 +173,15 @@ loadAppCode("edit/components/effects",function(data){
   function installEffect(e){
     var ctl = e.target.fxctl;
     if(ctl){
+      var producedFx = {error:"Coul not find selected effect"};
       var fxrecord = effects.getEffect(ctl.fxname.DOMreference.innerHTML);
-      var message = "Could not find selected effect";
       try {
         producedFx = fxrecord.install(
                             ctl.fxtrigger.DOMreference.innerHTML,
                             Editor.effects.triggerer,
                             Editor.effects.triggerer)
         if( !producedFx.error ) {
+          ctl.fx = producedFx;
           Editor.effects.installer.app.show(ctl.fxtrigger.DOMreference.innerHTML,Editor.effects.triggerer,fxrecord,producedFx);
           return;
         }

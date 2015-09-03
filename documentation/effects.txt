@@ -11,7 +11,23 @@ effects : {
 
 fx:{
   fxname:String,
-  target:UID,
+  UID:Container ID,
   parameters:[],
-  initialState:{}
+  initialState:{},
+  initAtExecutionOnly: boolean flat, tells preview to not call init after the preview is finished ( so that certain effects don't hide containers when editing for example)
 }
+
+//STORAGE for effects
+fxname : {
+  fxname:Unique String Id of effect, must be the same as the key under which this record is stored
+  name:Display name of effect, //display name, fxname is the referencing one
+  description:String description of effect,
+  install_steps:["Install step 1 message for user","Second install step for user","Compelted!"],
+  install:function(trigger,triggerer,target),
+  configure:function(fx), //called the same number of times as elements in install_steps - every time it does soething else
+  uninstall:function(trigger,triggerer,fx), //removes effect
+  execute:function(descriptor,onFinished), //executes effect on target
+  initialise:function(descriptor) //puts target in initial status and sets up cover container if effect is delegated
+}
+
+***!! - the execute has a callback onFinished that is called then the animation has ended

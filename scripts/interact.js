@@ -158,7 +158,6 @@ Interactive._onMouseMove = function(e, ctx)
 }
 Interactive._onMouseUp = function( e , ctx )
 {
-
 	if(!ctx)
 		ctx = this.context;
 
@@ -363,7 +362,10 @@ Interactive.onClick = function(e,ctx){
 //		Integrate mouse wheel scrolling
 Interactive.interactive = function( d )
 {
-    if( d )
+	if(this.getPermission("interact") == false)
+		return;
+
+  if( d )
 	{
         if(	!this.isInteractive )
 		{
@@ -373,7 +375,7 @@ Interactive.interactive = function( d )
 	  			this.enableMobile ( this.DOMreference );
 	  		else
 	  		{
-	  			this.DOMreference.addEventListener('mousedown',this._onMouseDown, false);
+					this.DOMreference.addEventListener('mousedown',this._onMouseDown, false);
 	  			this.DOMreference.addEventListener('mousemove',this._onMouseMove, false);
 	  			this.DOMreference.addEventListener('mouseover',this._onMouseMove, false);
 	  			this.DOMreference.addEventListener('mouseup'  ,this._onMouseUp,   false);
@@ -398,7 +400,7 @@ Interactive.interactive = function( d )
 		  		this.DOMreference.removeEventListener('mouseout' ,this._onMouseOut,  false);
 		 	}
 		}
-  	}
+  }
 }
 Interactive.pauseInteraction = function( d )
 {

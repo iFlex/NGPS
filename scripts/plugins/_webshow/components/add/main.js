@@ -56,9 +56,9 @@ loadAppCode("_webshow/components/add",function(data){
     var height = $('.wrapper').height()*0.65;
     $('.wrapper').removeClass("form-success")
 
-    remoteQr = factory.base.addChild({type:"canvas",x:factory.base.getWidth(),y:(factory.base.getHeight()-height)/2,width:height,height:height});
-    audienceQr = factory.base.addChild({type:"canvas",x:factory.base.getWidth(),y:(factory.base.getHeight()-height)/2,width:height,height:height});
-    var glyph = factory.base.addChild({type:"div",x:factory.base.getWidth()-height,y:(factory.base.getHeight()-height)/2,width:height,height:height});
+    remoteQr = factory.base.addChild({type:"canvas",x:factory.base.getWidth(),y:(factory.base.getHeight()-height)/2,width:height,height:height,permissions:factory.UIpermissions});
+    audienceQr = factory.base.addChild({type:"canvas",x:factory.base.getWidth(),y:(factory.base.getHeight()-height)/2,width:height,height:height,permissions:factory.UIpermissions});
+    var glyph = factory.base.addChild({type:"div",x:factory.base.getWidth()-height,y:(factory.base.getHeight()-height)/2,width:height,height:height,permissions:factory.UIpermissions});
 
     var chooser = utils.makeHTML(
     [{

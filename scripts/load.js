@@ -6,7 +6,7 @@
 *	Available events:
 *		loaded
 */
-var pLOAD = {}
+var pLOAD = {doLoadApps:true,doInstallTriggers:true,doInitialiseEffects:true}
 pLOAD.root = 0;
 var LOADtree = {};
 var LOADreferences = {};
@@ -34,6 +34,9 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			else
 			{
 				node.properties.UID = node.UID;
+				if(node.properties.cssText && node.properties.style)
+					delete node.properties.style;
+
 				croot = factory.createContainer(node.properties,root);
 				if(!factory.root)
 				{
@@ -58,18 +61,18 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 
 				_CAMERAS.push(croot);
 			}
-			//add content
-			croot.actions = node.actions;
+
+			croot.effects = node.effects;
 			if(node.value)
 				croot.DOMreference.value = node.value;
-
 			if(node.innerHTML)
 				croot.DOMreference.innerHTML = decodeURIComponent(node.innerHTML);
 
 			if(node.child)
 			{
 				var cld = croot.addPrimitive(node.child.descriptor);
-				//cld.innerHTML = node.child.innerHTML;
+				cld.innerHTML = node.child.innerHTML;
+				cld.innerHTML = node.child.value;
 			}
 
 			if(node.isApp)
@@ -77,6 +80,11 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 		}
 		else
 			croot = findContainer(node.UID);
+
+		//install effect
+		if(pLOAD.doInstallTriggers)
+			effects.installTriggers(croot);
+
 		//extensions
 		for(k in node.children)
 		{
@@ -85,7 +93,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 				pLOAD._unit( LOADcontent[node.children[k]],croot,jumpAlreadyExisting);
 		}
 	}catch(e){
-		console.log(e);
+		console.error("Failed to load container:"+node.UID,e);
 	}
 }
 pLOAD.loadLinks = function(){
@@ -123,17 +131,22 @@ pLOAD.loadApps = function(apps){
 		//console.log("Attempting to load required app:"+app);
 		for( j in apps[app] )
 		{
-			//console.log(">> On container:"+j);
 			var contain = findContainer(apps[app][j]);
 			contain.loadApp(app,contain.appData);
-			//LOADreferences[apps[app][j]].loadApp(app,LOADreferences[apps[app][j]].appData);
 		}
 	}
 }
 
+pLOAD.initialiseEffects = function(node){
+	effects.initialiseEffects(node);
+	for(k in node.children)
+		pLOAD.initialiseEffects(node.children[k]);
+}
+
 pLOAD.proceed = function(jsn)
 {
-	//console.log("ldg:"+jsn);
+
+	console.log("Loading:"+jsn)
 	if(typeof(jsn) == "string")
 		LOADtree = JSON.parse(jsn);
 	else
@@ -156,7 +169,11 @@ pLOAD.proceed = function(jsn)
 			pLOAD.activateCameras();
 			//now load all the apps
 			console.log("Loading apps:"+utils.debug(LOADtree.requirements.apps));
-			//pLOAD.loadApps( LOADtree.requirements.apps  );
+			if(pLOAD.doLoadApps)
+				pLOAD.loadApps( LOADtree.requirements.apps  );
+
+			if(pLOAD.doInitialiseEffects)
+				pLOAD.initialiseEffects(factory.base);
 
 			//fire presentation loaded event
 			GEM.fireEvent({event:"loaded",isGlobal:true});

@@ -1,3 +1,4 @@
+//TODO: fix installation of other target
 this.Editor = this.Editor || {};
 loadAppCode("edit/components/effects/installer",function(data){
   this.config = {interface:"none"};
@@ -9,7 +10,17 @@ loadAppCode("edit/components/effects/installer",function(data){
   var button = 0;
   var cancel = 0;
 
+  function selectTarget(){
+    Dialogue.toast.show("Click on what object you want to apply the efect to (or press continue if it is the same as the one that triggers the effect)");
+    function onSelectedTarget(){
+        fxrecord.UID = Editor.shared.selected.UID;
+        console.log("Selected Target:"+fxrecord.UID);
+        nextStage();
+    }
+    Editor.requestNextClick(onSelectedTarget);
+  }
   function nextStage(){
+    Editor.cancelNextClickRequest();
     if(effect) {
       console.log(effect.install_steps[fxrecord.installIndex]);
       Dialogue.toast.show(effect.install_steps[fxrecord.installIndex],(effect.install_steps.length == fxrecord.installIndex+1)?1500:0);
@@ -20,13 +31,17 @@ loadAppCode("edit/components/effects/installer",function(data){
   }
 
   function cancelEdit(){
-      effects.uninstall(trigger,triggerer,fxrecord);
-      endEditing();
+    Dialogue.toast.hide();
+    effects.uninstall(trigger,triggerer,fxrecord);
+    endEditing();
   }
 
   function endEditing(){
     Editor.effects.show(triggerer);
-    effects.initialise(fxrecord,false);
+    //alert(fxrecord.initAtExecutionOnly);
+    if(!fxrecord.initAtExecutionOnly)
+      effects.initialise(fxrecord,false);
+
     triggerer = 0;
     trigger = 0;
     effect = 0;
@@ -42,7 +57,7 @@ loadAppCode("edit/components/effects/installer",function(data){
       effect = fxsource;
       fxrecord = fx;
       fx.installIndex = 0;
-      nextStage();
+      selectTarget();
 
       button.show();
       cancel.show();
@@ -57,11 +72,11 @@ loadAppCode("edit/components/effects/installer",function(data){
   }
 
   this.init = function(){
-    button = factory.base.addChild({type:"button",x:factory.base.getWidth()/2,y:0,autosize:true,class:"btn btn-warning"});
-    button.DOMreference.innerHTML = "Finish Editing";
+    button = factory.base.addChild({type:"button",x:factory.base.getWidth()/2,y:0,autosize:true,class:"btn btn-warning",permissions:factory.UIpermissions});
+    button.DOMreference.innerHTML = "Continue";
     button.DOMreference.onclick = nextStage;
 
-    cancel = factory.base.addChild({type:"button",x:button.getPos().x+button.getWidth(),y:0,autosize:true,class:"btn btn-warning"});
+    cancel = factory.base.addChild({type:"button",x:button.getPos().x+button.getWidth(),y:0,autosize:true,class:"btn btn-warning",permissions:factory.UIpermissions});
     cancel.DOMreference.innerHTML = '<span class="glyphicon glyphicon-remove"></span>';
     cancel.DOMreference.onclick = cancelEdit;
 

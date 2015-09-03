@@ -26,7 +26,7 @@ loadAppCode("userMsg",function(data){
 	}
 
  	function makeBoard(style){
-		currentBoard = factory.base.addChild(utils.merge({x:0,y:0,width:"100%",height:"100%",style:"z-index:150",background:"rgba(0,0,0,0.95)"},style,true));
+		currentBoard = factory.base.addChild(utils.merge({x:0,y:0,width:"100%",height:"100%",style:"z-index:150",background:"rgba(0,0,0,0.95)",permissions:factory.UIpermissions},style,true));
 		currentBoard.onTrigger = hide;
 		return currentBoard;
 	}

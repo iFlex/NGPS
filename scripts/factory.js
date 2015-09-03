@@ -20,6 +20,7 @@ requirejs(["","descriptors/containers","descriptors/links","themes/default","reg
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
 this.factory.initialised = false;
+this.factory.UIpermissions = {save:false,edit:false,connect:false}
 //initiation script comes here
 factory.init = function(mode,manualSetup) // editor init
 {
@@ -43,8 +44,8 @@ factory.init = function(mode,manualSetup) // editor init
 	factory.settings.container.width = 250;
 	factory.settings.container.height = 250;
 
-	if( mode == "editor" )
-	{
+	//if( mode == "editor" || mode == "view")
+	//{
 		//creating factory.root ( place where dynamic content is placed )
 		factory.base = new container(Descriptors.containers['base']);
 
@@ -60,7 +61,7 @@ factory.init = function(mode,manualSetup) // editor init
 		factory.initialised = true;
 		console.log("setup basics for mode:"+mode);
 		_init();
-	}
+	/*}
 	if( mode == "view" )
 	{
 		//need to be manually set
@@ -85,7 +86,7 @@ factory.init = function(mode,manualSetup) // editor init
 		factory.initialised = true;
 		_init();
 	}
-
+*/
 	if(factory.AMS && factory.AMS.init)
 		factory.AMS.init( factory.settings.container, factory.AMS);
 }
@@ -131,7 +132,7 @@ factory.newContainer = function(possize,tag,parent)
 	return obj;
 }
 
-factory.createContainer = function(descriptor,parent,addToFrame)
+factory.createContainer = function(descriptor,parent,noInteraction)
 {
 	if(!factory.initialised)
 		factory.init();
@@ -142,8 +143,8 @@ factory.createContainer = function(descriptor,parent,addToFrame)
 	if(factory.AMS && factory.AMS.generate)
 		factory.AMS.generate( parent , factory.settings.container, factory.AMS );
 
-	var obj = parent.addChild(descriptor,addToFrame);
-	if(obj)
+	var obj = parent.addChild(descriptor);
+	if(obj && !noInteraction)
 	{
 		obj.extend(Interactive);
 		obj.interactive(true);

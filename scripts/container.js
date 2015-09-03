@@ -306,6 +306,11 @@ this.container = function(_properties,_parent)
 		if(descriptor['type'] == "iframe")
 			this.child.sandbox = "allow-forms allow-pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation"
 
+		if(descriptor['glue_content'] == true){
+			descriptor.content.width = "100%";
+			descriptor.content.height = "100%";
+		}
+
 		if(descriptor['content'])
 			for( k in descriptor['content'] )
 				this.child.setAttribute(k, descriptor['content'][k]);
@@ -328,7 +333,6 @@ this.container = function(_properties,_parent)
 		}
 		else
 		{
-
 			if(descriptor['adapt_content'] == true)
 			{
 				var w = this.getWidth();
@@ -354,13 +358,15 @@ this.container = function(_properties,_parent)
 					if(onready)
 						onready(this);
 				}
-
-			}
-			else
-			{
+			} else if(descriptor['glue_content'] == true){
+				var ctx = this;
+				this.child.onload = function()
+				{
+					this.enlarge(1);
+				}
+			} else {
 				if(descriptor['width'])
 					this.setWidth(descriptor['width'])
-
 				if(descriptor['height'])
 					this.setHeight(descriptor['height'])
 			}
@@ -677,13 +683,13 @@ this.container = function(_properties,_parent)
 	this.enlarge = function(amount)
 	{
 		var oldW = this.getWidth()
-        var oldH = this.getHeight()
+    var oldH = this.getHeight()
 		var w = oldW * amount;
 		var h = oldH * amount;
 
-        this.setWidth(w);
+    this.setWidth(w);
 		this.setHeight(h);
-        this.move((oldW-w)/2,(oldH-h)/2);
+    this.move((oldW-w)/2,(oldH-h)/2);
 		this.maintainLinks();
 	}
 
@@ -722,6 +728,8 @@ this.container = function(_properties,_parent)
 		return thisAncestors[i];
 	}
 	this.tween = function(data,d){
+		var ctx = this;
+		data.onUpdate = function(){ctx.maintainLinks();}
 		TweenMax.to(this.DOMreference,d||0,data);
 	}
 	this.link = function (target,descriptor)

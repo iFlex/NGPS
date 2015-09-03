@@ -65,8 +65,9 @@ loadAppCode("edit/components/sizer",function(data)
 
     //console.log("SHOW");
     //console.log(target);
-    if(!target || !target.getPermission('edit'))
+    if(!target || !target.getPermission('edit') || target.isLink)
       return;
+
     Editor.addCloseCallback(Editor.sizer.hide);
     Editor.sizer.target = target;
     console.log("Showing interface for:"+utils.debug(target)+" prefered interface:"+target.editInterface);

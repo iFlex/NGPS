@@ -31,7 +31,7 @@ loadAppCode("edit/components/importDialog",function(data)
 
   this.init = function(){
     console.log("edit/components/importDialog - initialising...");
-    this.container = factory.base.addChild({x:0,y:0,height:600,width:300,background:"rgba(0,0,0,0.65)"});
+    this.container = factory.base.addChild({x:0,y:0,height:600,width:300,background:"rgba(0,0,0,0.65)",permissions:factory.UIpermissions});
     var ghostTable = utils.makeHTML([{
       div:{
         style:"display: table;width: 100%;height:100%;background:transparent"

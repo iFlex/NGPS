@@ -1,3 +1,4 @@
+//TODO: test cover functionality
 var effects = new (function(){
   var effectSet = {};
 
@@ -24,26 +25,40 @@ var effects = new (function(){
   }
 
   this.onTrigger = function(btch){
+    console.log("Execuing effects:");
+    console.log(btch);
     if(btch.chaining){
       if( btch.chainIndex == undefined || btch.chainIndex > btch.effects.length )
         btch.chainIndex = 0;
-      this.execut(btch.effects[btch.chainIndex++]);
+      this.execut(btch.fx[btch.chainIndex++]);
     } else {
-      for(i in btch.effects)
-        this.execute(btch.effects[i]);
+      for(i in btch.fx)
+        this.execute(btch.fx[i]);
     }
   }
 
-  this.execute = function(fx){
+  this.execute = function(fx,onFinished){
     try {
-      effectSet[fx.fxname].execute.apply(findContainer(fx.target),fx.parameters);
+      var c = findContainer(fx.UID);
+      effectSet[fx.fxname].execute.call(c,fx.parameters,onFinished);
+      if(c.cover)
+        c.cover.discard();
+
     } catch(e)  {
       console.error("Could not execute fx",e)
     }
   }
+
   this.initialise = function(fx,isDelegate){
     try {
-      effectSet[fx.fxname].initialise.call(findContainer(fx.target),fx.initialState);
+      effectSet[fx.fxname].initialise.call(findContainer(fx.UID),fx.initialState);
+      if(isDelegate && !fx.cover){
+        //need to initialise cover container
+        var c = factory.base.addChild({x:0,y:0,width:"100%",height:"100%",background:transparent});
+        c.cover = c;
+        this.installRecord("triggered",c,fx);
+        this.installTrigger("triggered",c,fx);
+      }
     } catch(e)  {
       console.error("Could not execute fx",e)
     }
@@ -52,43 +67,79 @@ var effects = new (function(){
   this.preview = function(fx){
     //todo: record current state
     this.initialise(fx);
-    this.execute(fx);
-    //todo: need to bring back to original state after the effect ends
+    this.execute(fx,function(){setTimeout(onFinished,1500);});
+    var ctx = this;
+    function onFinished(){
+      if(!fx.initAtExecutionOnly)
+        ctx.initialise(fx);
+    }
   }
 
   this.externalPreview = function(trigger,triggerer,fxname,targetID){
     //need to find fx
     try{
-      for( i in triggerer.effects[trigger].fx)
-        if( triggerer.effects[trigger].fx[i].fxname == fxname && triggerer.effects[trigger].fx[i].target == targetID )
+      for( i in triggerer.effects[trigger].fx )
+        if( triggerer.effects[trigger].fx[i].fxname == fxname && triggerer.effects[trigger].fx[i].UID == targetID )
         {
           this.preview(triggerer.effects[trigger].fx[i]);
           break;
         }
     } catch (e){
-      console.log(e)
+      console.error("Coult not perform preview of effect",e)
     }
   }
 
-  this.installTrigger = function(trigger,triggerer,target){
-    triggerer.addEventListener(trigger,0,function(e){
+  this.installTrigger = function(trigger,triggerer){
+    triggerer.addEventListener(trigger,function(e){
       try {
-        effects.onTrigger(triggerer.effects[trigger]);
+        effects.onTrigger(e.target.effects[trigger]);
       } catch(e){
-        console.error("Could not execute effects for trigger:"+trigger,e);
+        console.error("Could not install effect trigger:"+trigger,e);
       }
-    },triggerer);
+    });
+  }
+
+  this.installTriggers = function(triggerer){
+    if(!triggerer.effects)
+      return;
+
+    for( trigger in triggerer.effects ){
+      this.installTrigger(trigger,triggerer);
+    }
+  }
+  
+  this.initialiseEffects = function(triggerer){
+    if(!triggerer.effects)
+      return;
+
+    for( trigger in triggerer.effects ){
+      for( i in triggerer.effects[trigger].fx){
+        this.initialise(triggerer.effects[trigger].fx[i]);
+      }
+    }
+  }
+
+  this.uninstallEffects = function(triggerer){
+    if(!triggerer.effects)
+      return;
+
+    for( trigger in triggerer.effects ){
+      for( k in triggerer.effects[trigger].fx)
+        this.uninstall(trigger,triggerer,triggerer.effects[trigger].fx[k]);
+    }
   }
 
   this.uninstall = function(trigger,triggerer,fx){
     fxs = 0;
     try{
-      console.log("Deleting:"+trigger+" trgr:"+triggerer);
+      console.log("Deleting:"+trigger+" trgr:"+triggerer.UID);
       console.log(fx);
       fxs = triggerer.effects[trigger];
       for( i in fxs.fx)
-        if(fxs.fx[i].target == fx.target && fxs.fx[i].fxname == fx.fxname)
+        if(fxs.fx[i].UID == fx.UID && fxs.fx[i].fxname == fx.fxname){
+          console.log("DELETED");
           delete fxs.fx[i];
+        }
       //clean effects bay for given trigger
       if( Object.keys(fxs.fx).length < 1 )
         delete triggerer.effects[trigger];
@@ -96,7 +147,7 @@ var effects = new (function(){
     }catch(e){
       console.error("Could not uninstall effect",e);
     }
-    triggerer.removeEventListener(triggerer,0,0,triggerer);
+    triggerer.removeEventListener(trigger);
   }
 
   this.installRecord = function(trigger,triggerer,fx){
@@ -114,13 +165,13 @@ var effects = new (function(){
         };
       //check the effect is not present already
       for( i in triggerer.effects[trigger].fx)
-        if( triggerer.effects[trigger].fx[i].fxname == fx.fxname && triggerer.effects[trigger].fx[i].target == fx.target)
+        if( triggerer.effects[trigger].fx[i].fxname == fx.fxname && triggerer.effects[trigger].fx[i].UID == fx.UID)
           return {error:"Effect already exists"};
       //push passed effect to list
       triggerer.effects[trigger].fx.push(fx);
       return fx;
-    }catch(e){
-      console.log("Could not add effect record to triggerer",e);
+    } catch(e) {
+      console.error("Could not add effect record to triggerer",e);
       return {error:"Sorry, something went wrong"};
     }
   }
@@ -132,7 +183,7 @@ var effects = new (function(){
     install:function(trigger,triggerer,target){
       var fx = {
         fxname:"move",
-        target:target.UID,
+        UID:target.UID,
         parameters:[],
         initialState:{}
       }
@@ -144,11 +195,11 @@ var effects = new (function(){
       if(fx.installIndex == 0 ){
         //record initial state
         try {
-            fx.initialState = findContainer(fx.target).getPos();
+            fx.initialState = findContainer(fx.UID).getPos();
         } catch (e) {}
       } else {
         try {
-            fx.parameters.push(findContainer(fx.target).getPos());
+            fx.parameters.push(findContainer(fx.UID).getPos());
         } catch (e) {}
       }
       fx.installIndex++;
@@ -156,14 +207,102 @@ var effects = new (function(){
     uninstall:function(trigger,triggerer,fx){
       effects.uninstall(trigger,triggerer,fx);
     },
-    execute:function(descriptor){
-      this.putAt(descriptor.x,descriptor.y);
+    execute:function(params,onFinished){
+      var pos = params[0];
+      ctx = this;
+      this.tween({top:pos.y,left:pos.x,onComplete:onFinished},1);
     },
     initialise:function(descriptor){
       this.putAt(descriptor.x,descriptor.y);
     }
   }
 
+  effectSet["Focus Camera"] = {
+    name:"Focus Camera", //display name, fxname is the referencing one
+    description:"This animation focuses the camera on a container you select",
+    install_steps:["Compelted!"],
+    install:function(trigger,triggerer,target){
+      var fx = {
+        fxname:"Focus Camera",
+        UID:target.UID,
+        parameters:[],
+        initialState:{}
+      }
+      return effects.installRecord(trigger,triggerer,fx);
+    },
+    configure:function(fx){
+      if(!fx.installIndex)
+        fx.installIndex = 0;
+      fx.installIndex++;
+    },
+    uninstall:function(trigger,triggerer,fx){
+      effects.uninstall(trigger,triggerer,fx);
+    },
+    execute:function(params,onFinished){
+      factory.root.cfocusOn(this,{});
+    },
+    initialise:function(descriptor){
+
+    }
+  }
+
+  effectSet["Fade In"] = {
+    name:"Fade In", //display name, fxname is the referencing one
+    description:"This animation focuses the camera on a container you select",
+    install_steps:["Compelted!"],
+    install:function(trigger,triggerer,target){
+      var fx = {
+        fxname:"Fade In",
+        UID:target.UID,
+        parameters:[],
+        initialState:{},
+        initAtExecutionOnly:true
+      }
+      return effects.installRecord(trigger,triggerer,fx);
+    },
+    configure:function(fx){
+      if(!fx.installIndex)
+        fx.installIndex = 0;
+      fx.installIndex++;
+    },
+    uninstall:function(trigger,triggerer,fx){
+      effects.uninstall(trigger,triggerer,fx);
+    },
+    execute:function(params,onFinished){
+      $(this.DOMreference).fadeIn(1000,onFinished);
+    },
+    initialise:function(descriptor){
+      $(this.DOMreference).fadeOut(0);
+    }
+  }
+  effectSet["Fade Out"] = {
+    name:"Fade Out", //display name, fxname is the referencing one
+    description:"This animation focuses the camera on a container you select",
+    install_steps:["Compelted!"],
+    install:function(trigger,triggerer,target){
+      var fx = {
+        fxname:"Fade Out",
+        UID:target.UID,
+        parameters:[],
+        initialState:{}
+      }
+      return effects.installRecord(trigger,triggerer,fx);
+    },
+    configure:function(fx){
+      if(!fx.installIndex)
+        fx.installIndex = 0;
+      fx.installIndex++;
+    },
+    uninstall:function(trigger,triggerer,fx){
+      effects.uninstall(trigger,triggerer,fx);
+    },
+    execute:function(params,onFinished){
+      $(this.DOMreference).fadeOut(1000,onFinished);
+    },
+    initialise:function(descriptor){
+      $(this.DOMreference).fadeIn(0);
+    }
+  }
   //initialise with proper name
   for( fx in effectSet )
     effectSet[fx].fxname = fx;

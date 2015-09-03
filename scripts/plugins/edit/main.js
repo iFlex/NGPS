@@ -12,8 +12,7 @@ loadAppCode("edit",function(data)
 {
 	//var componentsPath = "edit/components/";
 	this.config = {interface:"none"};
-	data.parent.setPermission('save',false);
-	data.parent.setPermission('connect',false);
+	data.parent.setPermissions(factory.UIpermissions);
 	Editor = this;
 
 	//shared variables that allow subapps to easily interact and share data - like current selected container
@@ -53,6 +52,10 @@ loadAppCode("edit",function(data)
 		InterfaceSequencing.override = callback;
 		console.log(InterfaceSequencing);
 	}
+	Editor.cancelNextClickRequest = function(){
+		InterfaceSequencing.noCancelOverride = false;
+		InterfaceSequencing.override = 0;
+	}
 
 	function attachTextIcon(ct,text,icon,hook){
 		utils.makeHTML([{
@@ -79,7 +82,7 @@ loadAppCode("edit",function(data)
 	}
 	function buildInterface(){
 		var defaultDock = ["menuToggle","zoomOut","zoomIn","addContainer","addText","save","load","apps"]
-		Editor.interface = factory.base.addChild({x:0,y:0,width:"15%",height:"100%",class:"menu"});
+		Editor.interface = factory.base.addChild({x:0,y:0,width:"15%",height:"100%",class:"menu",permissions:factory.UIpermissions});
 		Editor.dock.title = Editor.interface.addChild({type:"input",autopos:true,width:"99%",height:32,style:"margin-top:5px;margin-left:auto;mergin-right:auto;padding-left:2px;background:rgba(0,0,0,0);text-aling:center"});
 		Editor.dock.title.DOMreference.value = "Title, click to change";
 
@@ -118,6 +121,9 @@ loadAppCode("edit",function(data)
 			InterfaceSequencing.main = Editor.sizer._show;
 			InterfaceSequencing.secondary = Editor.addInterface.onClick;
 		},1000);
+		////////////////////////////////
+		pLOAD.doInstallTriggers = false;
+		pLOAD.doInitialiseEffects = false;
 	};
 	this.shutdown = function(){
 

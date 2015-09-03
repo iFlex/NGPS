@@ -61,7 +61,12 @@ editor:function(){
 view:function(){
   factory.newGlobalApp('dialogue');
   factory.newGlobalApp('zoom',{offsetY:0});
-  factory.newGlobalApp('_actions',{mode:'present'});
+  setTimeout(function(){Dialogue.import.show({
+    title:"Choose presentation to view",
+    fileHandler:function(e){ pLOAD.fromHTML(atob(e.target.result.split(",")[1])); },
+    urlHandler:function(){},
+    target:factory.base
+  });},2000);
   console.log("Loaded view setup");
 },
 webshow:function(){

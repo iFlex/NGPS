@@ -2,8 +2,7 @@ loadAppCode("dialogue/dialogues/import",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+  this.parent.setPermissions(factory.UIpermissions);
   this.container = 0;
   this.config = {}
 
@@ -54,20 +53,20 @@ loadAppCode("dialogue/dialogues/import",function(data)
 
     this.link = utils.makeHTML([{
       input:{
-        class:"adimgmrg",
+        class:"main_input",
         onchange:_change,
         onpaste:_change,
         onkeydown:_change,
         placeholder:"URL",
-        style:"width:100%;border-radius:0px 0px 0px 0px;border-width:0px;text-align:center;background:transparent;"
+        style:"width:100%;"
       }
     }]);
     this.buttons = [];
     for( var i = 0 ; i < 2; ++i ){
       this.buttons[i] = utils.makeHTML([{
       button:{
-        class:"btn btn-success glyphicon glyphicon-open",
-        style:"width:100%;border-radius:0px 0px 0px 0px;border-width:0px",
+        class:"main_button glyphicon glyphicon-open",
+        style:"width:100%;margin-bottom:5px",
       }}]);
       if(i == 0){
         this.buttons[i].onclick = fileDialog
@@ -78,8 +77,10 @@ loadAppCode("dialogue/dialogues/import",function(data)
       }
     }
     var lnks = [this.title,this.link];
-    for( i in this.buttons )
+    for( i in this.buttons ){
       lnks.push(this.buttons[i]);
+      lnks.push(utils.makeHTML([{br:{}}]))
+    }
 
     utils.makeHTML(lnks,divContainer);
     this.container.DOMreference.appendChild(ghostTable);

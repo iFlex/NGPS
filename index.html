@@ -20,8 +20,13 @@
         });
         requirejs(['support/main'],function(){
           _INIT(function(){
-            //factory.init('webshow');
-            factory.init('editor');
+            if(window.location.search.indexOf("mode")>-1){
+              var mode = window.location.search.substring(window.location.search.indexOf("=")+1,window.location.search.length);
+              console.log("INITIALISED MODE - "+mode);
+              factory.init(mode);
+            } else {
+              factory.init('webshow');
+            }
           });
         });
     </script>

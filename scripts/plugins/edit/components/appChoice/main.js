@@ -105,7 +105,7 @@ loadAppCode("edit/components/appChoice",function(data)
     host.getInstalledUserApps(function(_apps){
         apps = _apps;
         console.log(apps);
-        root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"#E6E6E6",style:"padding-left:5px;padding-right:5px",permissions:{save:false,connect:false}});
+        root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"#E6E6E6",style:"padding-left:5px;padding-right:5px",permissions:factory.UIpermissions});
         main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],"overflow-y":"scroll","overflow-x":"hidden",permissions:{save:false,connect:false},style:bkgStyle});
         active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],permissions:{save:false,connect:false},"overflow-y":"scroll","overflow-x":"hidden",style:activeBkg});
         _buildMain();

@@ -75,7 +75,6 @@ save._unit = function(node,operation_mode)
 	save.nestCount++;
 
 	//now save the most relevant stuff
-
 	var st = {};
 	st[node.UID] = {};
 	st[node.UID].UID = node.UID;
@@ -88,9 +87,11 @@ save._unit = function(node,operation_mode)
 			if( k[0] == "_" )
 				delete node.actions[a][k];
 	}
-	st[node.UID].actions = node.actions; // Presentation animations & actions
+
 	st[node.UID].parent = (node.parent)?node.parent.UID:null;
+	st[node.UID].effects = node.effects; // Presentation effects
 	st[node.UID].properties = utils.merge(node.properties,{});
+
 	//take out any possize data that is not relevant anymore
 	for( prop in nostore )
 		delete st[node.UID].properties[prop];
@@ -106,18 +107,23 @@ save._unit = function(node,operation_mode)
 	{
 		st[node.UID].child = {};
 		st[node.UID].child.descriptor = node.child.descriptor;
-		//st[node.UID].child.descriptor.style = node.child.style.cssText;
+		st[node.UID].child.value     = node.child.value;
 		st[node.UID].child.innerHTML = node.child.innerHTML;
 	}
 	//now look for apps
 	if(node.isApp)
 	{
-		//store the name of the app and move it to the folder as well
-		if( !save.requiredApps[node.appName] )
-			save.requiredApps[node.appName] = []; //store nodes that need the app here
-		save.requiredApps[node.appName].push(node.UID);
-		console.log("Rapps:"+utils.debug(save.requiredApps));
-		st[node.UID].appData = node.app._store;
+		if(node.app){
+			//store the name of the app
+			if( !save.requiredApps[node.appName] )
+				save.requiredApps[node.appName] = []; //store nodes that need the app here
+			save.requiredApps[node.appName].push(node.UID);
+			console.log("Rapps:"+utils.debug(save.requiredApps));
+			st[node.UID].appData = node.app._store;
+		} else {
+			console.error("Found app that was not correctly shutdown: still claims to be an app but has no .app property. Node below");
+			console.log(node);
+		}
 	}
 	//now look for camera
 	if(node.isCamera)
@@ -154,9 +160,9 @@ save._unit = function(node,operation_mode)
 	}
 
 	//if terminal container then save inner content
-	if(!nrc){
-		st[node.UID].innerHTML = encodeURIComponent(node.DOMreference.innerHTML);
-	}
+	//if(!nrc){
+	//	st[node.UID].innerHTML = encodeURIComponent(node.DOMreference.innerHTML);
+	//}
 
 	save.nestCount--;
 	if(save.nestCount == 0 && operation_mode['iteration'] == 'asynchronous')
