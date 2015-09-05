@@ -2,10 +2,9 @@
 loadAppCode("edit/components/linkEdit",function(data){
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+  data.parent.setPermissions(factory.UIpermissions);
 
-  var uiPerm = {save:false,connect:false};
+  var uiPerm = factory.UIpermissions;
   var link   = 0;
   var left   = 0;
   var right  = 0;
@@ -36,20 +35,10 @@ loadAppCode("edit/components/linkEdit",function(data){
       ileft.hide();
       iright.hide();
       ldel.hide();
-      //rdel.hide();
     }
-/*
-    iright = 0;
-    ileft = 0;
-    left = 0;
-    right = 0;
-    link = 0;
-    //rdel = 0;
-    ldel = 0;*/
   }
 
   function deleteLink(){
-    //if(link)
     left.unlink(right);
     hide();
   }
@@ -71,16 +60,13 @@ loadAppCode("edit/components/linkEdit",function(data){
   }
   function maintainDelButtons(){
     var pos1 = link.local2global(0.5,0.5,factory.root.display.UID);
-    //var pos2 = link.local2global(0.9,0.5);
     ldel.putAt(pos1.x,pos1.y,0.5,0.5);
-    //rdel.putAt(pos2.x,pos2.y,0.5,0.5);
   }
   function showInterface(){
     if(!ileft) {
       ileft = makeDot(left);
       iright = makeDot(right);
       ldel = makeDel(factory.root);
-      //rdel = makeDel(factory.base);
     } else {
       ileft.show(true);
       iright.show(true);
@@ -113,7 +99,6 @@ loadAppCode("edit/components/linkEdit",function(data){
   function linkClick(e){
     hide();
 
-    //console.log("Click on link:"+utils.debug(e)+" left:"+utils.debug(e.target.left)+" r:"+utils.debug(e.target.right));
     link = e.target;
     left = link.left;
     right = link.right;

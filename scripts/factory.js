@@ -11,6 +11,8 @@
 *		the general container settings based on the previous settings applied (which will be provided as an argument to the AMS)
 *			This functionality enables themes ( a theme will therefore be an AMS combined with certain features )
 *		It also can decide what functions to link to the trigger events of containers depending on what mode it is initiated in ( Viewer or Editor )
+*	Events:
+*		startup
 */
 
 //NGPS Factory creates 2 main objects: foot ( dymanic object holder ) overlay ( a static holder that allows headers or interfaces to be independent from the main camera)
@@ -20,13 +22,22 @@ requirejs(["","descriptors/containers","descriptors/links","themes/default","reg
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory = this.factory || {};
 this.factory.initialised = false;
-this.factory.UIpermissions = {save:false,edit:false,connect:false}
+this.factory.allInitialised = 0;
+this.factory.UIpermissions = {save:false,edit:false,connect:false,track:false}
 //initiation script comes here
 factory.init = function(mode,manualSetup) // editor init
 {
 	function _init() {
 		if(!manualSetup) //if custom setup is loaded, run it
 			factory.setup[mode]();
+
+		GEM.addEventListener("appsLoaded",0,function(){
+			if(!factory.allInitialised){
+				factory.allInitialised = true;
+				GEM.fireEvent({event:"startup",isGlobal:true});
+				GEM.removeEventListener("appsLoaded",0,0,factory);
+			}
+		},factory);
 	}
 
 	console.log("Factory initialised:"+factory.initialised);

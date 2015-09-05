@@ -2,7 +2,7 @@ loadAppCode("dialogue/dialogues/toast",function(data){
   this.config = {interface:"none"};
   data.parent.setPermissions(factory.UIpermissions)
 
-  var descriptor = {x:0,y:factory.base.getHeight(),width:"100%",autosize:true,background:"black",style:"color:white;text-align:center",permissions:data.parent.getPermissions};
+  var descriptor = {x:0,y:factory.base.getHeight(),width:"100%",autosize:true,background:"black",style:"color:white;text-align:center",permissions:data.parent.getPermissions()};
   var toast = 0;
   var timeout = 0;
   this.show = function(message,timeout){

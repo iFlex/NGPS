@@ -22,6 +22,7 @@ GEM.fireEvent = function(data)
 
 	function _fireEvent(event,ctx)
 	{
+		//console.log("Firing with context:"+ctx);
 		if( GEM.events[event] && GEM.events[event][ctx] )
 			for(k in GEM.events[event][ctx])
 			{
@@ -57,6 +58,8 @@ GEM.fireEvent = function(data)
 
 	}
 	*/
+	//console.log("Firing event:");
+	//console.log(data);
 	if(GEM.debug)
 		cli.showPrompt("<br> ** NGPS_GEM_EVENT<br>"+utils.debug(data));
 }
@@ -92,7 +95,7 @@ GEM.removeEventListener = function(event,ctx,handler,run_context)
 
 	if(!ctx)
 		ctx ={UID:"_global"};
-
+	console.log("removing event:"+event);
 	var success = false;
 	if( GEM.events[event] && GEM.events[event][ctx.UID] )
 	{
@@ -100,7 +103,7 @@ GEM.removeEventListener = function(event,ctx,handler,run_context)
 		//console.log("checking contex:"+ctx.UID+" event:"+event);
 		for( h in GEM.events[event][ctx.UID] )
 		{
-			//console.log(typeof(GEM.events[event][ctx.UID][h]['handler']) + " == " + typeof(handler)+ " ? "+ (GEM.events[event][ctx.UID][h]['handler'] == handler) )
+			console.log(typeof(GEM.events[event][ctx.UID][h]['context']) + " == " + typeof(run_context)+ " ? "+ (GEM.events[event][ctx.UID][h]['context'] == run_context) )
 			if( (handler && GEM.events[event][ctx.UID][h]['handler'] == handler) ||
 					(run_context && GEM.events[event][ctx.UID][h]['context'] == run_context))
 			{

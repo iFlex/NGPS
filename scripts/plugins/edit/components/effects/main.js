@@ -5,6 +5,8 @@ loadAppCode("edit/components/effects",function(data){
   this.config = {interface:"none"};
   this.showing = false;
   this.triggerer = 0;
+  data.parent.setPermissions(factory.UIpermissions);
+
   var cardUI,mountPoint;
   var availableEffects = {};
   var availableTriggers = ["triggered","mouseDown","mouseUp","mouseMove"];
@@ -148,6 +150,7 @@ loadAppCode("edit/components/effects",function(data){
     console.log(e.target.fxctl);
     if(ctl){
       try {
+          console.log(ctl.fx);
           effects.preview(ctl.fx);
       } catch(e) {
         console.error("Could not preview effect",e);

@@ -6,10 +6,8 @@ loadAppCode("edit/components/pchange",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
-
   this.active = true;
+  data.parent.setPermissions(factory.UIpermissions);
 
   var interfaces = [];
   var interfSize = 23;
@@ -32,7 +30,7 @@ loadAppCode("edit/components/pchange",function(data)
   function makeTrigger(obj,pos,last)
   {
     pos = factory.root.viewportToSurface(pos.x,pos.y);
-    var c = factory.newContainer({x:pos.x,y:pos.y,width:interfSize,height:interfSize,background:"white",border_radius:["10%"],style:"text-align: center;",permissions:{save:false,connect:false}},"none",factory.root);//factory.base);
+    var c = factory.newContainer({x:pos.x,y:pos.y,width:interfSize,height:interfSize,background:"white",border_radius:["10%"],style:"text-align: center;",permissions:data.parent.getPermissions()},"none",factory.root);//factory.base);
     var g = c.addPrimitive({type:"span",content:{class:(last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in"}});
     g.style.cssText = "font-size:"+interfSize*0.9+"px";
     c.destination = obj;

@@ -1,6 +1,6 @@
 loadAppCode("dialogue/dialogues/singleChoice",function(data){
   this.config = {interface:"none"};
-  data.parent.setPermissions(factory.UIpermissions)
+  data.parent.setPermissions(factory.UIpermissions);
 
   this.init = function(){
     console.log(data.parent.appFullPath);

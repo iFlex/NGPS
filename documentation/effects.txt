@@ -14,7 +14,8 @@ fx:{
   UID:Container ID,
   parameters:[],
   initialState:{},
-  initAtExecutionOnly: boolean flat, tells preview to not call init after the preview is finished ( so that certain effects don't hide containers when editing for example)
+  initAtExecutionOnly: boolean flat, tells preview to not call init after the preview is finished ( so that certain effects don't hide containers when editing for example),
+  notsure - continueFromCurrentState: don't apply the initial state when initialising
 }
 
 //STORAGE for effects

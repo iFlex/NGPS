@@ -28,6 +28,7 @@
 *		appHidden
 *		appRun
 *		appSuspend
+*		appsLoaded - all apps have been loaded
 *
 *	Conventions:
 *		App must all the loadAppCode function with it's name as the first argument and it's code as the second ( function as class )
@@ -50,6 +51,15 @@ AppMgr.appHosts = {};
 function loadAppCode(name,app)
 {
 	AppMgr.loadedApps[name] = app;
+	if( AppMgr.checkIfAllLoaded() )
+		GEM.fireEvent({event:"appsLoaded",isGlobal:true});
+}
+
+AppMgr.checkIfAllLoaded = function(){
+		for(i in AppMgr.loadedApps)
+			if(AppMgr.loadedApps[i] == 0)
+				return false;
+		return true;
 }
 
 AppCtl.ainit = function(app,params)
@@ -59,7 +69,14 @@ AppCtl.ainit = function(app,params)
 	params = utils.merge(params,{parent:this,startWorker:this.requestWorker,stopWorker:this.stopWorker},"override");
 
 	this.isApp = true;
-	this.app = new app(params);
+	try {
+		this.app = new app(params);
+	} catch(e){
+		console.log("Failed to initialise app on container:"+this.UID,e);
+		this.adestroy();
+		return;
+	}
+
 	AppMgr.appHosts[this.appName] = AppMgr.appHosts[this.appName] || {};
 	AppMgr.appHosts[this.appName][this.UID] = this;
 	//unique identifiers for workers
@@ -97,7 +114,7 @@ AppCtl.ainit = function(app,params)
 			}
 
 			d = 40;
-			this.exit = attach.addChild({x:"0%",y:"0%",width:d,height:d,background:"red",border_radius:["20px","20px",0,0],permissions:_permissions})
+			this.exit = attach.addChild({x:"0%",y:"0%",width:d,height:d,background:"black",border_radius:["5px","5px","0px","0px"],permissions:_permissions})
 			this.exit.putAt(pos.x,pos.y,0,1);
 		}
 		//
@@ -115,7 +132,7 @@ AppCtl.ainit = function(app,params)
 		this.exit.DOMreference.style.zIndex = 2;
 
 		this.exit.addPrimitive({type:"div"});
-		this.exit.child.innerHTML = '<center><span class="glyphicon glyphicon-ok"></span></center>'
+		this.exit.child.innerHTML = '<center><span class="glyphicon glyphicon-remove" style="color:white;font-size:'+(d/2)+'px"></span></center>'
 
 		//Configure triggers and propagation
 		this.cover.onMoved = function(dx,dy,ctx){ctx.parent.move(dx,dy);}

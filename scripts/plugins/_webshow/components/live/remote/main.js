@@ -53,24 +53,25 @@ loadAppCode("_webshow/components/live/remote",function(args){
   }
 
   this.shutdown = function(){
-    GEM.removeEventListener("mouseUp",0,sendUpdate,this);
-    GEM.removeEventListener("mouseMove",0,sendUpdate,this);
-    GEM.removeEventListener("triggered",0,sendClick,this);
+    GEM.removeEventListener("mouseDown",0,forwardEvent,this);
+    GEM.removeEventListener("mouseUp",0,forwardEvent,this);
+    GEM.removeEventListener("mouseMove",0,forwardEvent,this);
+    GEM.removeEventListener("triggered",0,forwardEvent,this);
   }
 
   this.continue = function(){
     hideInterface();
-    GEM.addEventListener("mouseUp",0,sendUpdate,this);
-    GEM.addEventListener("mouseMove",0,sendUpdate,this);
-    GEM.addEventListener("triggered",0,sendClick,this);
+    GEM.removeEventListener("mouseDown",0,forwardEvent,this);
+    GEM.addEventListener("mouseUp",0,forwardEvent,this);
+    GEM.addEventListener("mouseMove",0,forwardEvent,this);
+    GEM.addEventListener("triggered",0,forwardEvent,this);
   }
 
-  function sendClick(e){
-    var data = {UID:e.target.UID};
-    data.action = "doClick";
+  function forwardEvent(e){
+    var data = {event:{event:e.event,target:e.target.UID},action:"event"};
     args.live.send(data);
   }
-
+/*
   function sendUpdate(e){
     var data = {UID:e.target.UID};
     data.action = "do";
@@ -79,5 +80,5 @@ loadAppCode("_webshow/components/live/remote",function(args){
     data.y = pos.y;
     args.live.send(data);
   }
-
+*/
 });

@@ -9,8 +9,7 @@ loadAppCode("edit/components/addVideo",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+  data.parent.setPermissions(factory.UIpermissions);
 
   Editor.videos = this;
   var vCTL = 0;

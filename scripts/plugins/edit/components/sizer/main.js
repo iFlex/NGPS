@@ -5,8 +5,7 @@ loadAppCode("edit/components/sizer",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+  data.parent.setPermissions(factory.UIpermissions);
 
   this.target = 0;
   var currentInterface = 0;

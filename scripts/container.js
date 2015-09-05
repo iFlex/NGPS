@@ -43,9 +43,11 @@ function setZoomLevelForContainers(zl){
 this.container = function(_properties,_parent)
 {
 	function addToTree(container) {
+		console.log("#Adding container to tree:"+container.UID);
 		containerData.reffTree[container.UID] = container;
 	}
 	function removeFromTree(container) {
+		console.log("#Deleting container from tree:"+container.UID);
 		delete containerData.reffTree[container.UID];
 	}
 
@@ -327,6 +329,9 @@ this.container = function(_properties,_parent)
 			{
 				container.setWidth( child.clientWidth );
 				container.setHeight( child.clientHeight	);
+				delete descriptor.adapt_container;
+				descriptor['glue_content'] = true; // - after the container has been resized, make sure the content will not modify the size of the container when loading
+
 				if(onready)
 					onready(this);
 			}
@@ -360,10 +365,10 @@ this.container = function(_properties,_parent)
 				}
 			} else if(descriptor['glue_content'] == true){
 				var ctx = this;
-				this.child.onload = function()
-				{
-					this.enlarge(1);
-				}
+				//this.child.onload = function()
+				//{
+					//ctx.enlarge(1);
+				//}
 			} else {
 				if(descriptor['width'])
 					this.setWidth(descriptor['width'])
@@ -897,11 +902,15 @@ this.container = function(_properties,_parent)
 
 		if(! AppMgr.loadedApps[app] )
 		{
+			AppMgr.loadedApps[app] = 0;
 			//lookup app
-			requirejs(['plugins/'+app+"/main"],function(){
-				//AppMgr.loadedApps[app] = eval(app);
-				ldApp(AppMgr.loadedApps[app]);
-			});
+			try {
+				requirejs(['plugins/'+app+"/main"],function(){
+					ldApp(AppMgr.loadedApps[app]);
+				});
+			} catch ( e ) {
+				console.log("Could not load app:"+app,e);
+			}
 		}
 		else
 			ldApp(AppMgr.loadedApps[app]);

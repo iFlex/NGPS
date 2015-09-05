@@ -51,6 +51,8 @@ function pack(noStringify){
 	output.requirements = {
 		apps:save.requiredApps
 	};
+	console.log("SAVE metadata:");
+	console.log(output);
 	output.content = save.saveTree;
 	if(!noStringify)
 		return JSON.stringify(output);
@@ -68,12 +70,11 @@ save.proceed = function(){
 save._unit = function(node,operation_mode)
 {
 	var nostore = {x:true,y:true,top:true,bottom:true,left:true,right:true,width:true,height:true}
-
 	//console.log("NODE:"+node.UID);
-	if(!node.getPermission('save'))
+	if( !node.getPermission('save') )
 		return;
-	save.nestCount++;
 
+	save.nestCount++;
 	//now save the most relevant stuff
 	var st = {};
 	st[node.UID] = {};
@@ -82,6 +83,7 @@ save._unit = function(node,operation_mode)
 	st[node.UID].isCamera = node.isCamera;
 	st[node.UID].isLink = node.isLink;
 	st[node.UID].isLeaf = node.isLeaf;
+
 	for( a in node.actions){
 		for( k in node.actions[a] )
 			if( k[0] == "_" )
@@ -158,11 +160,6 @@ save._unit = function(node,operation_mode)
 					save._unit(node.children[k],operation_mode)
 				},(operation_mode['iteration_delay'])?operation_mode['iteration_delay']:1)
 	}
-
-	//if terminal container then save inner content
-	//if(!nrc){
-	//	st[node.UID].innerHTML = encodeURIComponent(node.DOMreference.innerHTML);
-	//}
 
 	save.nestCount--;
 	if(save.nestCount == 0 && operation_mode['iteration'] == 'asynchronous')

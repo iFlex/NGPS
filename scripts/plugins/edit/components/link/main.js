@@ -4,8 +4,7 @@ this.Editor = this.Editor || {};
 loadAppCode("edit/components/link",function(data){
 	this.config = {interface:"none"};
 	this.parent = data['parent'];
-	this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+  data.parent.setPermissions(factory.UIpermissions);
 
 	var startFrom = data['lastInterfaceContainer'] || 2 ;
 	var temp = 0;
@@ -87,7 +86,7 @@ loadAppCode("edit/components/link",function(data){
 	{
 		Editor.link = this;
 		console.log(this.parent.appPath+" - initialising...");
-		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true,permissions:{save:false,connect:false,edit:false}},'link_dot',factory.root);
+		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true,permissions:data.parent.getPermissions()},'link_dot',factory.root);
 		console.log("link.init> created pointer:"+utils.debug(temp));
 		var g = temp.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-record"}});//<span class="glyphicon glyphicon-record"></span>
 		g.style.cssText = "font-size:32px";

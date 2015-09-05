@@ -6,7 +6,7 @@
 *	Available events:
 *		loaded
 */
-var pLOAD = {doLoadApps:true,doInstallTriggers:true,doInitialiseEffects:true}
+var pLOAD = {loadOffset:0,doTranslateAddress:true,doLoadApps:true,doInstallTriggers:true,doInitialiseEffects:true}
 pLOAD.root = 0;
 var LOADtree = {};
 var LOADreferences = {};
@@ -14,6 +14,11 @@ var _LINKS = [];
 var _CAMERAS = [];
 pLOAD._unit = function(node,root,jumpAlreadyExisting)
 {
+	console.log("----- UNIT CALL ---");
+	console.log(node);
+	console.log("***************")
+	console.log(root);
+	console.log("__________________");
 	try {
 		if(node.isLink)//save link for loading after whole tree is loaded
 		{
@@ -21,7 +26,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			return;
 		}
 
-		console.log("jumpAlreadyExisting:"+jumpAlreadyExisting+" UID:"+node.UID);
+		console.log("jumpAlreadyExisting:"+jumpAlreadyExisting+" logical UID:"+node.UID+" actual UID:"+(node.UID+pLOAD.loadOffset));
 		if( jumpAlreadyExisting == undefined || node.UID > jumpAlreadyExisting )
 		{
 			console.log("adding:"+utils.debug(node)+" to:"+utils.debug(root));
@@ -30,9 +35,21 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			if(!factory.base && !root){
 				croot = new container(node.properties)
 				factory.base = croot;
+				console.log("Created new root");
+				console.log(croot);
+				console.log("----------------------");
 			}
 			else
 			{
+				if(factory.root) {
+					console.log("Translating load address:"+node.UID+" to:"+(node.UID+pLOAD.loadOffset));
+					if(pLOAD.doTranslateAddress)
+						node.UID += pLOAD.loadOffset;
+
+					if(containerData.containerIndex < node.UID)
+						containerData.containerIndex = node.UID;
+				}
+
 				node.properties.UID = node.UID;
 				if(node.properties.cssText && node.properties.style)
 					delete node.properties.style;
@@ -63,6 +80,14 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 			}
 
 			croot.effects = node.effects;
+			if(pLOAD.doTranslateAddress) {
+				for(trig in croot.effects){
+					for( index in croot.effects[trig].fx ){
+						croot.effects[trig].fx[index].UID += pLOAD.loadOffset;
+					}
+				}
+			}
+
 			if(node.value)
 				croot.DOMreference.value = node.value;
 			if(node.innerHTML)
@@ -95,6 +120,7 @@ pLOAD._unit = function(node,root,jumpAlreadyExisting)
 	}catch(e){
 		console.error("Failed to load container:"+node.UID,e);
 	}
+	console.log("----- END UNIT CALL ---");
 }
 pLOAD.loadLinks = function(){
 	var left = 0;
@@ -103,10 +129,14 @@ pLOAD.loadLinks = function(){
 	for( l in _LINKS )
 	{
 		link = _LINKS[l];
-		left = findContainer(link.linkData.left);//LOADreferences[link.linkData.left];
-		right = findContainer(link.linkData.right);//LOADreferences[link.linkData.right];
-		//console.log("Link attempt("+link.UID+"):"+left+">"+right);
-		//console.log(link.linkData);
+		if(pLOAD.doTranslateAddress){
+			link.linkData.left += pLOAD.loadOffset;
+			link.linkData.right += pLOAD.loadOffset
+		}
+
+		left = findContainer(link.linkData.left);
+		right = findContainer(link.linkData.right);
+
 		if(left && right)
 			left.link(right,{container:link.properties,anchors:link.linkData});
 	}
@@ -120,8 +150,11 @@ pLOAD.activateCameras = function(){
 		for( r in rels )
 		{
 			//console.log("Adding relation with:"+r+" dsc:"+utils.debug(rels[r]));
-			if( rels[r].root )
+			if( rels[r].root ){
+				if(pLOAD.doTranslateAddress)
+					rels[r].root += pLOAD.loadOffset
 				rels[r].root = findContainer(rels[r].root);//LOADreferences[rels[r].root];
+			}
 		}
 	}
 }
@@ -131,6 +164,8 @@ pLOAD.loadApps = function(apps){
 		//console.log("Attempting to load required app:"+app);
 		for( j in apps[app] )
 		{
+			if(pLOAD.doTranslateAddress)
+				apps[app][j] += pLOAD.loadOffset
 			var contain = findContainer(apps[app][j]);
 			contain.loadApp(app,contain.appData);
 		}
@@ -145,7 +180,12 @@ pLOAD.initialiseEffects = function(node){
 
 pLOAD.proceed = function(jsn)
 {
-
+	console.log("----------- LOADING PROCESS ------------");
+	if( pLOAD.loadStartOffset != undefined )
+		pLOAD.loadOffset = pLOAD.loadStartOffset;
+	else
+	 	pLOAD.loadOffset = containerData.containerIndex;
+  console.log("---- LOAD START OFFSET:"+pLOAD.loadOffset);
 	console.log("Loading:"+jsn)
 	if(typeof(jsn) == "string")
 		LOADtree = JSON.parse(jsn);
@@ -175,8 +215,13 @@ pLOAD.proceed = function(jsn)
 			if(pLOAD.doInitialiseEffects)
 				pLOAD.initialiseEffects(factory.base);
 
+			//adapt loadOffset
+			containerData.containerIndex += 1;
+			console.log("--- Load offset:"+pLOAD.loadOffset+" maxOffset:"+containerData.containerIndex);
 			//fire presentation loaded event
 			GEM.fireEvent({event:"loaded",isGlobal:true});
+			console.log("------------- END of LOADING PROCESS ------------");
+
 		}
 		else
 			setTimeout(waitForJson,50);

@@ -85,6 +85,8 @@ loadAppCode("edit",function(data)
 		Editor.interface = factory.base.addChild({x:0,y:0,width:"15%",height:"100%",class:"menu",permissions:factory.UIpermissions});
 		Editor.dock.title = Editor.interface.addChild({type:"input",autopos:true,width:"99%",height:32,style:"margin-top:5px;margin-left:auto;mergin-right:auto;padding-left:2px;background:rgba(0,0,0,0);text-aling:center"});
 		Editor.dock.title.DOMreference.value = "Title, click to change";
+		Editor.dock.title.DOMreference.onfocus = function(){if(Editor.keyBind)Editor.keyBind.deactivate();}
+		Editor.dock.title.DOMreference.onblur  = function(){if(Editor.keyBind)Editor.keyBind.activate();}
 
 		for( i in defaultDock ) Editor.dock[defaultDock[i]] = Editor.interface.addChild(descriptor);
 		attachTextIcon(Editor.dock.menuToggle,"Collapse","glyphicon glyphicon-chevron-left",Editor.toggleMenu);
@@ -122,8 +124,10 @@ loadAppCode("edit",function(data)
 			InterfaceSequencing.secondary = Editor.addInterface.onClick;
 		},1000);
 		////////////////////////////////
-		pLOAD.doInstallTriggers = false;
+		pLOAD.doInstallTriggers   = false;
 		pLOAD.doInitialiseEffects = false;
+		pLOAD.doTranslateAddress  = true;// must be true
+		GEM.addEventListener("startup",0,function(){pLOAD.loadStartOffset = containerData.containerIndex + 10;},this);
 	};
 	this.shutdown = function(){
 
@@ -164,7 +168,7 @@ loadAppCode("edit",function(data)
 				else
 					InterfaceSequencing.override = 0;
 			} else {
-				if(InterfaceSequencing.lastClickedDepth > 0)
+				if( (InterfaceSequencing.lastClickedDepth%2))
 					InterfaceSequencing.secondary(e);
 				else
 					InterfaceSequencing.main(e);
@@ -204,7 +208,7 @@ loadAppCode("edit",function(data)
 		//pLOAD.proceed(pcnt);
 		Dialogue.import.show({
       title:"Choose presentation",
-      fileHandler:function(e){ pLOAD.fromHTML(atob(e.target.result.split(",")[1])); },
+      fileHandler:function(e){ pLOAD.fromHTML(atob(e.target.result.split(",")[1])); delete pLOAD.loadStartOffset;},
       urlHandler:function(){},
       target:factory.base
     });

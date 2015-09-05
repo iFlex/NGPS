@@ -2,9 +2,8 @@ loadAppCode("dialogue/dialogues/import",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermissions(factory.UIpermissions);
   this.container = 0;
-  this.config = {}
+  data.parent.setPermissions(factory.UIpermissions);
 
   function onFileReceived(file){
     var reader = new FileReader();
@@ -24,15 +23,15 @@ loadAppCode("dialogue/dialogues/import",function(data)
   }
 
   function close(){
-    data.Dialogue.import.hide();
     if(data.Dialogue.import.config.onCancel)
       data.Dialogue.import.config.onCancel();
+    data.Dialogue.import.hide();
   }
 
   this.init = function(){
     console.log(data.parent.appFullPath+" - initialising...");
     data.Dialogue.import = this;
-    this.container = factory.base.addChild({x:0,y:0,height:600,width:300,background:"rgba(0,0,0,0.65)",premissions:data.parent.getPermissions()});
+    this.container = factory.base.addChild({x:0,y:0,height:600,width:300,background:"rgba(0,0,0,0.65)",permissions:data.parent.getPermissions()});
     var ghostTable = utils.makeHTML([{
       div:{
         style:"display: table;width: 100%;height:100%;background:transparent"

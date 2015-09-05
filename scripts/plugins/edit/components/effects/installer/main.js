@@ -2,6 +2,7 @@
 this.Editor = this.Editor || {};
 loadAppCode("edit/components/effects/installer",function(data){
   this.config = {interface:"none"};
+  data.parent.setPermissions(factory.UIpermissions);
 
   var triggerer = 0;
   var trigger = 0;
@@ -19,6 +20,7 @@ loadAppCode("edit/components/effects/installer",function(data){
     }
     Editor.requestNextClick(onSelectedTarget);
   }
+  
   function nextStage(){
     Editor.cancelNextClickRequest();
     if(effect) {

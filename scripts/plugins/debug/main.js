@@ -1,26 +1,16 @@
+var _debug = 0;
 loadAppCode("debug",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-
-  function updateInfo(child){
-      var pos = child.getPos();
-      child.debug_info.innerHTML = child.UID+"@"+pos.x+"|"+pos.y;
-  }
-
-  function track(e){
-    updateInfo(e.target);
-  }
+  data.parent.setPermissions(factory.UIpermissions);
 
   function processChild(child){
     console.log("Debug:"+utils.debug(child));
-    //adding a h3 tag to the child element
-    var info = child.addPrimitive({type:"h5",content:{innerHTML:"loading container info",style:"background:white"}});
-    child.debug_info = info; //store the info handler in the child object
-    updateInfo(child);
-    //when the child is moved update the info
-    child.addEventListener('changePosition',track);
-
+    if(!child.properties.isDebug) {
+      child.dbg_info = child.addChild({x:0,y:0,autosize:true,background:"white",isDebug:true});
+      child.dbg_info.DOMreference.innerHTML = child.UID;
+    }
   }
   function onAddedChild(e){
     console.log("Debug: added new container:"+utils.debug(e));
@@ -30,14 +20,40 @@ loadAppCode("debug",function(data)
 
   this.init = function()
   {
+    console.log("Debugger online!");
+    _debug = this;
     //any new containers will be processed
-    GEM.addEventListener("addChild",0,onAddedChild,this);
+    //GEM.addEventListener("addChild",0,onAddedChild,this);
     //now parse all the already present containers
     function processNode(node){
       processChild(node);
       for( i in node.children )
         processNode(node.children[i]);
     }
-    processNode(factory.root);
+    //processNode(factory.root);
   }
+
+  this.findAllAppInstances = function(){
+    var instances = [];
+    function getAppInstances(node){
+      if(node.isApp)
+        instances.push({UID:node.UID,app:node.appName});
+      for( i in node.children )
+        getAppInstances(node.children[i]);
+    }
+    getAppInstances(factory.base);
+    return instances;
+  }
+
+  this.treeList = function(){
+    var instances = [];
+    function getNode(node){
+      instances.push(node.UID);
+      for( i in node.children )
+        getNode(node.children[i]);
+    }
+    getNode(factory.base);
+    return instances;
+  }
+
 });

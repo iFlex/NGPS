@@ -2,6 +2,7 @@ this.Editor = this.Editor || {};
 //TODO: make sure it's under the dock & close button visivle
 loadAppCode("edit/components/configureContainer",function(data)
 {
+  data.parent.setPermissions(factory.UIpermissions);
   //temporary
   var shapes={1:{border_radius:["0px"]},2:{border_radius:["10%"]},3:{border_radius:["10%","10%","0px","10%"]},4:{border_radius:["50%"]},5:{border_radius:["0px"]},6:{border_radius:["10%"]},7:{border_radius:["0px","10%","0px","10%"]},8:{border_radius:["50%"]}};
   var borders={1:{border_size:5,border_style:"solid",border_color:"0x000000"},2:{border_size:5,border_style:"dotted",border_color:"0x000000"},3:{border_size:5,border_style:"dashed",border_color:"0x000000"}}

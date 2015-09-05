@@ -117,6 +117,7 @@ loadAppCode("_webshow/components/live",function(args){
       sendPresentation(data);
 
     if(data.action == "setPresentation" && !factory.session.remoteInitialised){
+      pLOAD.doTranslateAddress = false;
       pLOAD.proceed(data.data);
       args.remote.app.continue();
     }
@@ -127,10 +128,11 @@ loadAppCode("_webshow/components/live",function(args){
       c.putAt(data.x,data.y);
     }
 
-    if(data.action == "doClick"){
-      var c = findContainer(data.UID);
-      console.log("Performing action:"+data.x+" "+data.y);
-      factory.root.cfocusOn(c,{});
+    if(data.action == "event"){
+      console.log("-------- REMOTE EVENT --------");
+      console.log(data.event);
+      data.event.target = findContainer(data.event.target);
+      GEM.fireEvent(data.event);
     }
   }
 

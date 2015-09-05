@@ -93,8 +93,9 @@ var effects = new (function(){
     triggerer.addEventListener(trigger,function(e){
       try {
         effects.onTrigger(e.target.effects[trigger]);
+        GEM.fireEvent({event:"effectTrigger",isGlobal:true,info:{trigger:trigger,triggerer:e.target.UID}});
       } catch(e){
-        console.error("Could not install effect trigger:"+trigger,e);
+        console.error("Could not execute effect trigger:"+trigger,e);
       }
     });
   }
@@ -107,7 +108,7 @@ var effects = new (function(){
       this.installTrigger(trigger,triggerer);
     }
   }
-  
+
   this.initialiseEffects = function(triggerer){
     if(!triggerer.effects)
       return;

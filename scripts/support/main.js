@@ -54,6 +54,7 @@ factory.setup ={
 editor:function(){
   factory.newGlobalApp('dialogue');
   factory.newGlobalApp('edit');
+  factory.newGlobalApp('debug');
   //factory.root.display.DOMreference.style.background = "red";
   //factory.newGlobalApp('_test');
   console.log("loaded edit setup");
@@ -67,11 +68,13 @@ view:function(){
     urlHandler:function(){},
     target:factory.base
   });},2000);
+  factory.newGlobalApp('debug');
   console.log("Loaded view setup");
 },
 webshow:function(){
   factory.newGlobalApp('dialogue');
   factory.newGlobalApp('_webshow');
+  factory.newGlobalApp('debug');
   console.log("loaded webshow setup");
 }};
 console.log(factory);

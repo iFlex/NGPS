@@ -7,6 +7,8 @@ loadAppCode("_webshow",function(args){
   args.parent.setPermission('noOverride',true);
 
   this.init = function(){
+    pLOAD.loadStartOffset = 100;
+
     p_config = this.getQueryParams();
     var dataToLive = {webshow:this}
     if(p_config.p && (p_config.remote||p_config.audience)){ //this endpoint is a remote

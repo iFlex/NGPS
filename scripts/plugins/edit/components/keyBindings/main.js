@@ -3,8 +3,8 @@ this.Editor = this.Editor || {};
 loadAppCode("edit/components/keyBindings",function(data){
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+  data.parent.setPermissions(factory.UIpermissions);
+
   active = 0;
   Editor.keyBind = this;
   this.activate = function(){

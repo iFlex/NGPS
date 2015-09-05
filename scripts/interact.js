@@ -310,8 +310,8 @@ Interactive.touchmoved = function( e , ctx)
 			ctx.mLastAngle = angle;
 		}
 	}
-    else
-        ctx._onMouseMove(e,ctx);
+  else
+  	ctx._onMouseMove(e,ctx);
 }
 
 Interactive.touchend = function( e, ctx){
@@ -330,7 +330,7 @@ Interactive.touchend = function( e, ctx){
 Interactive.enableMobile = function ( obj )
 {
 	//one finger events
-    obj.ontouchstart = this.touchstart;
+  obj.ontouchstart = this.touchstart;
 	obj.ontouchmove = this.touchmoved;
 	obj.ontouchend = this.touchend;
 	obj.ontouchcancel = this.touchend;
@@ -340,7 +340,7 @@ Interactive.enableMobile = function ( obj )
 Interactive.disableMobile = function (obj)
 {
 	//one finger events
-    obj.ontouchstart = null;
+  obj.ontouchstart = null;
 	obj.ontouchmove = null;
 	obj.ontouchend = null;
 	obj.ontouchcancel = null;

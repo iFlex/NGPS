@@ -1,6 +1,7 @@
 var Dialogue = 0;
 loadAppCode("dialogue",function(data){
   this.config = {interface:"none"};
+  data.parent.setPermissions(factory.UIpermissions);
   //CALLBACK HELL IS CRIPLING THIS ENGINE... WTF...
   this.init = function(){
     console.log(data.parent.appFullPath+" - initialising...");

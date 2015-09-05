@@ -7,8 +7,7 @@ loadAppCode("edit/components/appChoice",function(data)
 {
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+  data.parent.setPermissions(factory.UIpermissions);
 
   var path = this.parent.appFullPath;
   var root = 0;
@@ -106,8 +105,8 @@ loadAppCode("edit/components/appChoice",function(data)
         apps = _apps;
         console.log(apps);
         root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"#E6E6E6",style:"padding-left:5px;padding-right:5px",permissions:factory.UIpermissions});
-        main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],"overflow-y":"scroll","overflow-x":"hidden",permissions:{save:false,connect:false},style:bkgStyle});
-        active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],permissions:{save:false,connect:false},"overflow-y":"scroll","overflow-x":"hidden",style:activeBkg});
+        main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],"overflow-y":"scroll","overflow-x":"hidden",permissions:factory.UIpermissions,style:bkgStyle});
+        active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],permissions:factory.UIpermissions,"overflow-y":"scroll","overflow-x":"hidden",style:activeBkg});
         _buildMain();
         _buildActive();
     });

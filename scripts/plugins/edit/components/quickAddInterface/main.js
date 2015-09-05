@@ -3,8 +3,7 @@ this.Editor = this.Editor || {};
 loadAppCode("edit/components/quickAddInterface",function(data){
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+  data.parent.setPermissions(factory.UIpermissions);
 
   this.interface = {};
   this.active = true;
@@ -87,7 +86,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   }
   function makeButton(dsc,x,y){
     console.log("QAinterface making button");
-    var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:[interfaceSize/2+"px"],border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
+    var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:[interfaceSize/2+"px"],border_size:0,cssText:"z-index:4;",permissions:data.parent.getPermissions()};
     var cnt = factory.newContainer(descriptor,"simple_rect",factory.root);
     cnt.DOMreference.innerHTML = "<center><span class='"+dsc.icon+"' style='font-size:"+interfaceSize*sizeCoef+"px'></span><i style='font-size:10px'>"//+dsc.name
     +"</i></center>";

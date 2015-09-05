@@ -4,8 +4,8 @@ this.Editor = this.Editor || {};
 loadAppCode("edit/components/background",function(data){
   this.config = {interface:"none"};
   this.parent = data['parent'];
-  this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+  data.parent.setPermissions(factory.UIpermissions);
+  
   var temp = 0;
   this.isActive = false;
 
