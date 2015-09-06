@@ -8,9 +8,10 @@ keyboard.interface.textChangeAm = 2;
 keyboard.interface.subject = 0;
 keyboard.interface.isBold = false;
 keyboard.interface.isItalic = false;
-keyboard.interface.align = "left";
+keyboard.interface.align = "center";
 keyboard.interface.indentationLevel = 0;
 
+var _parent;
 keyboard.interface.updateText = function()
 {
 	//for now change whole text size
@@ -23,11 +24,24 @@ keyboard.interface.updateText = function()
 		keyboard.interface.subject.style.fontStyle = (keyboard.interface.isItalic)?"italic":"";
 		keyboard.interface.subject.style.fontWeight = (keyboard.interface.isBold)?"bold":"";
 		keyboard.interface.subject.style.textAlign = keyboard.interface.align;
-		keyboard.interface.subject.style.fontFamily = e.options[e.selectedIndex].value;
 
 		document.getElementById('current_alignment').className = "glyphicon glyphicon-align-"+keyboard.interface.align;
-		document.getElementById('_InterfT_bold').className = (keyboard.interface.isBold)?"active textinterfC":"textinterfC";
-		document.getElementById('_InterfT_italic').className = (keyboard.interface.isItalic)?"active textinterfC":"textinterfC";
+
+		if(keyboard.interface.isBold) {
+			$(_parent.bold.DOMreference).removeClass("btn-default");
+			$(_parent.bold.DOMreference).addClass("btn-warning");
+		} else {
+			$(_parent.bold.DOMreference).removeClass("btn-warning");
+			$(_parent.bold.DOMreference).addClass("btn-default");
+		}
+
+		if(keyboard.interface.isItalic) {
+			$(_parent.italic.DOMreference).removeClass("btn-default");
+			$(_parent.italic.DOMreference).addClass("btn-warning");
+		} else {
+			$(_parent.italic.DOMreference).removeClass("btn-warning");
+			$(_parent.italic.DOMreference).addClass("btn-default");
+		}
 
 		if(keyboard.interface.subject.focus)
 			keyboard.interface.subject.focus();
@@ -87,12 +101,13 @@ keyboard.interface.alignJustified = function(e)
 }
 keyboard.interface.fonts = ["Arial","Times New Roman"];
 keyboard.interface.palette = ["#000000","#ffffff","#9A0511","#273F27","#E8C03B","#E6A285","#E65665","#000000","#ffffff","#9A0511","#273F27","#E8C03B","#E6A285","#E65665","#000000","#ffffff","#9A0511","#273F27","#E8C03B","#E6A285","#E65665"];
-keyboard.interface.init = function(){
+keyboard.interface.init = function(parent){
 	//bind events
-	document.getElementById("_InterfT_-").onclick = keyboard.interface.onTextShrinked;
-	document.getElementById("_InterfT_+").onclick = keyboard.interface.onTextEnlarged;
-	document.getElementById("_InterfT_bold").onclick = keyboard.interface.onToggleBold;
-	document.getElementById("_InterfT_italic").onclick = keyboard.interface.onToggleItalic;
+	_parent = parent;
+	parent.shrink.DOMreference.onclick = keyboard.interface.onTextShrinked;
+	parent.enlarge.DOMreference.onclick = keyboard.interface.onTextEnlarged;
+	parent.bold.DOMreference.onclick = keyboard.interface.onToggleBold;
+	parent.italic.DOMreference.onclick = keyboard.interface.onToggleItalic;
 	document.getElementById("_InterfT_alignLeft").onclick = keyboard.interface.alignLeft;
 	document.getElementById("_InterfT_alignCenter").onclick = keyboard.interface.alignCenter;
 	document.getElementById("_InterfT_alignRight").onclick = keyboard.interface.alignRight;
@@ -113,17 +128,6 @@ keyboard.interface.init = function(){
 		return spacing;
 	}
 
-	/*var froot = document.getElementById("_InterfT_font");
-	for( f in keyboard.interface.fonts){
-		var s = document.createElement("option");
-		s.value = keyboard.interface.fonts[f];
-		s.style.fontFamily = keyboard.interface.fonts[f];
-		s.className = keyboard.interface.fonts[f];
-		s.innerHTML = keyboard.interface.fonts[f];
-
-		froot.appendChild(s);
-	}
-*/
 	for(i in keyboard.interface.palette)
 	{
 		if(!i || i%perWidth == 0)

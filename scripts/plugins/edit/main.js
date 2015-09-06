@@ -123,6 +123,7 @@ loadAppCode("edit",function(data)
 			InterfaceSequencing.main = Editor.sizer._show;
 			InterfaceSequencing.secondary = Editor.addInterface.onClick;
 		},1000);
+		this.dockApp("edit/components/background");
 		////////////////////////////////
 		pLOAD.doInstallTriggers   = false;
 		pLOAD.doInitialiseEffects = false;

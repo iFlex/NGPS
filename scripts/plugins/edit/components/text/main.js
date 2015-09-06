@@ -14,8 +14,7 @@ loadAppCode("edit/components/text",function(data)
 {
 	this.config = {};
 	this.parent = data['parent'];
-	this.parent.setPermission('save',false);
-  this.parent.setPermission('connect',false);
+	data.parent.setPermissions(factory.UIpermissions);
 
 	this.startWorker = data['startWorker'];
 	this.stopWorker = data['stopWorker'];
@@ -75,12 +74,12 @@ loadAppCode("edit/components/text",function(data)
 		}");
 
 		//include app
-		keyboard.editor = factory.newContainer({x:100,y:100,width:"auto",height:"32px",border_size:0,border_radius:["10px"],background:"rgba(255,255,255,0.25)",permissions:{save:false,connect:false},style:"box-shadow: 0 0 9px rgba(0,0,0,0.7);"},"simple_rect",factory.base);
+		keyboard.editor = factory.newContainer({x:100,y:100,width:"auto",height:"32px",border_size:0,border_radius:["10px"],background:"rgba(255,255,255,0.25)",permissions:data.parent.getPermissions(),style:"box-shadow: 0 0 9px rgba(0,0,0,0.7);"},"simple_rect",factory.base);
 		keyboard.editor.DOMreference.style.overflow = 'visible';
 		requirejs([this.parent.appPath+"operations",this.parent.appPath+"interface"],function(){
-			keyboard.buildTextInterface(keyboard.editor.DOMreference);
+			keyboard.buildTextInterface(keyboard.editor);
 			keyboard.interface.parent = keyboard.editor;
-			keyboard.interface.init();
+			keyboard.interface.init(keyboard.editor);
 		})
 		keyboard.editor.hide();
 
@@ -138,7 +137,7 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.interface.subject = target.textField;
 
 		var pos = target.local2global();
-		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.interface.originalHeight-10);
+		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.interface.originalHeight/2);
 		target.allowUserMove = false;
 
 		if(keyboard.interface.subject.focus)
