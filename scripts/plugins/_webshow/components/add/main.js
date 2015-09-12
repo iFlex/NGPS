@@ -29,7 +29,6 @@ loadAppCode("_webshow/components/add",function(data){
   }
   function cancelSession(){
     webshow.live.cancelSession();
-    //TODO: remove qr code
     $("#webshow_add_menu").fadeOut(500);
     console.log("back to select mode");
     remoteQr.discard();

@@ -104,6 +104,10 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         Editor.addInterface.interface[b].discard();
     }
   }
+  function attachInterfaceButton(b){
+    var cnt = makeButton(buttons[b],0,0);
+    Editor.addInterface.interface[b] = cnt;
+  }
   this.setInterface = function(interfaceNo){
     discardInterface();
 
@@ -111,10 +115,8 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       interfaceNo = 0;
     buttons = button_store[interfaceNo];
     closeButton.button = makeButton(closeButton,0,0);
-    for( b in buttons ){
-      var cnt = makeButton(buttons[b],0,0);
-      Editor.addInterface.interface[b] = cnt;
-    }
+    for( b in buttons )
+      attachInterfaceButton(b);
   }
   this.init = function(){
     console.log(this.parent.appPath+" - initialising...");
@@ -132,98 +134,18 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       return;
     options.owner = app;
     buttons.push(options);
+    attachInterfaceButton(buttons.length - 1);
   }
   //adders
-  function _addContainer(noInterface,descriptor,tag){ //causes cyclic references in save tree
-    Editor.addInterface.hide();
-    var dparent = Editor.shared.selected;
-    if(dparent.UID < 3 && factory.root.display.UID != dparent.UID)
-      dparent = factory.base;
-
-    var d = utils.merge({
-    x:0,y:0,
-    width:dparent.getWidth()*0.2,
-    height:dparent.getWidth()*0.2,
-    permissions:{track:true,connect:true,edit:true}},descriptor,true);
-
-    var container = factory.newContainer(d,((tag)?tag:"c000000"),Editor.shared.selected);
-    var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
-    container.putAt(pos.x,pos.y,0.5,0.5);
-
-    if(Editor.sizer && !noInterface)
-      Editor.sizer.show(container);
-
-    return container;
-  }
   this.newContainer = function(where){
     return _addContainer(true);
   }
-  //event listeners
-  function addContainer(){
-    _addContainer();
-  }
-  function addCamera(){
-    Editor.addInterface.hide();
-    var dparent = Editor.shared.selected;
-    if(dparent.UID < 3)
-      dparent = factory.base;
 
-    var container = factory.newCamera({
-      x:0,
-      y:0,
-      width:dparent.getWidth()*0.8,
-      height:dparent.getHeight()*0.8,
-      surfaceWidth:50000,surfaceHeight:50000,CAMERA_type:"scroller",
-      permissions:{track:false,connect:true,edit:true}},"c000000",
-      Editor.shared.selected,false,true);
-
-      var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
-      container.putAt(pos.x,pos.y,0.5,0.5);
-
-      if(Editor.sizer)
-        Editor.sizer.show(container);
-    }
-  function addText(){
-    //var container = _addContainer(true,null,"text_field");
-    var container = (Editor.shared.selected.UID>2)?Editor.shared.selected:_addContainer();
-    Editor.text.makeTextContainer(container);
-    Editor.sizer.show(container);
-    keyboard.focus(container);
-  }
-
-  function addVideo(){
-    Editor.addInterface.hide();
-    console.log("Adding Video");
-    if(Editor.shared.selected.UID < 3)
-      Editor.shared.selected = factory.base;
-    if(Editor.videos)
-      Editor.videos.show(Editor.shared.selected);
-  }
-  function addImage(){
-    Editor.addInterface.hide();
-    console.log("Adding image");
-    Editor.onAddImage();
-  }
-  function addWebsite(){
-    Editor.addInterface.hide();
-    console.log("Adding Video");
-    if(Editor.shared.selected.UID < 3)
-      Editor.shared.selected = factory.base;
-    if(Editor.videos)
-      Editor.videos.show(Editor.shared.selected);
-  }
   function connect(){
     Editor.addInterface.hide();
     Editor.link.trigger(Editor.addInterface.event);
   }
-  function addCGI(e){
-    Editor.addInterface.hide();
-    var dparent = Editor.shared.selected;
-    if(dparent.UID < 3)
-      dparent = factory.base;
-    if(Editor.effects)
-      Editor.effects.show(dparent);
-  }
+
   var closeButton = {
     name:"close",
     description:"Close interface",
@@ -235,17 +157,17 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     name:"container",
     description:"Add a new container",
     icon:"glyphicon glyphicon-unchecked",
-    callbacks:{onTrigger:addContainer}
+    callbacks:{onTrigger:Editor.addContainer}
   },{
     name:"Text",
     description:"Add Text",
     icon:"glyphicon glyphicon-font",
-    callbacks:{onTrigger:addText}
+    callbacks:{onTrigger:Editor.addText}
   },{
     name:"image",
     description:"Add an image",
     icon:"glyphicon glyphicon-picture",
-    callbacks:{onTrigger:addImage}
+    callbacks:{onTrigger:Editor.addImage}
   },{
     name:"connect",
     description:"Connect this object with another one",
@@ -255,22 +177,22 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     name:"video",
     description:"Add a video",
     icon:"glyphicon glyphicon-film",
-    callbacks:{onTrigger:addVideo}
+    callbacks:{onTrigger:Editor.addVideo}
   },{
     name:"website",
     description:"Add a website in your presentation",
     icon:"glyphicon glyphicon-globe",
-    callbacks:{onTrigger:addWebsite}
+    callbacks:{onTrigger:Editor.addWebsite}
   },{
     name:"camera",
     description:"Add a new container",
     icon:"glyphicon glyphicon-camera",
-    callbacks:{onTrigger:addCamera}
+    callbacks:{onTrigger:Editor.addCamera}
   },{
-    name:"CGI",
+    name:"Effects",
     description:"Add an effect",
     icon:"glyphicon glyphicon-star",
-    callbacks:{onTrigger:addCGI}
+    callbacks:{onTrigger:Editor.manageEffects}
   }],[{
     name:"ch_shape",
     description:"Change the shape of the container",
@@ -293,9 +215,9 @@ loadAppCode("edit/components/quickAddInterface",function(data){
       Editor.configureContainer.show(2);
       factory.root.cfocusOn(Editor.sizer.target,{speed:1});}}
   },{
-    name:"CGI",
+    name:"Effects",
     description:"Add an effect",
     icon:"glyphicon glyphicon-star",
-    callbacks:{onTrigger:addCGI}
+    callbacks:{onTrigger:Editor.manageEffects}
   }]];
 });

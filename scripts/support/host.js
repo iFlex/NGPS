@@ -20,7 +20,7 @@ var host = new (function(){
             leapps.push({
               name:data.apps[i],
               id:data.apps[i],
-              local:true
+              //local:true
             })
           }
           callback(leapps);

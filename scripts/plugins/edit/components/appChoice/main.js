@@ -16,7 +16,7 @@ loadAppCode("edit/components/appChoice",function(data)
   var popular = 0;
   var all = 0;
   var apps = [];
-
+  var iconSize = 74;
   function showActive(){
     _buildActive();
     active.tween({top:"0%"},1);
@@ -154,7 +154,7 @@ loadAppCode("edit/components/appChoice",function(data)
       if(Editor.shared.selected)
         Editor.shared.selected.loadApp(info.name);
     }
-    else if( info.global ){
+    else {//if( info.global ){
       factory.newGlobalApp(info.name);
     }
   }
@@ -170,7 +170,7 @@ loadAppCode("edit/components/appChoice",function(data)
       fs = 18;
     if(fs < 8)
       fs = 8;
-    record.addPrimitive({type:"img",content:{src:"scripts/plugins/"+info.name+"/resources/icon.png",width:"100%",height:"auto"}});
+    var _p = record.addPrimitive({type:"img",id:record.UID+"_img",content:{src:"scripts/plugins/"+info.name+"/resources/icon.png",width:iconSize+"px",height:iconSize+"px",style:"background-image:url('scripts/plugins/default.png');background-size: 100% 100%;"}});
     record.DOMreference.innerHTML += "<p style='margin-left:auto;margin-right:auto;margin-top:5px;text-align: center;font-size:"+fs+"px'>"+info.name+"</p>";
     return record;
   }

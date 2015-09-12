@@ -84,7 +84,7 @@ loadAppCode("edit",function(data)
 		var defaultDock = ["menuToggle","zoomOut","zoomIn","addContainer","addText","save","load","apps"]
 		Editor.interface = factory.base.addChild({x:0,y:0,width:"15%",height:"100%",class:"menu",permissions:factory.UIpermissions});
 		Editor.dock.title = Editor.interface.addChild({type:"input",autopos:true,width:"99%",height:32,style:"margin-top:5px;margin-left:auto;mergin-right:auto;padding-left:2px;background:rgba(0,0,0,0);text-aling:center"});
-		Editor.dock.title.DOMreference.value = "Title, click to change";
+		Editor.dock.title.DOMreference.placeholder = "Title, click to change";
 		Editor.dock.title.DOMreference.onfocus = function(){if(Editor.keyBind)Editor.keyBind.deactivate();}
 		Editor.dock.title.DOMreference.onblur  = function(){if(Editor.keyBind)Editor.keyBind.activate();}
 
@@ -92,8 +92,8 @@ loadAppCode("edit",function(data)
 		attachTextIcon(Editor.dock.menuToggle,"Collapse","glyphicon glyphicon-chevron-left",Editor.toggleMenu);
 		attachTextIcon(Editor.dock.zoomOut,"Zoom out","glyphicon glyphicon-zoom-out",Editor.zoomOut);
 		attachTextIcon(Editor.dock.zoomIn,"Zoom in","glyphicon glyphicon-zoom-in",Editor.zoomIn);
-		attachTextIcon(Editor.dock.addContainer,"New box","glyphicon glyphicon-plus",Editor.onAddContainer);
-		attachTextIcon(Editor.dock.addText,"Text","glyphicon glyphicon-font",Editor.onAddText);
+		attachTextIcon(Editor.dock.addContainer,"New box","glyphicon glyphicon-plus",Editor.addContainer);
+		attachTextIcon(Editor.dock.addText,"Text","glyphicon glyphicon-font",Editor.addText);
 		attachTextIcon(Editor.dock.save,"Save","glyphicon glyphicon-save",Editor.save);
 		attachTextIcon(Editor.dock.load,"Load","glyphicon glyphicon-upload",Editor.load);
 		attachTextIcon(Editor.dock.apps,"Apps","glyphicon glyphicon-th",Editor.toggleAppsMenu);
@@ -114,21 +114,24 @@ loadAppCode("edit",function(data)
 		factory.newGlobalApp("edit/components/appChoice");
 		factory.newGlobalApp('edit/components/link',{lastInterfaceContainer:5});
 		factory.newGlobalApp("edit/components/linkEdit");
-		factory.newGlobalApp("edit/components/configureContainer");
+		factory.newGlobalApp("edit/components/containerConfigurer");
 		factory.newGlobalApp("edit/components/quickAddInterface");
 		factory.newGlobalApp("edit/components/keyBindings");
 		factory.newGlobalApp("edit/components/effects");
 		factory.newGlobalApp("userMsg");
-		setTimeout(function(){
-			InterfaceSequencing.main = Editor.sizer._show;
-			InterfaceSequencing.secondary = Editor.addInterface.onClick;
-		},1000);
+
 		this.dockApp("edit/components/background");
+
 		////////////////////////////////
 		pLOAD.doInstallTriggers   = false;
 		pLOAD.doInitialiseEffects = false;
 		pLOAD.doTranslateAddress  = true;// must be true
-		GEM.addEventListener("startup",0,function(){pLOAD.loadStartOffset = containerData.containerIndex + 10;},this);
+		GEM.addEventListener("startup",0,function(){
+			pLOAD.loadStartOffset = containerData.containerIndex + 10;
+			InterfaceSequencing.main = Editor.sizer._show;
+			InterfaceSequencing.secondary = Editor.addInterface.onClick;
+
+		},this);
 	};
 	this.shutdown = function(){
 
@@ -216,39 +219,11 @@ loadAppCode("edit",function(data)
 	}
 
 	this.zoomIn = function(){
-		factory.root.czoom(1.4);
+		factory.root.czoom(1.01);
 	}
 	this.zoomOut = function(){
-		factory.root.czoom(0.6);
-	}
-	this.onAddContainer = function(){
-		var c = factory.container();
-		Editor.sizer.show(c);
-		return container;
-	}
-
-	this.onAddImage = function()
-	{
-		if(Editor.shared.selected.UID < 3) {
-      Editor.shared.selected = factory.root;
-      Editor.images.import();
-    }
-    else
-      Editor.images.import(Editor.shared.selected);
-	}
-
-	this.onAddText = function()
-	{
-		console.log("Selected UID:"+Editor.shared.selected.UID);
-		var container = ( Editor.shared.selected.UID > 2 ) ? Editor.shared.selected : factory.container();
-    Editor.text.makeTextContainer(container);
-    Editor.sizer.show(container);
-    keyboard.focus(container);
-	}
-
-	this.onAddVideo = function()
-	{
-		Editor.videos.show(Editor.sizer.target);
+		//factory.root.czoom(0.6);
+		factory.root.czoom(0.99);
 	}
 
 	//DOCK code
@@ -269,7 +244,94 @@ loadAppCode("edit",function(data)
 			delete Editor.dockedApps[app];
 		}
 	}
+	//UTILITY
+	//event listeners
+	this._addContainer = function(noInterface,descriptor,tag){ //causes cyclic references in save tree
+    Editor.addInterface.hide();
+    var dparent = Editor.shared.selected;
+    if(dparent.UID < 3 && factory.root.display.UID != dparent.UID)
+      dparent = factory.base;
 
+    var d = utils.merge({
+    x:0,y:0,
+    width:dparent.getWidth()*0.2,
+    height:dparent.getWidth()*0.2,
+    permissions:{track:true,connect:true,edit:true}},descriptor,true);
+
+    var container = factory.newContainer(d,((tag)?tag:"c000000"),Editor.shared.selected);
+    var pos = container.global2local(Editor.addInterface.x || actpos.x,Editor.addInterface.y || actpos.y);
+    container.putAt(pos.x,pos.y,0.5,0.5);
+
+    if(Editor.sizer && !noInterface)
+      Editor.sizer.show(container);
+
+    return container;
+  }
+
+  this.addContainer = function(){
+    var c = Editor._addContainer();
+		var fx = effects.getEffect("Focus Camera");
+		fx.install("triggered",c,c);
+	}
+  this.addCamera = function(){
+    Editor.addInterface.hide();
+    var dparent = Editor.shared.selected;
+    if(dparent.UID < 3)
+      dparent = factory.base;
+
+    var container = factory.newCamera({
+      x:0,
+      y:0,
+      width:dparent.getWidth()*0.8,
+      height:dparent.getHeight()*0.8,
+      surfaceWidth:50000,surfaceHeight:50000,CAMERA_type:"scroller",
+      permissions:{track:false,connect:true,edit:true}},"c000000",
+      Editor.shared.selected,false,true);
+
+      var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
+      container.putAt(pos.x,pos.y,0.5,0.5);
+
+      if(Editor.sizer)
+        Editor.sizer.show(container);
+  }
+  this.addText = function(text){
+    //var container = _addContainer(true,null,"text_field");
+		console.log(Editor.shared);
+    var container = (Editor.shared.selected.UID>2)?Editor.shared.selected:Editor._addContainer();
+    Editor.text.makeTextContainer(container,text);
+    Editor.sizer.show(container);
+  }
+
+  this.addVideo = function(){
+    Editor.addInterface.hide();
+    console.log("Adding Video");
+    if(Editor.shared.selected.UID < 3)
+      Editor.shared.selected = factory.base;
+    if(Editor.videos)
+      Editor.videos.show(Editor.shared.selected);
+  }
+  this.addImage = function(){
+    Editor.addInterface.hide();
+    console.log("Adding image");
+    Editor.images.import((Editor.shared.selected.UID > 2)?Editor.shared.selected:0);
+  }
+  this.addWebsite = function(){
+    Editor.addInterface.hide();
+    console.log("Adding Video");
+    if(Editor.shared.selected.UID < 3)
+      Editor.shared.selected = factory.base;
+    if(Editor.videos)
+      Editor.videos.show(Editor.shared.selected);
+  }
+  this.manageEffects = function(){
+    Editor.addInterface.hide();
+    var dparent = Editor.shared.selected;
+    if(dparent.UID < 3)
+      dparent = factory.base;
+    if(Editor.effects)
+      Editor.effects.show(dparent);
+  }
+	///////////////////////
 	utils.loadRawStyle("/* enable absolute positioning */\
 .inner-addon { \
 	position: relative; \

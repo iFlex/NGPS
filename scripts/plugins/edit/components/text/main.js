@@ -89,7 +89,7 @@ loadAppCode("edit/components/text",function(data)
 		this.makeTextContainer(c);
 		keyboard.focus(c);
 	}
-	this.makeTextContainer = function(container){
+	this.makeTextContainer = function(container,text){
 		if(!container.ghostTable && !container.verticalAligner){
 			container.ghostTable = container.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table",permissions:{interact:false}});
 			container.verticalAligner = container.ghostTable.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table-cell;text-align: center;vertical-align: middle;",permissions:{interact:false}});
@@ -100,6 +100,9 @@ loadAppCode("edit/components/text",function(data)
 		container.textField.parent = container;
 		container.editInterface = 'text';
 		container.onTrigger = focusOnTextField;
+		if(text)
+			container.textField.innerHTML += text;
+		keyboard.focus(container);
 	}
 
 	function adaptHeight(e){
@@ -137,7 +140,7 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.interface.subject = target.textField;
 
 		var pos = target.local2global();
-		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.interface.originalHeight/2);
+		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.editor.getHeight());
 		target.allowUserMove = false;
 
 		if(keyboard.interface.subject.focus)

@@ -158,27 +158,27 @@ loadAppCode("edit/components/sizer",function(data)
   {
     Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()+dx);
     Editor.sizer.focus();
-    autoScale(Editor.sizer.target);
+    //autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeWidthLeft = function(dx,dy)
   {
     Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()-dx);
     Editor.sizer.target.move(dx,0);
-    autoScale(Editor.sizer.target);
+    //autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeHeightBottom = function(dx,dy)
   {
     Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()+dy);
-    autoScale(Editor.sizer.target);
+    //autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeHeightTop = function(dx,dy)
   {
     Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()-dy);
     Editor.sizer.target.move(0,dy);
-    autoScale(Editor.sizer.target);
+    //autoScale(Editor.sizer.target);
   }
   this.onDelete = function()
   {
@@ -282,14 +282,10 @@ loadAppCode("edit/components/sizer",function(data)
       config:{
         anchors:{bx:1,by:1,px:0.5,py:0},
         callbacks:{onMoved:function(){},onTrigger:function(){
-          if(Editor.configureContainer){
-            Editor.configureContainer.setTarget(Editor.sizer.target);
-            Editor.addInterface.setInterface(1);
-            var pos = Editor.sizer.target.local2global(0.5,0.5,0);
-            //console.log(pos);
-            Editor.addInterface.onClick({nativeEvent:{pageX:pos.x,pageY:pos.y},target:Editor.sizer.target});
-          }
-          Editor.sizer.hide();}},
+          if(Editor.customizer) {
+            Editor.customizer.show(Editor.sizer.target);
+            Editor.sizer.hide();
+        }}},
         tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-wrench' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>"
       },
     },

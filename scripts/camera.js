@@ -6,8 +6,6 @@
 *	Requirements:
 *		Must be applied to an existing Container Object
 */
-//TODO: Change camera working method:
-//TODO: Make display object very wide and high
 //Definitions
 /*
 +-------------------------------+
@@ -239,16 +237,17 @@ Camera.getViewportXY = function(ox,oy){
 	if(!oy)
 		oy = 0;
 	var ret = this.getSurfaceXY(0,0);
-	ret['x'] = -ret['x'] + this.getWidth()*ox;
-	ret['y'] = -ret['y'] + this.getHeight()*oy;
+	ret['x'] = -ret['x'] + this.getWidth()*ox*ret.zoomMod;
+	ret['y'] = -ret['y'] + this.getHeight()*oy*ret.zoomMod;
 	return ret;
 }
-Camera.getSurfaceXY = function(ox,oy){
-	if(!ox)
+Camera.getSurfaceXY = function(ox,oy,noScale){
+	if(ox == undefined )
 		ox = 0;
-	if(!oy)
+	if(oy == undefined )
 		oy = 0;
 
+	var zoomMod = (noScale)?1:(1 / this.czoomLevel);
 	var w = this.getWidth()*ox;
 	var h = this.getHeight()*oy;
 	var pos = this.display.getPos();
@@ -258,8 +257,11 @@ Camera.getSurfaceXY = function(ox,oy){
 		pos.y = -this.DOMreference.scrollTop;
 	}
 
-	return {x: pos.x+w,
-			y: pos.y+h}
+	return {
+			x: (pos.x+w)*zoomMod,
+			y: (pos.y+h)*zoomMod,
+			zoomMod: zoomMod
+	}
 }
 Camera.getSurface = function(ox,oy){
 	var data = this.getSurfaceXY(ox,oy);
@@ -280,13 +282,13 @@ Camera.cgetTransformOrigin = function(ox,oy){
 	oy =  vprt.y / this.display.getHeight();
 	return {ox:ox,oy:oy};
 }
+
 Camera.viewportToSurface = function(x,y){
-	//TODO: make sure it works properly
 	var v = this.getSurfaceXY(0,0);
 	v.x = -v.x;
 	v.y = -v.y;
-	v.x += x;
-	v.y += y;
+	v.x += x * v.zoomMod;
+	v.y += y * v.zoomMod;
 	return v;
 }
 Camera.surfaceToViewport = function(x,y){
@@ -451,8 +453,9 @@ Camera.cXYmove = function(px,py,ox,oy,delay,norel)
 }
 Camera.cmove = function(dx,dy,delay,norel) //ICR ignore cross refference, make this cummulative
 {
-	if(!delay)
+	if(delay == undefined)
 		delay = 0;
+
 	if(!this.callow)
 	{
 		console.log("Operation denied!");
@@ -465,7 +468,7 @@ Camera.cmove = function(dx,dy,delay,norel) //ICR ignore cross refference, make t
 		return false;
 	}
 
-	var pos = this.getSurfaceXY();
+	var pos = this.getSurfaceXY(0,0,true);
 
 	if(!this.properties['lockY'])
 		this.ctargetY = pos.y + dy;
@@ -501,7 +504,7 @@ Camera.c_move = function(dx,dy,norel)
 		return false;
 	}
 
-	var pos = this.getSurfaceXY();
+	var pos = this.getSurfaceXY(0,0,true);
 	this.ctargetX = pos.x;
 	this.ctargetY = pos.y;
 	if(!this.properties['lockY'])
@@ -606,37 +609,52 @@ Camera.applyInertia = function(){
 	}
 }
 
+//TODO: animate with calculated number of steps not hardcoded!
 Camera.czoom = function(level,ox,oy,delay)
 {
 	if(!this.callow)
 		return false;
 
-	if(typeof(ox) == "undefined")
+	if(ox == undefined)
 		ox = 0.5;
-	if(typeof(oy) == "undefined")
+
+	if(oy == undefined)
 		oy = 0.5;
+
+	if(delay == undefined)
+		delay = 1;
 
 	//check cross referencing
 	if(this.antiCrossReff("czoom",1))
 		return;
 
-	if(delay == undefined)
-		delay = 1;
+	var ctx = this;
+	function doZoom(){
+		var before = ctx.getSurfaceXY(-0.5,-0.5);
+		ctx.czoomLevel *= level;
+		ctx.display.scale(level,0,0,0);
+		var after = ctx.getSurfaceXY(-0.5,-0.5);
+		ctx.c_move((before.x - after.x) * ctx.czoomLevel,(before.y - after.y) * ctx.czoomLevel);
+	}
 
-	//TODO: find right distance to travel
-	var dx = (this.display.getWidth()*this.czoomLevel * (1 - level))*ox;
-	var dy = (this.display.getHeight()*this.czoomLevel * (1 - level))*oy;
-	this.czoomLevel *= level;
-	this.display.scale(level,0,0,delay);
-	this.cmove(dx,dy,delay);
+  var remaining = 10;
+	doZoom();
+	var interval = setInterval(function(){
+		remaining--;
+		doZoom();
+		if(remaining < 1)
+			clearInterval(interval);
+	},10);
 
 	for( k in this.crelations )
 		if(this.crelations[k]['zoom'] != 0)
 			this.crelations[k]['root'].czoom( level * this.crelations[k]['zoom'] )
+
 	//anti cross reff
 	this.antiCrossReff("czoom",0);
 	return true;
 }
+
 Camera.c_zoom = function(level,ox,oy)
 {
 	this.czoom(level,ox,oy,0);
@@ -762,169 +780,3 @@ Camera.tween = function(data,time)
 	}
 	this.cops['tween'] = setInterval(_unit,this.cinterval);
 }
-
-/*
-Camera.cmove = function(dx,dy,norel,ICR) //ICR ignore cross refference
-{
-	if(!this.callow)
-	{
-		console.log("Operation denied!");
-		return false;
-	}
-	//check cross refference
-	if(!ICR && this.antiCrossReff("cmove",1))
-	{
-		console.log("Cross reference prevented!");
-		return false;
-	}
-	//inertia buildup
-	if(this.c_allowInertia && this.allowInertia)
-	{
-		this.xInertia += dx;
-		this.yInertia += dy;
-	}
-	//
-	var st = this.DOMreference.scrollTop + dy;
-	var sl = this.DOMreference.scrollLeft + dx;
-	this.oldY = this.DOMreference.scrollTop;
-	this.oldX = this.DOMreference.scrollLeft;
-
-	//this.DOMreference.scrollTop -= dy;
-	//this.DOMreference.scrollLeft -= dx;
-	TweenMax.to(this.DOMreference,1,{scrollTop:st,scrollLeft:sl});
-	if(this.DOMreference.scrollTop == this.oldY && this.DOMreference.scrollLeft == this.oldX )
-	{
-		console.log("DID NOT MOVE! BITH DOES NOT WANT TO WORK:"+this.DOMreference.scrollTop+" "+this.DOMreference.scrollLeft+" w:"+this.getWidth()+" h:"+this.getHeight())
-		if(!ICR)
-			this.antiCrossReff("cmove",0);
-		return false;
-	}
-	//	this.display.move(dx,dy);
-	//TODO: investigate if moving a scaled camera needs any kind of adaptation: * (1/this.czoomLevel) , *(1/this.czoomLevel)
-
-	//relations support
-	if(!norel)
-		for( k in this.crelations )
-			this.crelations[k]['root'].cmove(dx*this.crelations[k]['x'],dy*this.crelations[k]['y'])
-
-	if(!ICR)
-		this.antiCrossReff("cmove",0);
-
-	return true;
-}
-Camera.czoom = function(amount,ox,oy)
-{
-	if(!this.callow)
-		return;
-	next = this.czoomLevel * amount
-	//check boundaries
-	if( this.boundaries["HIzoom"] && next > this.boundaries['HIzoom'])
-		return;
-	if( this.boundaries["LOzoom"] && next < this.boundaries['LOzoom'])
-		return;
-
-	//check cross referencing
-	if(this.antiCrossReff("czoom",1))
-		return;
-
-	//maintain displacement from original position
-	//this.zoomDX += this.display.getWidth() * ( 1 - amount ) / 2;
-	//this.zoomDY += this.display.getHeight() * ( 1 - amount ) / 2;
-	//
-	this.czoomLevel = next;
-	var torig = this.cgetTransformOrigin(ox,oy);
-	//console.log("TORIG:"+utils.debug(torig," ")+" x:"+this.display.getWidth()*torig['ox']+" y:"+this.display.getHeight()*torig['oy']);
-	//var dsx = this.DOMreference.scrollLeft;
-	//var dsy = this.DOMreference.scrollTop;
-	//this.DOMreference.scrollLeft *= amount;
-	//this.DOMreference.scrollTop *= amount;
-	this.display.scale(amount,torig['ox'],torig['oy'])
-
-	//cli.showPrompt("Z Amount:"+amount)
-	//TODO: TEST
-	//this.DOMreference.scrollTop = dsx*amount;
-	//this.DOMreference.scrollLeft = dsy*amount;
-
-	for( k in this.crelations )
-		if(this.crelations[k]['zoom'] != 0)
-			this.crelations[k]['root'].czoom( amount * this.crelations[k]['zoom'] )
-	//anti cross reff
-	this.antiCrossReff("czoom",0)
-}
-Camera.cfocusOn = function(target,options)
-{
-	console.log("Camera focusing on:"+target+" "+target.UID);
-	if(!this.callow)
-		return;
-
-	if(this.cops['focusOn'])
-		clearInterval(this.cops['focusOn']);
-
-	var camera = this;
-	var destination = this.getPos(0.5,0.5);//destination position
-
-	var pace = 10;
-	var focusWidth = this.getWidth();
-	var focusHeight = this.getHeight();
-	if(options)
-	{
-		if(options['pace'])
-			pace = options['pace'];
-
-		if(options['focusWidth'])
-			focusWidth = options['focusWidth'];
-
-		if(options['focusHeight'])
-			focusHeight = options['focusHeight'];
-	}
-
-	function focusOn()
-	{
-
-		var camPos = camera.cgetPos(0,0);
-		var targetPos = target.getPos(0.5,0.5);
-
-		//console.log("CX:"+camPos.x+" CY:"+camPos.y+" TX:"+targetPos.x+" TY:"+targetPos.y+" Dx:"+destination.x+" Dy:"+destination.y)
-		targetPos.x -= camPos.x;
-		targetPos.y -= camPos.y;
-
-		var zoomWrap = (focusWidth / (target.getWidth()*camera.czoomLevel));
-		var zoomHrap = (focusHeight / (target.getHeight()*camera.czoomLevel));
-		var zoom = ( zoomWrap < zoomHrap ) ? zoomWrap : zoomHrap;
-
-		//console.log("zoom:"+zoom+" zoomW:"+zoomWrap+" zoomH:"+zoomHrap + " fw:"+focusWidth+" w:"+target.getWidth()*camera.czoomLevel + " czl:"+camera.czoomLevel);
-		if( Math.abs( targetPos.x - destination.x) > 5 || Math.abs( targetPos.y - destination.y) > 5 ||  zoom != 1 )
-		{
-			if(zoom != 1)
-				camera.czoom(1+(zoom-1)/(pace*1.3));
-			//move
-			var dx = ( destination.x - targetPos.x );
-			var dy = ( destination.y - targetPos.y );
-			if( Math.abs(dx) < pace && Math.abs(dy) < pace)
-			{
-				pace /= 2;
-				if(pace<1)
-					pace = 1;
-			}
-			dx/=pace;
-			dy/=pace;
-			if(!camera.cmove(dx,dy))
-			{
-				clearInterval(camera.cops['focusOn']);
-				delete camera.cops['focusOn'];
-			}
-			//console.log("Dx:"+destination.x+" Dy:"+destination.y+" tx:"+targetPos.x+"ty:"+targetPos.y+" dx:"+dx+" dy:"+dy)
-			//rotate
-			//var da = -target.angle /10;
-			//camera.crotate(da);
-		}
-		else
-		{
-			clearInterval(camera.cops['focusOn']);
-			delete camera.cops['focusOn'];
-		}
-	}
-
-	this.cops['focusOn'] = setInterval( focusOn, this.cinterval );
-}
-*/

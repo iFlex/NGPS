@@ -23,7 +23,7 @@ loadAppCode("edit/components/keyBindings",function(data){
         try {
           actUponKey(key);
         }catch(e){
-          console.log("KeyBindings:"+e);
+          console.log("KeyBindings error",e);
         }
         e.stopPropagation();
       }
@@ -44,7 +44,7 @@ loadAppCode("edit/components/keyBindings",function(data){
         bindings[key].action(bindings[key].parameters);
     } else {
       if( Editor.shared.selected )//&& Editor.shared.selected.children.length == 0 )
-        Editor.onAddText();
+        Editor.addText(String.fromCharCode(key));
     }
   }
 

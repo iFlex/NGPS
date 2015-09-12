@@ -295,6 +295,7 @@ this.container = function(_properties,_parent)
 	}
 	//TODO: add styling and event enabling and disablig for child
 	//		add event dispatching for apps that run inside in case that is needed
+	//    add all children to lists and enable selectively deleting children
 	this.addPrimitive = function(descriptor,onready)
 	{
 		if(!descriptor['type'])
@@ -428,10 +429,12 @@ this.container = function(_properties,_parent)
 		while(node){
 			if(node.UID == stopAt)
 				break;
+
 			if(node.isDisplay)
 				p = node.parent.getSurfaceXY(cx,cy);
 			else
 				p = node.getPos(cx,cy);
+
 			pos.x += p.x;
 			pos.y += p.y;
 			node = node.parent;
@@ -671,20 +674,27 @@ this.container = function(_properties,_parent)
 
 	this.scale = function(amount,ox,oy,delay)
 	{
-		if(!ox)
+		if(ox == undefined )
 			ox = 0.5;
-		if(!oy)
+		if(oy == undefined )
 			oy = 0.5;
 		if(delay == undefined)
 			delay = 0;
+
 		this.scaleX *= amount;
 		this.scaleY *= amount;
+
 		TweenMax.to(this.DOMreference,delay,{
 			scaleX:this.scaleX,
 			scaleY:this.scaleY,
 			transformOrigin:((ox*100)+"% "+(oy*100)+"%")
 		});
 	}
+
+	this.getScale = function(){
+		return {x:this.scaleX,y:this.scaleY};
+	}
+
 	this.enlarge = function(amount)
 	{
 		var oldW = this.getWidth()
@@ -887,7 +897,6 @@ this.container = function(_properties,_parent)
 		GEM.removeEventListener( event, context, handler, this );
 	}
 	//App support
-	//TODO: read app descriptor and load accordingly
 	this.loadApp = function(app,passToApp)
 	{
 		//if loading over a previous app

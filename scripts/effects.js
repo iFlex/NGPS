@@ -40,7 +40,13 @@ var effects = new (function(){
   this.execute = function(fx,onFinished){
     try {
       var c = findContainer(fx.UID);
-      effectSet[fx.fxname].execute.call(c,fx.parameters,onFinished);
+      GEM.fireEvent({event:fx.fxname+"Start",target:c,info:fx});
+      effectSet[fx.fxname].execute.call(c,fx.parameters,function(){
+        GEM.fireEvent({event:fx.fxname+"End",target:c,info:fx});
+        if(onFinished)
+          onFinished();
+      });
+
       if(c.cover)
         c.cover.discard();
 
@@ -65,7 +71,6 @@ var effects = new (function(){
   }
 
   this.preview = function(fx){
-    //todo: record current state
     this.initialise(fx);
     this.execute(fx,function(){setTimeout(onFinished,1500);});
     var ctx = this;
@@ -93,7 +98,6 @@ var effects = new (function(){
     triggerer.addEventListener(trigger,function(e){
       try {
         effects.onTrigger(e.target.effects[trigger]);
-        GEM.fireEvent({event:"effectTrigger",isGlobal:true,info:{trigger:trigger,triggerer:e.target.UID}});
       } catch(e){
         console.error("Could not execute effect trigger:"+trigger,e);
       }

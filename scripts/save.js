@@ -9,8 +9,7 @@ Save camera relations info
 Save any functionality that has to reference other containers
 Make sure inner content is saved
 (ISSUE: images are only saved if they are visible on the screen
-	solution?: zoom out to maximum then save
-)
+	solution?: zoom out to maximum then save)
 
 Format:
 {
@@ -97,6 +96,7 @@ save._unit = function(node,operation_mode)
 	//take out any possize data that is not relevant anymore
 	for( prop in nostore )
 		delete st[node.UID].properties[prop];
+
 	st[node.UID].properties['cssText'] = node.DOMreference.style.cssText;
 	if( node.isLink )
 		st[node.UID].linkData = node.linkData;

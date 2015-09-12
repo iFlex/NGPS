@@ -41,6 +41,7 @@ loadAppCode("edit/components/effects",function(data){
     ghostTable.appendChild(divContainer);
     cardUI.DOMreference.appendChild(ghostTable);
     mountPoint = divContainer;
+    cardUI.hide();
   }
 
   this.shutdown = function() {
@@ -113,6 +114,8 @@ loadAppCode("edit/components/effects",function(data){
 
     this.showing = true;
     this.triggerer = triggerer;
+
+    cardUI.show();
     var close = cardUI.addChild({type:"button",x:0,y:0,autosize:"true",class:"btn btn-danger",permissions:{save:false,connect:false}});
     utils.makeHTML([{
       span:{
