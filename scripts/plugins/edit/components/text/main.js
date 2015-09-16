@@ -90,15 +90,24 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.focus(c);
 	}
 	this.makeTextContainer = function(container,text){
-		if(!container.ghostTable && !container.verticalAligner){
-			container.ghostTable = container.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table",permissions:{interact:false}});
-			container.verticalAligner = container.ghostTable.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table-cell;text-align: center;vertical-align: middle;",permissions:{interact:false}});
-			container.textField = container.verticalAligner.addPrimitive({type:"textarea",style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;overflow-y:hidden"});
-			container.addEventListener("triggered",function(data){keyboard.focus(data['target']);});
+		if(!container.textField){
+			if(container._store && container._store.textFieldParentUID)
+			{
+				container.verticalAligner = findContainer(container._store.textFieldParentUID);
+				container.textField = container.verticalAligner.child;
+			} else {
+				container.ghostTable = container.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table",permissions:{interact:false}});
+				container.verticalAligner = container.ghostTable.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table-cell;text-align: center;vertical-align: middle;",permissions:{interact:false}});
+				container.textField = container.verticalAligner.addPrimitive({type:"textarea",style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;overflow-y:hidden"});
+				container.addEventListener("triggered",function(data){keyboard.focus(data['target']);});
+				//////////////////////////////////////////////////////////////
+				container._store = {textFieldParentUID:container.verticalAligner.UID,"#BIND_editInterface":"text"};
+			}
 		}
+
 		container.textField.onkeyup = adaptHeight;
 		container.textField.parent = container;
-		container.editInterface = 'text';
+		container.editInterface    = 'text';
 		container.onTrigger = focusOnTextField;
 		if(text)
 			container.textField.innerHTML += text;

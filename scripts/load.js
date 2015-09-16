@@ -6,7 +6,15 @@
 *	Available events:
 *		loaded
 */
-var pLOAD = {loadOffset:0,doTranslateAddress:true,doLoadApps:true,doInstallTriggers:true,doInitialiseEffects:true}
+
+//TODO: asynchronous mode is not loading properly when copying
+
+var pLOAD = { loadOffset:0,
+							doTranslateAddress:true,
+							doLoadApps:true,
+							doInstallTriggers:true,
+							doInitialiseEffects:true}
+
 var LOADtree = {};
 var _LINKS = [];
 var _CAMERAS = [];
@@ -20,6 +28,15 @@ pLOAD.clear = function(){
 }
 
 pLOAD.unit = function(node,root,preBuilt){
+
+	function translateAllStoredIDs(item){
+		for( k in item) {
+			if( typeof item == "object" )
+				translateAllStoredIDs(item[k]);
+			if( k.indexOf("UID") != -1 )
+				item[k] += pLOAD.loadOffset;
+		}
+	}
 
 	var croot = 0;
 	if( preBuilt == undefined )	{
@@ -43,6 +60,18 @@ pLOAD.unit = function(node,root,preBuilt){
 	} else {
 		croot = preBuilt;
 	}
+
+	//copy any stored information
+	croot._store = node._store;
+	if(pLOAD.doTranslateAddress)
+		translateAllStoredIDs(croot._store);
+
+	//bind properties
+	for( k in node._store )
+		if( k.indexOf("#BIND_") != -1 ){
+			var key = k.substr("#BIND_".length,k.length);
+			croot[key] = node._store[k];
+		}
 
 	if(node.camera)
 	{
@@ -85,7 +114,6 @@ pLOAD.unit = function(node,root,preBuilt){
 
 	if(node.isApp)
 		croot.appData = node.appData;
-
 	//install effect
 	if(pLOAD.doInstallTriggers)
 		effects.installTriggers(croot);
@@ -120,15 +148,6 @@ pLOAD.iterate = function(node,root,load_mode)
 
 		if(!load_mode.skip || load_mode.skip[node.UID] != true){
 			croot = pLOAD.unit(node,root);
-			//bindings - useless
-			/*if( load_mode.bindings && load_mode.bindings.factory ){
-				if( load_mode.bindings.factory.base == node.UID )
-					factory.base = croot;
-				if( load_mode.bindings.factory.root == node.UID )
-					factory.root = croot;
-				if( factory.root && factory.base )
-					factory.initialised = true;
-			}*/
 		} else {
 			croot = findContainer(node.UID);
 		}
@@ -274,7 +293,6 @@ pLOAD.proceed = function(jsn,mount,operation_mode)
 
 				pLOAD.loadLinks();
 				pLOAD.activateCameras();
-
 				//initialise the effects
 				if(pLOAD.doInitialiseEffects)
 					pLOAD.initialiseEffects(factory.base);

@@ -22,7 +22,7 @@ loadAppCode("edit/components/pchange",function(data)
       var o = interfaces[i];
       o.show();
       o.destination = obj;
-      pos = factory.root.viewportToSurface(pos.x,pos.y);
+      pos = factory.root.viewportToSurface(pos.x * factory.root.czoomLevel,pos.y * factory.root.czoomLevel);
       o.child.className = (last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in";
       o.putAt(pos.x,pos.y);
       o.DOMreference.style.zIndex = containerData.containerIndex;
@@ -34,8 +34,6 @@ loadAppCode("edit/components/pchange",function(data)
     var g = c.addPrimitive({type:"span",content:{class:(last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in"}});
     g.style.cssText = "font-size:"+interfSize*0.9+"px";
     c.destination = obj;
-    c.setPermission('save',false);
-    c.setPermission('connect',false);
     c.addEventListener("triggered",trigger);
     return c;
   }

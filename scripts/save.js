@@ -130,6 +130,7 @@ save.unit = function(node){
 	}
 
 	//save children
+	_svd._store = node._store;
 	_svd.children = [];
 	for(k in node.children)
 		_svd.children.push(node.children[k].UID);

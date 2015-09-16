@@ -906,7 +906,7 @@ this.container = function(_properties,_parent)
 		if(this.events[event])
 			this.events[event]--;
 
-		GEM.removeEventListener( event, context, handler, this );
+		GEM.removeEventListener( event, this, handler, context );
 	}
 	//App support
 	this.loadApp = function(app,passToApp)

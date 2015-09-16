@@ -15,6 +15,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   var interfaceSize = 32;
   var sizeCoef = 0.75;
   var radius = 48;
+
   this.onClick = function(e){
     if(!Editor.addInterface.active)
       return;
@@ -23,6 +24,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     Editor.addInterface.event = e;
     show(e.nativeEvent.pageX,e.nativeEvent.pageY,e.target);
   }
+
   this.hide = function() {
     console.log("HIDING add interface");
     for( k in Editor.addInterface.interface){

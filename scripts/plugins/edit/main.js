@@ -280,17 +280,13 @@ loadAppCode("edit",function(data)
     Editor.addInterface.hide();
     var dparent = Editor.shared.selected;
 		var actpos = {};
-		console.log("Dparent:");
-		console.log(dparent);
-		if( !dparent || (dparent.UID < 3 && dparent.UID != factory.root.UID) ){
+		if( !dparent || Editor.addInterface.x == undefined){
       dparent = factory.root;
 			actpos.x = factory.root.getWidth()/2;
 			actpos.y = factory.root.getHeight()/2;
 		}
-		console.log("_Dparent");
-		console.log(dparent);
-		console.log("actpos");
-		console.log(actpos);
+		if(dparent.UID < 3)
+			dparent = factory.root;
 
     var d = utils.merge({
     x:0,y:0,
@@ -397,7 +393,7 @@ loadAppCode("edit",function(data)
 		setTimeout(function(){
 		Editor.sizer.hide();
 		var pos = Editor.shared.selected.local2global(0.5,0.5);
-		var e = {event:"triggered",nativeEvent:{pageX:pos.x,pageY:pos.y},target:Editor.shared.selected};
+		var e = {event:"triggered",nativeEvent:{pageX:pos.x * factory.root.czoomLevel,pageY:pos.y * factory.root.czoomLevel},target:Editor.shared.selected};
 		Editor.addInterface.hide();
 		Editor.addInterface.onClick(e);},100);
 	}

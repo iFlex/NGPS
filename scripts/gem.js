@@ -103,8 +103,8 @@ GEM.removeEventListener = function(event,ctx,handler,run_context)
 		for( h in GEM.events[event][ctx.UID] )
 		{
 			console.log(typeof(GEM.events[event][ctx.UID][h]['context']) + " == " + typeof(run_context)+ " ? "+ (GEM.events[event][ctx.UID][h]['context'] == run_context) )
-			if( (handler && GEM.events[event][ctx.UID][h]['handler'] == handler) ||
-					(run_context && GEM.events[event][ctx.UID][h]['context'] == run_context))
+			if( (handler && (">"+GEM.events[event][ctx.UID][h]['handler'] == ">"+handler)) )//||
+					//(run_context && GEM.events[event][ctx.UID][h]['context'] == run_context))
 			{
 				//console.log("Deleting handler:"+handler);
 				if(GEM.debug)
