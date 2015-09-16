@@ -18,10 +18,13 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   this.onClick = function(e){
     if(!Editor.addInterface.active)
       return;
+    console.log("Add Interface Trigger");
+    console.log(e);
     Editor.addInterface.event = e;
     show(e.nativeEvent.pageX,e.nativeEvent.pageY,e.target);
   }
   this.hide = function() {
+    console.log("HIDING add interface");
     for( k in Editor.addInterface.interface){
       Editor.addInterface.interface[k].hide();
       Editor.addInterface.interface[k].DOMreference.className = "";
@@ -42,19 +45,21 @@ loadAppCode("edit/components/quickAddInterface",function(data){
 
   function show( globalX, globalY , parent){
     //console.log("perms:"+parent.getPermission('quickAddInterface'));
-    if(parent && parent.getPermission('quickAddInterface') == false)
+    if(parent && parent.getPermission('quickAddInterface') == false){
+      console.log("Premission to show add interface denied");
       return;
+    }
+
     Editor.addCloseCallback(Editor.addInterface.hide);
 
     if(parent.UID < 3)
       parent = factory.root;
-
-    Editor.shared.selected = parent; //this causes cyclic references in save tree
-    Editor.shared.selected = parent;
+    console.log("Showing add interface with parent:"+parent.UID);
     Editor.addInterface.x = globalX;
     Editor.addInterface.y = globalY;
     //console.log("Click happened on:"+utils.debug(parent)+" @ "+globalX+"|"+globalY);
     var ctx = Editor.addInterface;
+    var scale = 1/factory.root.czoomLevel;
     var pos = factory.root.viewportToSurface(globalX,globalY);
     var r = radius;
     var maxPerRadius = Math.floor(2*Math.PI*r/interfaceSize);
@@ -65,11 +70,13 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     var angle = (360 / nrc )*Math.PI/180;
 
     closeButton.button.show();
+    closeButton.button.scale(scale,0.5,0.5,0,true);
     closeButton.button.putAt(pos.x,pos.y,0.5,0.5);
     closeButton.button.DOMreference.style.zIndex = containerData.containerIndex+1;
     //closeButton.button.DOMreference.className = "sizeTrans";
     for( b in buttons ){
       Editor.addInterface.interface[b].show();
+      Editor.addInterface.interface[b].scale(scale,0.5,0.5,0,true);
       Editor.addInterface.interface[b].DOMreference.style.zIndex = containerData.containerIndex+1;
       if( index > maxPerRadius )
       {
@@ -78,7 +85,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
         index = 0;
         angle = (360 / maxPerRadius )*Math.PI/180;
       }
-      Editor.addInterface.interface[b].putAt(pos.x + Math.cos(-angle*index)*r,pos.y + Math.sin(-angle*index)*r,0.5,0.5);
+      Editor.addInterface.interface[b].putAt(pos.x + Math.cos(-angle*index)*r*scale,pos.y + Math.sin(-angle*index)*r*scale,0.5,0.5);
       //Editor.addInterface.interface[b].DOMreference.className = "sizeTrans";
       index++;
     }
@@ -156,7 +163,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   var button_store = [[{
     name:"container",
     description:"Add a new container",
-    icon:"glyphicon glyphicon-unchecked",
+    icon:"glyphicon glyphicon-plus",
     callbacks:{onTrigger:Editor.addContainer}
   },{
     name:"Text",
@@ -171,7 +178,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   },{
     name:"connect",
     description:"Connect this object with another one",
-    icon:"glyphicon glyphicon-pushpin",
+    icon:"glyphicon glyphicon-link",
     callbacks:{onTrigger:connect}
   },{
     name:"video",
@@ -179,20 +186,25 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     icon:"glyphicon glyphicon-film",
     callbacks:{onTrigger:Editor.addVideo}
   },{
-    name:"website",
-    description:"Add a website in your presentation",
-    icon:"glyphicon glyphicon-globe",
-    callbacks:{onTrigger:Editor.addWebsite}
+    name:"Copy",
+    description:"Copy selected container",
+    icon:"glyphicon glyphicon-copy",
+    callbacks:{onTrigger:Editor.copy}
   },{
-    name:"camera",
-    description:"Add a new container",
-    icon:"glyphicon glyphicon-camera",
-    callbacks:{onTrigger:Editor.addCamera}
+    name:"Paste",
+    description:"Paste into selected container",
+    icon:"glyphicon glyphicon-paste",
+    callbacks:{onTrigger:Editor.paste}
   },{
     name:"Effects",
     description:"Add an effect",
     icon:"glyphicon glyphicon-star",
     callbacks:{onTrigger:Editor.manageEffects}
+  },{
+    name:"Configure",
+    description:"Configure the container",
+    icon:"glyphicon glyphicon-wrench",
+    callbacks:{onTrigger:Editor.configureContainer}
   }],[{
     name:"ch_shape",
     description:"Change the shape of the container",

@@ -10,8 +10,8 @@ loadAppCode("zoom",function(data){
 	this.buttonSize = 30;
 
 	var zoomLevel = 1;
-	var zoomAmDn = 0.6
-	var zoomAmUp = 1.4;
+	var zoomAmDn = 0.9
+	var zoomAmUp = 1.1;
 
 	var offsetTop = data['offsetY'] || 0;
 	this.positionButtons = function()

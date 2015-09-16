@@ -29,7 +29,7 @@ loadAppCode("edit/components/containerConfigurer",function(data){
     interf.show();
     _target = target;
     var pos = _target.local2global();
-		interf.putAt(pos.x,pos.y);
+		interf.putAt(pos.x * factory.root.czoomLevel,pos.y * factory.root.czoomLevel);
   }
   this.hide = function(){
     interf.hide();

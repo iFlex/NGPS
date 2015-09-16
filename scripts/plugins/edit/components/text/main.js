@@ -140,7 +140,7 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.interface.subject = target.textField;
 
 		var pos = target.local2global();
-		keyboard.interface.parent.putAt(pos.x,pos.y - keyboard.editor.getHeight());
+		keyboard.interface.parent.putAt(pos.x * factory.root.czoomLevel,(pos.y - keyboard.editor.getHeight()) * factory.root.czoomLevel);
 		target.allowUserMove = false;
 
 		if(keyboard.interface.subject.focus)

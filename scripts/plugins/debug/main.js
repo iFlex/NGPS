@@ -55,5 +55,8 @@ loadAppCode("debug",function(data)
     getNode(factory.base);
     return instances;
   }
-
+  this.makeDot = function(x,y,parent){
+    var c = parent.addChild({x:x,y:y,width:5,height:5,border_radius:["50%","50%"],background:"red"});
+    c.putAt(x,y,0.5,0.5);
+  }
 });

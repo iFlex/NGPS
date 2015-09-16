@@ -90,10 +90,12 @@ loadAppCode("edit/components/addVideo",function(data)
       else
         target = factory.base;
 
+      Editor.keyBind.deactivate();
       Dialogue.import.show({
         fileHandler:addFromFile,
         urlHandler:addFromURL,
-        target:target
+        target:target,
+        onCancel:function(){Editor.keyBind.activate();}
       });
 
       vCTL = 0;

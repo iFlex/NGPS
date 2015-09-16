@@ -91,6 +91,10 @@ Camera.cstart = function()
 	if(this.properties.autopos)
 		this.display.DOMreference.style.position = "relative";
 
+	this.display.getPos = function(ox,oy){
+		return this.parent.getSurfaceXY(ox,oy);
+	}
+
 	if(this.properties['CAMERA_type'] == "scroller")
 	{
 		this.cameraType = 1;//GENERIC CAMERA TYPE = 0; SCROLLER CAMERA = 1 ( uses native scroll )
@@ -174,6 +178,7 @@ Camera.setCameraType = function(type)
 		this.cameraType = 1;
 	}
 }
+
 Camera.maintainBoundaries = function(data)
 {
 	var target = data['child'];
@@ -223,13 +228,6 @@ Camera.maintainBoundaries = function(data)
 	}
 	chainUp(this.parent);
 }
-Camera.screenToDisplayCoord = function(x,y)
-{
-	//DEPRECATED
-	return {x:parseInt(x) + this.DOMreference.scrollLeft,
-			y:parseInt(y) + this.DOMreference.scrollTop}
-
-}
 //GETTERS
 Camera.getViewportXY = function(ox,oy){
 	if(!ox)
@@ -250,7 +248,7 @@ Camera.getSurfaceXY = function(ox,oy,noScale){
 	var zoomMod = (noScale)?1:(1 / this.czoomLevel);
 	var w = this.getWidth()*ox;
 	var h = this.getHeight()*oy;
-	var pos = this.display.getPos();
+	var pos = {x:0,y:0}//this.display.getPos();
 	if(this.cameraType == 1)//scroll camera
 	{
 		pos.x = -this.DOMreference.scrollLeft;
@@ -609,9 +607,11 @@ Camera.applyInertia = function(){
 	}
 }
 
-//TODO: animate with calculated number of steps not hardcoded!
-Camera.czoom = function(level,ox,oy,delay)
+Camera.czoomTo = function(zlevel,ox,oy,delay)
 {
+	var level  = zlevel / this.czoomLevel;
+
+	var stepPeriod = 50;
 	if(!this.callow)
 		return false;
 
@@ -628,8 +628,12 @@ Camera.czoom = function(level,ox,oy,delay)
 	if(this.antiCrossReff("czoom",1))
 		return;
 
+	//cancel previous zoom
+	if(this.czmInterval)
+		clearInterval(this.czmInterval);
+
 	var ctx = this;
-	function doZoom(){
+	function doZoom(level){
 		var before = ctx.getSurfaceXY(-0.5,-0.5);
 		ctx.czoomLevel *= level;
 		ctx.display.scale(level,0,0,0);
@@ -637,22 +641,32 @@ Camera.czoom = function(level,ox,oy,delay)
 		ctx.c_move((before.x - after.x) * ctx.czoomLevel,(before.y - after.y) * ctx.czoomLevel);
 	}
 
-  var remaining = 10;
-	doZoom();
-	var interval = setInterval(function(){
-		remaining--;
-		doZoom();
-		if(remaining < 1)
-			clearInterval(interval);
+	var steps      = delay * 1000 / stepPeriod;
+	var taregt     = this.czoomLevel * level;
+	var zoom_level = Math.pow(level,1/steps);
+	console.log("level:" + level + " steps:" + steps + " zl:" + zoom_level);
+	doZoom(zoom_level);
+	this.czmInterval = setInterval(function(){
+		steps--;
+		doZoom(zoom_level);
+		if(steps < 1){
+			clearInterval(ctx.czmInterval);
+			ctx.czmInterval = 0;
+		}
 	},10);
 
 	for( k in this.crelations )
 		if(this.crelations[k]['zoom'] != 0)
-			this.crelations[k]['root'].czoom( level * this.crelations[k]['zoom'] )
+			this.crelations[k]['root'].czoomTo( zlevel * this.crelations[k]['zoom'] )
 
 	//anti cross reff
 	this.antiCrossReff("czoom",0);
 	return true;
+}
+//warning: if the step is too precise .xxx the zoom will not be precisely around the center of the viewport
+Camera.czoom = function(level,ox,oy,delay)
+{
+	this.czoomTo(this.czoomLevel * level,ox,oy,delay);
 }
 
 Camera.c_zoom = function(level,ox,oy)
@@ -702,7 +716,7 @@ Camera.cfocusOn = function(target,options)
 	var speed = options.speed || 1;
 	var tpos = target.local2global(0.5,0.5,this.display.UID);
 	console.log("tx:"+tpos.x+" ty:"+tpos.y)
-	this.cXYmove(tpos.x,tpos.y,0.5,0.5,speed);
+	this.cXYmove(tpos.x * this.czoomLevel,tpos.y * this.czoomLevel,0.5,0.5,speed);
 	//calculate zoom difference
 	//this.czoom(level,ox,oy);
 	//calculate rotation difference

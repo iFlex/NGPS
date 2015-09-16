@@ -119,7 +119,7 @@ loadAppCode("dialogue/dialogues/import",function(data)
         var pos = this.config.target.local2global(0,0);
         this.container.setWidth(this.config.target.getWidth());
         this.container.setHeight(this.config.target.getHeight());
-        this.container.putAt(pos.x,pos.y);
+        this.container.putAt(pos.x * factory.root.czoomLevel,pos.y * factory.root.czoomLevel);
       }
       if(cfg.title)
         this.title.innerHTML = cfg.title;

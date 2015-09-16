@@ -32,19 +32,17 @@ Format:
 var save = {};
 var direct_save = 0;
 save.clear = function(){
-	for( k in save )
-		delete save[k];
+	delete save.saveTree;
+	delete save.requiredApps;
 
 	save.saveTree = {};
 	save.requiredApps = {};
+	save.remainingUnits = 0;
 	save.nestCount = 0;
-	//just for testing
-	this.saveBuffer = 0;
 }
 //init
 save.clear();
-
-function pack(noStringify){
+save.pack = function(noStringify,noContent){
 	var output = {};
 	output.metadata = {};
 	output.requirements = {
@@ -52,36 +50,28 @@ function pack(noStringify){
 	};
 	console.log("SAVE metadata:");
 	console.log(output);
-	output.content = save.saveTree;
+	if(noContent != true)
+		output.content = save.saveTree;
 	if(!noStringify)
 		return JSON.stringify(output);
-
 	return output
 }
-//TODO check if memory allows a ram save
 
 //if not do a step by step save
 save.proceed = function(){
 	//saves the presentation
 	host.fs.save(function(s){if(s.status)console.log("Saved!");else console.log("Error: could not save!");},"prez1.html",save.RAMsave());
 }
-//builds the saved data in the ram then flushes it to the host
-save._unit = function(node,operation_mode)
-{
-	var nostore = {x:true,y:true,top:true,bottom:true,left:true,right:true,width:true,height:true}
-	//console.log("NODE:"+node.UID);
-	if( !node.getPermission('save') )
-		return;
 
-	save.nestCount++;
-	//now save the most relevant stuff
-	var st = {};
-	st[node.UID] = {};
-	st[node.UID].UID = node.UID;
-	st[node.UID].isApp = node.isApp;
-	st[node.UID].isCamera = node.isCamera;
-	st[node.UID].isLink = node.isLink;
-	st[node.UID].isLeaf = node.isLeaf;
+save.unit = function(node){
+	var nostore = {x:true,y:true,top:true,bottom:true,left:true,right:true,width:true,height:true}
+	var _svd = {};
+
+	_svd.UID = node.UID;
+	_svd.isApp = node.isApp;
+	_svd.isCamera = node.isCamera;
+	_svd.isLink = node.isLink;
+	_svd.isLeaf = node.isLeaf;
 
 	for( a in node.actions){
 		for( k in node.actions[a] )
@@ -89,28 +79,29 @@ save._unit = function(node,operation_mode)
 				delete node.actions[a][k];
 	}
 
-	st[node.UID].parent = (node.parent)?node.parent.UID:null;
-	st[node.UID].effects = node.effects; // Presentation effects
-	st[node.UID].properties = utils.merge(node.properties,{});
+	_svd.parent = (node.parent)?node.parent.UID:null;
+	_svd.effects = node.effects; // Presentation effects
+	_svd.properties = utils.merge(node.properties,{});
 
 	//take out any possize data that is not relevant anymore
 	for( prop in nostore )
-		delete st[node.UID].properties[prop];
+		delete _svd.properties[prop];
 
-	st[node.UID].properties['cssText'] = node.DOMreference.style.cssText;
+	_svd.properties['cssText'] = node.DOMreference.style.cssText;
 	if( node.isLink )
-		st[node.UID].linkData = node.linkData;
+		_svd.linkData = node.linkData;
 
 	if(node.DOMreference.value && node.DOMreference.value.length > 0)
-		st[node.UID].value = node.DOMreference.value;
+		_svd.value = node.DOMreference.value;
 
 	//now look for static children
 	if(node.child)
 	{
-		st[node.UID].child = {};
-		st[node.UID].child.descriptor = node.child.descriptor;
-		st[node.UID].child.value     = node.child.value;
-		st[node.UID].child.innerHTML = node.child.innerHTML;
+		_svd.child = {};
+		_svd.child.descriptor = node.child.descriptor;
+		_svd.child.descriptor.style = node.child.style.cssText;
+		_svd.child.value     = node.child.value;
+		_svd.child.innerHTML = node.child.innerHTML;
 	}
 	//now look for apps
 	if(node.isApp)
@@ -121,7 +112,7 @@ save._unit = function(node,operation_mode)
 				save.requiredApps[node.appName] = []; //store nodes that need the app here
 			save.requiredApps[node.appName].push(node.UID);
 			console.log("Rapps:"+utils.debug(save.requiredApps));
-			st[node.UID].appData = node.app._store;
+			_svd.appData = node.app._store;
 		} else {
 			console.error("Found app that was not correctly shutdown: still claims to be an app but has no .app property. Node below");
 			console.log(node);
@@ -130,60 +121,90 @@ save._unit = function(node,operation_mode)
 	//now look for camera
 	if(node.isCamera)
 	{
-		st[node.UID].camera = {};
-		st[node.UID].camera.interval = node.cinterval;
-		st[node.UID].camera.relations = node.crelations;
-		st[node.UID].camera.boundaries = node.boundaries;
-		for( i in st[node.UID].camera.relations )
-			st[node.UID].camera.relations[i].root = st[node.UID].camera.relations[i].root.UID;
-	}
-	st[node.UID].children = [];
-
-	if( operation_mode['build'] == "continuous")
-		save.saveTree[node.UID] = st[node.UID];
-	if( operation_mode['build'] == "chunked")
-	{
-		//do somethign with saved chunk st
+		_svd.camera = {};
+		_svd.camera.interval = node.cinterval;
+		_svd.camera.relations = node.crelations;
+		_svd.camera.boundaries = node.boundaries;
+		for( i in _svd.camera.relations )
+			_svd.camera.relations[i].root = _svd.camera.relations[i].root.UID;
 	}
 
-	var nrc = 0;
+	//save children
+	_svd.children = [];
 	for(k in node.children)
-	{
-		nrc++;
-		st[node.UID].children.push(node.children[k].UID);
+		_svd.children.push(node.children[k].UID);
 
-		if(operation_mode['iteration'] == "recursive")
-			save._unit(node.children[k],operation_mode);
-		if(operation_mode['iteration'] == "asynchronous")
-			setTimeout(
-				function(){
-					save._unit(node.children[k],operation_mode)
-				},(operation_mode['iteration_delay'])?operation_mode['iteration_delay']:1)
-	}
-
-	save.nestCount--;
-	if(save.nestCount == 0 && operation_mode['iteration'] == 'asynchronous')
-	{
-		//TODO:notify that save was completed
-		alert("save completed");
-	}
+	return _svd;
 }
-save.RAMsave = function(stringify){
+//builds the saved data in the ram then flushes it to the host
+save.iterate = function(node,operation_mode,tree)
+{
+	function delayedExecution(nod){
+		setTimeout(function(){
+			save.iterate(nod,operation_mode,tree)
+		},2);
+	}
 
+	console.log("------ ITERATE CALL:"+node.UID);
+	if( node && node.getPermission('save') == true )
+	{
+		//now save the most relevant stuff
+		var st = save.unit(node);
+		console.log("SAVED");
+		//console.log(st);
+		if(!tree) {
+			if(operation_mode['build'] == "chunked"){
+				try {
+					operation_mode['stream'](st);
+				} catch(e){
+					console.error("Could not save unit of presentation",e);
+					console.warn("Make sure you have provided a stream method in the save call");
+				}
+			}
+			else
+				save.saveTree[node.UID] = st;
+		} else {
+			tree[node.UID] = st;
+		}
+
+		for(k in node.children)
+		{
+			if(operation_mode['iteration'] == "recursive"){
+				//console.log("starting new unit - recursive:"+node.children[k].UID);
+				save.remainingUnits++;
+				save.iterate(node.children[k],operation_mode,tree);
+			}
+			if(operation_mode['iteration'] == "asynchronous"){
+				//console.log("starting new unit - asynch:"+node.children[k].UID);
+				save.remainingUnits++;
+				delayedExecution(node.children[k]);
+			}
+		}
+	}
+	save.remainingUnits--;
+	//notify save complete
+	if(save.remainingUnits == 0 && operation_mode['iteration'] == 'asynchronous'){
+		console.log("Asynchronous save has finished!");
+		GEM.fireEvent({event:"saveComplete",isGlobal:true});
+	}
+	//console.log("--- ITERATE CALL END ------");
+}
+
+save.RAMsave = function(stringify){
 	//clean save tree
-	delete  save.saveTree;
-	save.saveTree = {};
+	save.clear();
 	//start save
-	save._unit(factory.base,{build:"continuous",iteration:"recursive"});
+	save.remainingUnits = 1;
+	save.iterate(factory.base,{build:"continuous",iteration:"recursive"});
 	//now stringify
 	if(stringify)
-		return pack();
-
-	return pack(true);
+		return save.pack();
+	return save.pack(true);
 }
+
 save.toConsole = function(_alert){
 	save.RAMsave();
-	var dta = pack();
+	var dta = save.pack();
 	if(_alert)
 		alert(dta);
 	else
@@ -194,16 +215,47 @@ save.toConsole = function(_alert){
 save.jsonTree = function(){
 	console.log( JSON.stringify(factory.base));
 }
+
 //TODO: make it show dialog for save as
 save.toFile = function(filename){
-	serverLocation = "localhost/ngps";
-	requireJSlocation = "http://requirejs.org/docs/release/2.1.20/minified/require.js";
-	if(!direct_save)
-		direct_save = document.createElement("a");
-	header  = '<html><head><script src="'+requireJSlocation+'"></script></head><body><script type="text/javascript">var _presentation="';
-	trailer = '";requirejs(["'+serverLocation+'/scripts/support/main"],function(){_TOTAL_INIT(_presentation));</script></body></html>';
-	data = btoa(JSON.stringify(save.RAMsave()));
-	direct_save.href = "data:application/xml;charset=utf-8,"+header+data+trailer;
-	direct_save.download= filename+".html";
-	direct_save.click();
+	if(!filename || filename.length < 1)
+		filename = "AwesomePresentation";
+
+	var serverLocation = "localhost/ngps";
+	var requireJSlocation = "http://requirejs.org/docs/release/2.1.20/minified/require.js";
+	var header  = '<html><head><script src="'+requireJSlocation+'"></script></head><body><script type="text/javascript">var _presentation="';
+	var trailer = '";requirejs(["'+serverLocation+'/scripts/support/main"],function(){_TOTAL_INIT(_presentation));</script></body></html>';
+	var data = "";
+	function onAsynchUnit(unit){
+		console.log("chunk");
+		console.log(unit);
+		data += ((data.length > 0)?",":"")+'"'+unit.UID+'":'+JSON.stringify(unit);//btoa(JSON.stringify(unit));
+	}
+
+	GEM.addEventListener("saveComplete",0,function(){
+		console.log("FILENAME:"+filename);
+		console.log(header);
+		//console.log(data);
+		console.log(trailer);
+		if(!direct_save)
+			direct_save = document.createElement("a");
+
+		var metadata = save.pack(true);
+		delete metadata.content;
+
+		//form
+		var allData = "{";
+		for( k in metadata)
+			allData += '"'+k+'":'+JSON.stringify(metadata[k])+",";
+		allData +='"content":{'+data+'}';
+		allData += "}"
+		allData = btoa(allData);
+		direct_save.href = "data:application/xml;charset=utf-8,"+header+allData+trailer;
+		direct_save.download= filename+".html";
+		direct_save.click();
+	},save);
+
+	save.clear();
+	save.remainingUnits = 1;
+	save.iterate(factory.base,{build:"chunked",iteration:"asynchronous",stream:onAsynchUnit});
 }

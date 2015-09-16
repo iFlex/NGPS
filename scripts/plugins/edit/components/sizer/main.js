@@ -1,4 +1,3 @@
-//TODO: figure out why text interface is not showing up all the time when clicking on a text object
 this.Editor = this.Editor || {};
 
 loadAppCode("edit/components/sizer",function(data)
@@ -30,7 +29,7 @@ loadAppCode("edit/components/sizer",function(data)
           Editor.sizer.EditUI[k] = {descriptor:data[k]};
       }
 
-      var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",opacity:0.75,border_size:0,cssText:"z-index:4;",permissions:{save:false,connect:false}};
+      var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",opacity:0.75,border_size:0,cssText:"z-index:4;",permissions:factory.UIpermissions};
       for( B in Editor.sizer.EditUI )
       {
         var cnt = factory.newContainer(descriptor,"simple_rect",mountPoint);
@@ -59,6 +58,7 @@ loadAppCode("edit/components/sizer",function(data)
   this._show = function(e){
     Editor.sizer.show(e.target);
   }
+
   this.show = function(target)
   {
 
@@ -81,7 +81,6 @@ loadAppCode("edit/components/sizer",function(data)
       currentInterface = defaultInterface;
       this.configure(this.interfaces[currentInterface]);
     }
-    //$(target.DOMreference).zoomTo({targetsize:0.75, duration:600});
     //add event listeners
     target.addEventListener("changeWidth",Editor.sizer.focus);
     target.addEventListener("changeHeight",Editor.sizer.focus);
@@ -122,7 +121,7 @@ loadAppCode("edit/components/sizer",function(data)
         focusState = 2;
     }
   }
-  //TODO: Not working properly for nested object
+
   this.focus = function(e){
       if(Editor.sizer.target)
       {
@@ -131,12 +130,14 @@ loadAppCode("edit/components/sizer",function(data)
         for(k in Editor.sizer.EditUI)
         {
           var targetPos = target.local2global(Editor.sizer.EditUI[k].descriptor.anchors['px'], Editor.sizer.EditUI[k].descriptor.anchors['py']);
-          targetPos = factory.root.viewportToSurface(targetPos.x,targetPos.y);
+          targetPos = factory.root.viewportToSurface(targetPos.x * factory.root.czoomLevel,targetPos.y * factory.root.czoomLevel);
           Editor.sizer.EditUI[k].object.show();
           Editor.sizer.EditUI[k].object.putAt(targetPos.x,targetPos.y,
             Editor.sizer.EditUI[k].descriptor.anchors['bx'],
             Editor.sizer.EditUI[k].descriptor.anchors['by']);
           Editor.sizer.EditUI[k].object.setAngle(target.angle);
+          //TODO: scale around anchor point so that icons don't overlap
+          Editor.sizer.EditUI[k].object.scale(1/factory.root.czoomLevel,0,0,0,true);
         }
         Editor.sizer.target.lastEditAngle = undefined;
       }
@@ -156,27 +157,27 @@ loadAppCode("edit/components/sizer",function(data)
   }
   this.onChangeWidthRight = function(dx,dy)
   {
-    Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()+dx);
+    Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()+dx*(1/factory.root.czoomLevel));
     Editor.sizer.focus();
     //autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeWidthLeft = function(dx,dy)
   {
-    Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()-dx);
+    Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()-dx *(1/factory.root.czoomLevel) );
     Editor.sizer.target.move(dx,0);
     //autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeHeightBottom = function(dx,dy)
   {
-    Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()+dy);
+    Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()+dy*(1/factory.root.czoomLevel));
     //autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeHeightTop = function(dx,dy)
   {
-    Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()-dy);
+    Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()-dy*(1/factory.root.czoomLevel));
     Editor.sizer.target.move(0,dy);
     //autoScale(Editor.sizer.target);
   }
@@ -281,11 +282,7 @@ loadAppCode("edit/components/sizer",function(data)
       },
       config:{
         anchors:{bx:1,by:1,px:0.5,py:0},
-        callbacks:{onMoved:function(){},onTrigger:function(){
-          if(Editor.customizer) {
-            Editor.customizer.show(Editor.sizer.target);
-            Editor.sizer.hide();
-        }}},
+        callbacks:{onMoved:function(){},onTrigger:Editor.showPie},
         tag:"simple_rect",innerHTML:"<center><span class='glyphicon glyphicon-wrench' style='font-size:"+interfaceSize*sizeCoef+"px'></span></center>"
       },
     },

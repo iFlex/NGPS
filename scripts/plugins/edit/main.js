@@ -14,10 +14,9 @@ loadAppCode("edit",function(data)
 	this.config = {interface:"none"};
 	data.parent.setPermissions(factory.UIpermissions);
 	Editor = this;
-
 	//shared variables that allow subapps to easily interact and share data - like current selected container
 	Editor.shared = {
-		selected:{},
+		selected:0,
 	};
 
 	var descriptor = {autopos:true,width:"100%",height:33,backrgound:"rgba(0,0,0,0.5);",style:"margin-top:2px"};
@@ -41,6 +40,13 @@ loadAppCode("edit",function(data)
 
 			}
 			delete InterfaceSequencing.toClose[k];
+	}
+
+	this.setMainInterface = function(callback){
+		InterfaceSequencing.main = callback;
+	}
+	this.defaultMainInterface = function(){
+		InterfaceSequencing.main = Editor.sizer._show;
 	}
 
 	Editor.addCloseCallback = function(callback){
@@ -81,7 +87,7 @@ loadAppCode("edit",function(data)
 			ct.DOMreference.childNodes[1].onclick = function(){hook();};
 	}
 	function buildInterface(){
-		var defaultDock = ["menuToggle","zoomOut","zoomIn","addContainer","addText","save","load","apps"]
+		var defaultDock = ["menuToggle","zoomOut","zoomIn","addContainer","link","addText","addImage","addVideo","save","load","apps"]
 		Editor.interface = factory.base.addChild({x:0,y:0,width:"15%",height:"100%",class:"menu",permissions:factory.UIpermissions});
 		Editor.dock.title = Editor.interface.addChild({type:"input",autopos:true,width:"99%",height:32,style:"margin-top:5px;margin-left:auto;mergin-right:auto;padding-left:2px;background:rgba(0,0,0,0);text-aling:center"});
 		Editor.dock.title.DOMreference.placeholder = "Title, click to change";
@@ -94,9 +100,13 @@ loadAppCode("edit",function(data)
 		attachTextIcon(Editor.dock.zoomIn,"Zoom in","glyphicon glyphicon-zoom-in",Editor.zoomIn);
 		attachTextIcon(Editor.dock.addContainer,"New box","glyphicon glyphicon-plus",Editor.addContainer);
 		attachTextIcon(Editor.dock.addText,"Text","glyphicon glyphicon-font",Editor.addText);
+		attachTextIcon(Editor.dock.addImage,"Image","glyphicon glyphicon-picture",Editor.addImage);
+		attachTextIcon(Editor.dock.addVideo,"Video","glyphicon glyphicon-film",Editor.addVideo);
 		attachTextIcon(Editor.dock.save,"Save","glyphicon glyphicon-save",Editor.save);
-		attachTextIcon(Editor.dock.load,"Load","glyphicon glyphicon-upload",Editor.load);
+		attachTextIcon(Editor.dock.load,"Load","glyphicon glyphicon-open",Editor.load);
 		attachTextIcon(Editor.dock.apps,"Apps","glyphicon glyphicon-th",Editor.toggleAppsMenu);
+
+		Editor.dockApp("edit/components/link",{},Editor.dock.link);
 	}
 
 	this.init = function() //called only one when bound with container
@@ -105,19 +115,20 @@ loadAppCode("edit",function(data)
 		Editor.dockedApps = {};
 		buildInterface();
 		GEM.addEventListener("triggered",0,"changeSelected",this);
-		//this.dockApp('edit/components/background',{lastInterfaceContainer:5});
 		factory.newGlobalApp("edit/components/pchange");
 		factory.newGlobalApp("edit/components/text");
 		factory.newGlobalApp("edit/components/sizer");
 		factory.newGlobalApp("edit/components/addImage");
 		factory.newGlobalApp("edit/components/addVideo");
 		factory.newGlobalApp("edit/components/appChoice");
-		factory.newGlobalApp('edit/components/link',{lastInterfaceContainer:5});
+		//factory.newGlobalApp('edit/components/link',{lastInterfaceContainer:5});
 		factory.newGlobalApp("edit/components/linkEdit");
 		factory.newGlobalApp("edit/components/containerConfigurer");
 		factory.newGlobalApp("edit/components/quickAddInterface");
 		factory.newGlobalApp("edit/components/keyBindings");
 		factory.newGlobalApp("edit/components/effects");
+		factory.newGlobalApp("edit/components/selection");
+		factory.newGlobalApp("edit/components/clipboard");
 		factory.newGlobalApp("userMsg");
 
 		this.dockApp("edit/components/background");
@@ -128,7 +139,7 @@ loadAppCode("edit",function(data)
 		pLOAD.doTranslateAddress  = true;// must be true
 		GEM.addEventListener("startup",0,function(){
 			pLOAD.loadStartOffset = containerData.containerIndex + 10;
-			InterfaceSequencing.main = Editor.sizer._show;
+			Editor.defaultMainInterface();
 			InterfaceSequencing.secondary = Editor.addInterface.onClick;
 
 		},this);
@@ -154,8 +165,17 @@ loadAppCode("edit",function(data)
 	}
 	this.changeSelected = function(e){
 		console.log("Editor click registered");
+		console.log(e.target);
+		console.log("...................")
+		if(e.target.UID > 2 && e.target.getPermission("edit") != true)
+			return;
+
+		Editor.shared.selected = 0;
 		if(e.target.getPermission("edit") == true && e.target.UID > 2) {
 			Editor.shared.selected = e.target;
+			Editor.selection.clear();
+			Editor.selection.add(e.target);
+
 			hideActiveInterfaces()
 			if(	e.target.UID == InterfaceSequencing.lastClicked ){
 				InterfaceSequencing.lastClickedDepth++;
@@ -186,7 +206,33 @@ loadAppCode("edit",function(data)
 				InterfaceSequencing.secondary(e);
 			}
 		}
+
+		console.log("Editor Selected item now:");
+		console.log(Editor.shared.selected);
 	}
+	//DOCK code
+	this.dockApp = function(app,passTo,slot){
+		if(!Editor.dockedApps[app])
+		{
+			console.log("Docking app:"+app);
+			if(slot)
+				Editor.dockedApps[app] = slot;
+			else
+				Editor.dockedApps[app] = Editor.interface.addChild(descriptor);
+			attachTextIcon(Editor.dockedApps[app],"Loading...","glyphicon glyphicon-flash");
+			Editor.dockedApps[app].loadApp(app,passTo);
+			Editor.dockedApps[app].attachTextIcon = changeTextIcon;
+		}
+	}
+	this.undockApp = function(app){
+		if(Editor.dockedApps[app])
+		{
+			Editor.dockedApps[app].discard();
+			delete Editor.dockedApps[app];
+		}
+	}
+
+
 	//functions
 	this.toggleMenu = function(){
 		if(Editor.interface.w){
@@ -203,7 +249,9 @@ loadAppCode("edit",function(data)
 	{
 		Editor.apps.toggle();
 	}
-
+	////////////////////////
+	//operations
+	////////////////////////
 	this.save = function(){
 		save.toFile(Editor.dock.title.DOMreference.value);
 	}
@@ -219,38 +267,30 @@ loadAppCode("edit",function(data)
 	}
 
 	this.zoomIn = function(){
-		factory.root.czoom(1.01);
+		factory.root.czoom(1.1);
 	}
 	this.zoomOut = function(){
 		//factory.root.czoom(0.6);
-		factory.root.czoom(0.99);
+		factory.root.czoom(0.9);
 	}
 
-	//DOCK code
-	this.dockApp = function(app,passTo){
-		if(!Editor.dockedApps[app])
-		{
-			console.log("Docking app:"+app);
-			Editor.dockedApps[app] = Editor.interface.addChild(descriptor);
-			attachTextIcon(Editor.dockedApps[app],"Loading...","glyphicon glyphicon-flash");
-			Editor.dockedApps[app].loadApp(app,passTo);
-			Editor.dockedApps[app].attachTextIcon = changeTextIcon;
-		}
-	}
-	this.undockApp = function(app){
-		if(Editor.dockedApps[app])
-		{
-			Editor.dockedApps[app].discard();
-			delete Editor.dockedApps[app];
-		}
-	}
 	//UTILITY
 	//event listeners
 	this._addContainer = function(noInterface,descriptor,tag){ //causes cyclic references in save tree
     Editor.addInterface.hide();
     var dparent = Editor.shared.selected;
-    if(dparent.UID < 3 && factory.root.display.UID != dparent.UID)
-      dparent = factory.base;
+		var actpos = {};
+		console.log("Dparent:");
+		console.log(dparent);
+		if( !dparent || (dparent.UID < 3 && dparent.UID != factory.root.UID) ){
+      dparent = factory.root;
+			actpos.x = factory.root.getWidth()/2;
+			actpos.y = factory.root.getHeight()/2;
+		}
+		console.log("_Dparent");
+		console.log(dparent);
+		console.log("actpos");
+		console.log(actpos);
 
     var d = utils.merge({
     x:0,y:0,
@@ -258,8 +298,8 @@ loadAppCode("edit",function(data)
     height:dparent.getWidth()*0.2,
     permissions:{track:true,connect:true,edit:true}},descriptor,true);
 
-    var container = factory.newContainer(d,((tag)?tag:"c000000"),Editor.shared.selected);
-    var pos = container.global2local(Editor.addInterface.x || actpos.x,Editor.addInterface.y || actpos.y);
+    var container = factory.newContainer(d,((tag)?tag:"c000000"),dparent);
+    var pos = container.global2local( (actpos.x || Editor.addInterface.x)*1/factory.root.czoomLevel,(actpos.y || Editor.addInterface.y)*1/factory.root.czoomLevel);
     container.putAt(pos.x,pos.y,0.5,0.5);
 
     if(Editor.sizer && !noInterface)
@@ -288,16 +328,17 @@ loadAppCode("edit",function(data)
       permissions:{track:false,connect:true,edit:true}},"c000000",
       Editor.shared.selected,false,true);
 
-      var pos = container.global2local(Editor.addInterface.x,Editor.addInterface.y);
+      var pos = container.global2local(Editor.addInterface.x*1/factory.root.czoomLevel,Editor.addInterface.y*1/factory.root.czoomLevel);
       container.putAt(pos.x,pos.y,0.5,0.5);
 
       if(Editor.sizer)
         Editor.sizer.show(container);
   }
+
   this.addText = function(text){
     //var container = _addContainer(true,null,"text_field");
 		console.log(Editor.shared);
-    var container = (Editor.shared.selected.UID>2)?Editor.shared.selected:Editor._addContainer();
+    var container = (Editor.shared.selected && Editor.shared.selected.UID>2)?Editor.shared.selected:Editor._addContainer();
     Editor.text.makeTextContainer(container,text);
     Editor.sizer.show(container);
   }
@@ -305,15 +346,13 @@ loadAppCode("edit",function(data)
   this.addVideo = function(){
     Editor.addInterface.hide();
     console.log("Adding Video");
-    if(Editor.shared.selected.UID < 3)
-      Editor.shared.selected = factory.base;
     if(Editor.videos)
-      Editor.videos.show(Editor.shared.selected);
+      Editor.videos.show((Editor.shared.selected && Editor.shared.selected.UID > 2)?Editor.shared.selected:0);
   }
   this.addImage = function(){
     Editor.addInterface.hide();
     console.log("Adding image");
-    Editor.images.import((Editor.shared.selected.UID > 2)?Editor.shared.selected:0);
+    Editor.images.import((Editor.shared.selected && Editor.shared.selected.UID > 2)?Editor.shared.selected:0);
   }
   this.addWebsite = function(){
     Editor.addInterface.hide();
@@ -331,6 +370,38 @@ loadAppCode("edit",function(data)
     if(Editor.effects)
       Editor.effects.show(dparent);
   }
+
+	this.copy = function(){
+		if(Editor.shared.selected) {
+			Editor.clipboard.clear();
+			Editor.clipboard.copy(Editor.shared.selected);
+			Editor.addInterface.hide();
+		}
+	}
+
+	this.paste = function(){
+		where = ((Editor.shared.selected && Editor.shared.selected.UID > 2)?Editor.shared.selected:factory.root);
+		Editor.clipboard.paste({dx:10,dy:10,mountPoint:where});
+		Editor.addInterface.hide();
+	}
+
+	this.configureContainer = function(){
+		if(Editor.customizer && Editor.shared.selected.UID > 2) {
+			Editor.addInterface.hide();
+			Editor.customizer.show(Editor.shared.selected);
+			Editor.sizer.hide();
+		}
+	}
+
+	this.showPie = function(){
+		setTimeout(function(){
+		Editor.sizer.hide();
+		var pos = Editor.shared.selected.local2global(0.5,0.5);
+		var e = {event:"triggered",nativeEvent:{pageX:pos.x,pageY:pos.y},target:Editor.shared.selected};
+		Editor.addInterface.hide();
+		Editor.addInterface.onClick(e);},100);
+	}
+
 	///////////////////////
 	utils.loadRawStyle("/* enable absolute positioning */\
 .inner-addon { \

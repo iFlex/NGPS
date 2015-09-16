@@ -9,11 +9,24 @@ loadAppCode("edit/components/link",function(data){
 	var startFrom = data['lastInterfaceContainer'] || 2 ;
 	var temp = 0;
 	this.active = false;
-
+	this.toggled = false;
 	this.cDescriptor = {};
 	var linkParent = 0;
 	var linkData = {};
+	var scale = 1;
 	this.descriptor = {};
+
+	this.toggle = function(){
+		if(this.toggled) {
+			Editor.defaultMainInterface();
+			Editor.link.parent.restyle({background:"transparent"});
+		} else {
+			Editor.setMainInterface(Editor.link.trigger);
+			Editor.link.parent.restyle({background:"rgba(255,255,255,0.25)"});
+		}
+
+		this.toggled = !this.toggled;
+	}
 
   function cancel(){
 		if(temp)
@@ -23,7 +36,7 @@ loadAppCode("edit/components/link",function(data){
 	this.trigger = function(data)
 	{
 		console.log(data);
-
+		scale = 1/factory.root.czoomLevel;
 		var target = data['target'];
 		if(!target.getPermission('connect'))
 			return;
@@ -34,7 +47,7 @@ loadAppCode("edit/components/link",function(data){
 			return;
 		}
 		var e = data['original_event'];
-		var localPos = target.global2local(e.clientX,e.clientY);
+		var localPos = target.global2local(e.clientX*scale,e.clientY*scale);
 		console.log("cx:"+e.clientX+" cy:"+e.clientY+" lp:"+localPos.x+"|"+localPos.y);
 		//console.log("Link maker:"+utils.debug(target)+" last:"+linkParent);
 
@@ -92,6 +105,7 @@ loadAppCode("edit/components/link",function(data){
 		g.style.cssText = "font-size:32px";
 		temp.hide();
 
+		this.parent.attachTextIcon(this.parent,"Link ideas","glyphicon glyphicon-link",this.toggle);
 	}
 	this.shutdown = function() //called only when app is unloaded from container
 	{
