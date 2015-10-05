@@ -71,7 +71,7 @@ AppCtl.ainit = function(app,params)
 	this.isApp = true;
 	try {
 		this.app = new app(params);
-	} catch(e){
+	} catch(e) {
 		console.log("Failed to initialise app on container:"+this.UID,e);
 		this.adestroy();
 		return;
@@ -158,13 +158,15 @@ AppCtl.adestroy = function() // completely remove app from container
 		AppMgr.status = "idle";
 	}
 
-	if( this.app.shutdown )
+	try{
 		this.app.shutdown();
+		//stop all of the apps workers
+		this.stopWorker();
+	}catch(e){
+		console.ward("ERROR: could not shutdown application",e);
+	}
 
-	//stop all of the apps workers
-	this.stopWorker();
 	delete AppMgr.appHosts[this.appName][this.UID];
-
 	if( Object.keys(AppMgr.appHosts[this.appName]).length == 0 ) //all apps instances destroyed, time to unload the app
 		delete AppMgr.loadedApps[this.appName];
 

@@ -14,7 +14,7 @@ loadAppCode("edit/components/containerConfigurer",function(data){
     Editor.customizer = this;
     utils.loadStyle(data.parent.appFullPath+'colorpicker/spectrum.css');
     requirejs([data.parent.appPath+'colorpicker/spectrum',data.parent.appPath+'colorpicker/jquery.spectrum-fi'],function(){
-      interf = factory.base.addChild({x:factory.base.getWidth(),y:factory.base.getHeight(),autosize:true,background:"blue",permissions:data.parent.getPermissions()});
+      interf = factory.base.addChild({x:factory.base.getWidth(),y:factory.base.getHeight(),autosize:true,background:"transpaten",permissions:data.parent.getPermissions()});
       Editor.customizer.buildInterface(interf);
       interf.hide();
     });
@@ -77,7 +77,7 @@ loadAppCode("edit/components/containerConfigurer",function(data){
       aux.extend(Interactive);
       aux.interactive(true);
       aux.configProps = shapes[s];
-      aux.onMoved = function(){};
+      aux.onMoved = function(dx,dy){shapeScroll.DOMreference.scrollLeft -= dx};
       aux.onTrigger = function(e){
         _target.restyle(e.configProps);
       }
@@ -89,7 +89,7 @@ loadAppCode("edit/components/containerConfigurer",function(data){
       aux.configProps = borders[s];
       aux.extend(Interactive);
       aux.interactive(true);
-      aux.onMoved = function(){};
+      aux.onMoved = function(){borderScroll.DOMreference.scrollLeft -= dx};
       aux.onTrigger = function(e){
         console.log("utils:"+utils.debug(e.configProps));
         _target.restyle(e.configProps);
@@ -125,5 +125,20 @@ loadAppCode("edit/components/containerConfigurer",function(data){
         _target.restyle({border_color:color});
       }
     }));
+
+    parent.fsw = parent.addChild({type:"button",autopos:true,autosize:true,class:"btn btn-default"});
+    parent.fsw.DOMreference.innerHTML = '<i class="icon-user icon-white"></i>Full Screen Width';
+    parent.fsw.DOMreference.onclick = function(){
+      _target.setWidth(factory.base.getWidth());
+      factory.root.cfocusOn(_target,{});
+    }
+
+    parent.fsh = parent.addChild({type:"button",autopos:true,autosize:true,class:"btn btn-default"});
+    parent.fsh.DOMreference.innerHTML = '<i class="icon-user icon-white"></i>Full Screen Height';
+    parent.fsh.DOMreference.onclick = function(){
+      _target.setHeight(factory.base.getHeight());
+      factory.root.cfocusOn(_target,{});
+    }
+
   }
 })

@@ -10,18 +10,18 @@ loadAppCode("edit/components/effects",function(data){
   var cardUI,mountPoint;
   var availableEffects = {};
   var availableTriggers = ["triggered","mouseDown","mouseUp","mouseMove"];
-  var selectTriggerDlgDesc = {title:"Select how to trigger your effect",selection_item:[{button:{class:"btn btn-warning",onclick:triggerSelected}}],selection:[]};
-  var selectEffectDlgDesc = {title:"Select the effect",selection_item:[{button:{class:"btn btn-warning",onclick:selectEffect}}],selection:[]};
+  var selectTriggerDlgDesc = {title:"Select how to trigger your effect",selection:[]};
+  var selectEffectDlgDesc = {title:"Select the effect",selection:[]};
   this.init = function(){
     Editor.effects = this;
     Editor.effects.installer = factory.newGlobalApp(data.parent.appName+"/installer");
 
     availableEffects = effects.getEffects();
     for( i in availableTriggers)
-      selectTriggerDlgDesc.selection.push({label:availableTriggers[i]});
+      selectTriggerDlgDesc.selection.push({label:availableTriggers[i],callback:triggerSelected});
 
     for( i in availableEffects)
-      selectEffectDlgDesc.selection.push({label:availableEffects[i].name,id:availableEffects[i].fxname,description:availableEffects[i].description});
+      selectEffectDlgDesc.selection.push({label:availableEffects[i].name,id:availableEffects[i].fxname,description:availableEffects[i].description,callback:selectEffect});
 
     cardUI = factory.base.addChild({x:0,y:factory.base.getHeight(),width:"100%",height:"25%",border_radius:["0px"],"overflow-y":"scroll","overflow-x":"hidden",permissions:factory.UIpermissions,style:bkgStyle});
 
@@ -200,13 +200,11 @@ loadAppCode("edit/components/effects",function(data){
   }
 
   function triggerSelected(e){
-    selectTriggerDlgDesc.subject.innerHTML = e.target.innerHTML;
-    Dialogue.singleChoice.hide();
+    selectTriggerDlgDesc.subject.innerHTML = e.label;
   }
 
   function selectEffect(e){
-    selectEffectDlgDesc.subject.innerHTML = e.target.innerHTML;
-    Dialogue.singleChoice.hide();
+    selectEffectDlgDesc.subject.innerHTML = e.label;
   }
 
   var bkgStyle = "background-size: 50px 50px;\

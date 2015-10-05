@@ -7,7 +7,7 @@ loadAppCode("dialogue",function(data){
     console.log(data.parent.appFullPath+" - initialising...");
     Dialogue = this;
     factory.newGlobalApp(data.parent.appName+"/dialogues/import",{Dialogue:this});
-    factory.newGlobalApp(data.parent.appName+"/dialogues/singleChoice",{Dialogue:this});
+    factory.newGlobalApp(data.parent.appName+"/dialogues/singleCh",{Dialogue:this});
     factory.newGlobalApp(data.parent.appName+"/dialogues/toast",{Dialogue:this});
   }
 

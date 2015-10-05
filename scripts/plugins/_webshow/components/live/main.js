@@ -9,6 +9,7 @@ loadAppCode("_webshow/components/live",function(args){
   var rootDevice = (factory.session)?factory.session.rootDevice:undefined;
   var module = this;
   var socket = 0;
+  
   args.parent.setPermission('save',false);
 	args.parent.setPermission('connect',false);
   args.parent.setPermission('noOverride',true);
@@ -122,17 +123,19 @@ loadAppCode("_webshow/components/live",function(args){
       args.remote.app.continue();
     }
 
-    if(data.action == "do"){
-      var c = findContainer(data.UID);
-      console.log("Performing action:"+data.x+" "+data.y);
-      c.putAt(data.x,data.y);
-    }
-
     if(data.action == "event"){
       console.log("-------- REMOTE EVENT --------");
       console.log(data.event);
-      data.event.target = findContainer(data.event.target);
-      GEM.fireEvent(data.event);
+      var target = 0;
+      try {
+        target = findContainer(data.event.target);
+        target = target.DOMreference;
+      } catch(e){
+        console.log("Could not identify target",e);
+        return;
+      }
+      //GEM.fireEvent(data.event);
+      simulateEvent(data.event.original,data.event.event.toLowerCase(),target);
     }
   }
 
@@ -160,5 +163,52 @@ loadAppCode("_webshow/components/live",function(args){
     d.type = "click";
     d.target = e.target.UID;
     _send(d);
+  }
+
+  var eventMatchers = {
+    'HTMLEvents': /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
+    'MouseEvents': /^(?:click|dblclick|mouse(?:down|up|over|move|out))$/
+  }
+
+  function simulateEvent(e,eventName,element){
+
+    var options = e;
+    var oEvent, eventType = e.name;
+
+    for (var name in eventMatchers)
+    {
+        if (eventMatchers[name].test(eventName)) { eventType = name; break; }
+    }
+
+    if (!eventType)
+        console.error('Only HTMLEvents and MouseEvents interfaces are supported ' + eventName);
+
+    console.log("creating event");
+    console.log(options);
+    if (document.createEvent)
+    {
+        oEvent = document.createEvent(eventType);
+        if (eventType == 'HTMLEvents')
+        {
+            oEvent.initEvent(eventName, options.bubbles, options.cancelable);
+        }
+        else
+        {
+            oEvent.initMouseEvent(eventName, options.bubbles, options.cancelable, document.defaultView,
+            options.button, options.pageX, options.pageY, options.clientX, options.clientY,
+            options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, element);
+        }
+        console.log("Dispatcing with dispatchEvent()");
+        console.log(oEvent);
+        element.dispatchEvent(oEvent);
+    }
+    else
+    {
+        var evt = document.createEventObject();
+        oEvent = extend(evt, options);
+        console.log("document.createEventObject");
+        console.log(oEvent);
+        element.fireEvent('on' + eventName, oEvent);
+    }
   }
 });

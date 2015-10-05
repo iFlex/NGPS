@@ -1,7 +1,7 @@
 var _INITIALISED = false;
 function _INIT(onReady,mode){
   var modules = {
-    "essentials":["support/TweenLite.min","support/jquery","support/jquery.ui","container","networking","factory","save","load"],
+    "essentials":["support/TweenLite.min","support/jquery","support/FileSaver","support/jquery.ui","container","networking","factory","save","load"],
     "os":["support/host"],
     "Bootstrap":"support/bootstrap/js/bootstrap.min",
   }

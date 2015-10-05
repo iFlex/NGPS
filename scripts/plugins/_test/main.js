@@ -2,6 +2,7 @@ loadAppCode("_test",function(data){
   this.config = {interface:"none"},
   this.controller;
   this.tests = [
+  {file:"test_ssDialogue"},
   {file:"test_apps"},
   {file:"test_camera"},
   {file:"test_cli"},

@@ -30,7 +30,6 @@ Format:
 }
 */
 var save = {};
-var direct_save = 0;
 save.clear = function(){
 	delete save.saveTree;
 	delete save.requiredApps;
@@ -235,15 +234,8 @@ save.toFile = function(filename){
 
 	GEM.addEventListener("saveComplete",0,function(){
 		console.log("FILENAME:"+filename);
-		console.log(header);
-		//console.log(data);
-		console.log(trailer);
-		if(!direct_save)
-			direct_save = document.createElement("a");
-
 		var metadata = save.pack(true);
 		delete metadata.content;
-
 		//form
 		var allData = "{";
 		for( k in metadata)
@@ -251,9 +243,7 @@ save.toFile = function(filename){
 		allData +='"content":{'+data+'}';
 		allData += "}"
 		allData = btoa(allData);
-		direct_save.href = "data:application/xml;charset=utf-8,"+header+allData+trailer;
-		direct_save.download= filename+".html";
-		direct_save.click();
+		saveTextAs(header+allData+trailer,filename+".html");
 	},save);
 
 	save.clear();

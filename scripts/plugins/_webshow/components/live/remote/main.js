@@ -56,29 +56,41 @@ loadAppCode("_webshow/components/live/remote",function(args){
     GEM.removeEventListener("mouseDown",0,forwardEvent,this);
     GEM.removeEventListener("mouseUp",0,forwardEvent,this);
     GEM.removeEventListener("mouseMove",0,forwardEvent,this);
-    GEM.removeEventListener("triggered",0,forwardEvent,this);
+    //GEM.removeEventListener("triggered",0,forwardEvent,this);
   }
 
   this.continue = function(){
     hideInterface();
-    GEM.removeEventListener("mouseDown",0,forwardEvent,this);
+    GEM.addEventListener("mouseDown",0,forwardEvent,this);
     GEM.addEventListener("mouseUp",0,forwardEvent,this);
     GEM.addEventListener("mouseMove",0,forwardEvent,this);
-    GEM.addEventListener("triggered",0,forwardEvent,this);
+    //GEM.addEventListener("triggered",0,forwardEvent,this);
   }
 
   function forwardEvent(e){
-    var data = {event:{event:e.event,target:e.target.UID},action:"event"};
+    var exclude = {
+      target:1,
+      srcElement:1,
+      path:1,
+      toElement:1,
+      currentTarget:1,
+      relatedTarget:1,
+      view:1
+    };
+
+    var event_data = {};
+    event_data.event = e.event;
+    event_data.target = e.target.UID;
+    event_data.original = {};
+    for( k in e.original_event )
+      if(!exclude[k])
+        event_data.original[k] = e.original_event[k];
+
+    var data = {event:event_data,action:"event"};
+    console.log("#### Forwarding event ####");
+    console.log(e);
+    console.log("#### PACKAGED ####");
+    console.log(data);
     args.live.send(data);
   }
-/*
-  function sendUpdate(e){
-    var data = {UID:e.target.UID};
-    data.action = "do";
-    var pos = e.target.getPos();
-    data.x = pos.x;
-    data.y = pos.y;
-    args.live.send(data);
-  }
-*/
 });
