@@ -59,16 +59,9 @@ Camera.cstart = function()
 	//ViewportXY
 	this.cViewPortX = 0;
 	this.cViewPortY = 0;
-	//inertia
-	this.tInertia = 0;
-	this.xInertia = 0;
-	this.yInertia = 0;
+
 	//operations flags
 	this.callow = true;
-	this.cops = {};
-
-	this.c_allowInertia = true;
-	this.allowInertia = true;
 	//
 	this.crelations = this.crelations || {};
 	this.wasCalled = {};
@@ -118,13 +111,9 @@ Camera.cstart = function()
 	this.setCameraRange((this.properties['surfaceWidth']) ? this.properties['surfaceWidth'] : this.getWidth(),
 						(this.properties['surfaceHeight']) ? this.properties['surfaceHeight'] : this.getHeight());
 
-	//if(!this.properties['DONT_center'])
-	//{
-	//	var pos = this.display.getPos(0.5,0.5);
-	//	this.cXYmove(pos.x,pos.y);
-	//}
 	console.log("New Camera("+this.UID+"):"+utils.debug(this.properties," "));
 }
+
 Camera.setCameraRange = function ( w , h, ox, oy )
 {
 	if(typeof ox === 'undefined')
@@ -322,9 +311,6 @@ Camera.addChild = function(descriptor,addToFrame) //translate is used to transla
 	return reff;
 }
 
-Camera.ccancel = function(what)
-{
-}
 
 //Anti cross referencing
 Camera.antiCrossReff = function(funcName,action)
@@ -530,81 +516,6 @@ Camera.c_move = function(dx,dy,norel)
 		}
 	}
 	return true;
-}
-Camera.onMoveStart = function(ctx,e)
-{
-	if(!this.callow)
-		return;
-
-	if(this.allowInertia)
-	{
-		var root = this;
-		this.ccancel("inertia");
-
-		this.xInertia = 0;
-		this.yInertia = 0;
-		this.tInertia = 0;
-		this.c_allowInertia = true;
-
-		function measureInertia()
-		{
-			root.tInertia++;
-		}
-		this.cops['measureInertia'] = setInterval(measureInertia,this.cInterval);
-	}
-}
-Camera.onMoveEnd = function(ctx,e)
-{
-	if(!this.callow)
-		return;
-
-	var ok = false;
-	if(this.cops['measureInertia'])
-	{
-		this.ccancel('measureInertia');
-		ok = true;
-	}
-	if(ok)
-		this.applyInertia();
-}
-Camera.applyInertia = function(){
-	if(this.allowInertia)
-	{
-		var root = this;
-
-		var decay = 0.99;
-		var doubleDecay = 0.999;
-		var decayLim = 0.5;
-
-		this.c_allowInertia = false;
-
-		if(	this.tInertia > 1 )
-		{
-			this.xInertia /= this.tInertia;
-			this.yInertia /= this.tInertia;
-			this.cops['inertia'] = setInterval(inertia,this.cInterval);
-
-			function inertia()
-			{
-				if(Math.abs(root.xInertia) > 1 || Math.abs(root.yInertia)>1)
-				{
-					root.cmove(root.xInertia,root.yInertia);
-					root.xInertia *= decay;
-					root.yInertia *= decay;
-
-					if(decay > decayLim)
-						decay *= doubleDecay;
-				}
-				else
-				{
-					root.ccancel('inertia');
-					this.tInertia = 0;
-					this.xInertia = 0;
-					this.yInertia = 0;
-				}
-			}
-		}
-	}
 }
 
 Camera.czoomTo = function(zlevel,ox,oy,delay)

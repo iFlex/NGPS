@@ -4,33 +4,6 @@
 *	30 May 2014 07:13 GMT
 */
 var utils = {};
-var HTTPrequest = function(method,url,params,oncomplete,pass_to_listener)
-{
-
-	if(method == "GET")
-	{
-		var aux = "";
-		for(k in params)
-			aux += k+"="+encodeURIComponent(params[k])+"&";
-		params = aux;
-
-		url += "?"+params;
-		params = null;
-	}
-	else
-		if(typeof(params)!="string")
-			params = JSON.stringify(params);
-
-	var http = new XMLHttpRequest();
-	http.open(method, url, true);
-	http.setRequestHeader("Content-type", "application/JSON"); //WARNING: This encoding will replace all base64 '+' with ' ' so PHP needs to deal with that
-	http.onreadystatechange = function() {//Call a function when the state changes.
-		if(http.readyState == 4 && http.status == 200) {
-			oncomplete(http.responseText,http.status,pass_to_listener);
-		}
-	}
-	http.send( params );
-}
 
 utils.merge = function(a,b,override){
 	var nw = {}

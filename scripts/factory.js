@@ -55,49 +55,22 @@ factory.init = function(mode,manualSetup) // editor init
 	factory.settings.container.width = 250;
 	factory.settings.container.height = 250;
 
-	//if( mode == "editor" || mode == "view")
-	//{
-		//creating factory.root ( place where dynamic content is placed )
-		factory.base = new container(Descriptors.containers['base']);
+	factory.base = new container(Descriptors.containers['base']);
 
-		factory.root = factory.base.addChild(Descriptors.containers['root']);
-		factory.root.extend(Interactive);
-		factory.root.extend(Camera);
-		factory.root.interactive(true);
-		factory.root.cstart(5);
-		containerData.cameraCtx = factory.root;
-		//center camera
-		var s = factory.root.getSurface();
-		factory.root.c_move(-s['width']/2,-s['height']/2);
-		factory.initialised = true;
-		console.log("setup basics for mode:"+mode);
-		_init();
-	/*}
-	if( mode == "view" )
-	{
-		//need to be manually set
-		factory.base = 0;
-		factory.root = 0;
-		factory.initialised = true;
-		_init();
-	}
-	if( mode == "webshow" )
-	{
-		factory.base = new container(Descriptors.containers['base']);
+	factory.root = factory.base.addChild(Descriptors.containers['root']);
+	factory.root.extend(Interactive);
+	factory.root.extend(Camera);
+	factory.root.interactive(true);
+	factory.root.cstart(5);
+	containerData.cameraCtx = factory.root;
 
-		factory.root = factory.base.addChild(Descriptors.containers['root']);
-		factory.root.extend(Interactive);
-		factory.root.extend(Camera);
-		factory.root.interactive(true);
-		factory.root.cstart(5);
+	//center camera
+	var s = factory.root.getSurface();
+	factory.root.c_move(-s['width']/2,-s['height']/2);
+	factory.initialised = true;
+	console.log("setup basics for mode:"+mode);
+	_init();
 
-		//center camera
-		var s = factory.root.getSurface();
-		factory.root.c_move(-s['width']/2,-s['height']/2);
-		factory.initialised = true;
-		_init();
-	}
-*/
 	if(factory.AMS && factory.AMS.init)
 		factory.AMS.init( factory.settings.container, factory.AMS);
 }
