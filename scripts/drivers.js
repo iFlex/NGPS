@@ -4,7 +4,6 @@
 *	30 May 2014 07:13 GMT
 */
 var utils = {};
-
 utils.merge = function(a,b,override){
 	var nw = {}
 	for( k in a)
@@ -96,21 +95,37 @@ utils.normaliseField = function(field)
 {
 	field.style.border = "0px";
 }
+
 utils.loadStyle = function(path,onload)
 {
-	var s = document.createElement('link');
-	s.rel = "stylesheet";
-	s.href = path;
-	document.body.appendChild(s);
-	if(onload)
-		s.onload = onload;
+	var link = document.createElement('link');
+	link.setAttribute('rel', 'stylesheet');
+	link.setAttribute('type', 'text/css');
+	link.setAttribute('href', path);
+
+	if(typeof onload === 'function')
+		link.onload = onload
+
+	document.getElementsByTagName('head')[0].appendChild(link);
 }
+
+utils.loadScript = function(path,onload){
+	var script = document.createElement("script");
+	script.src = path;
+
+	if(typeof onload === 'function')
+		script.onload = onload
+
+	document.getElementsByTagName('head')[0].appendChild(script);
+}
+
 utils.loadRawStyle = function(style)
 {
 	var s = document.createElement('style');
 	s.innerHTML = style;
-	document.body.appendChild(s);
+	document.getElementsByTagName('head')[0].appendChild(s);
 }
+
 utils.sDeepDebug = function( node, spcs ){
 	var str = "";
 	var struct = "";
@@ -215,11 +230,14 @@ this.platform = {};
 platform.os = "unknown";
 platform.isMobile = "false";
 
+platform.setup = function(root){
+	platform.NGPS_REF_CANVAS = document.createElement("canvas");
+	platform.NGPS_REF_CANVAS.style.cssText = "position:fixed;width:100%;height:100%;min-height:100%;"
+	root.appendChild(platform.NGPS_REF_CANVAS);
+}
+
 platform.getScreenSize = function(){
-	var d = document.getElementById('canvas');
-	//var r = window.devicePixelRatio || 1;
-	//return { height:screen.height*r, width:screen.width*r }
-	return { height:d.clientHeight, width:d.clientWidth }
+	return { height:platform.NGPS_REF_CANVAS.clientHeight, width:platform.NGPS_REF_CANVAS.clientWidth }
 }
 
 platform.detectOS = function(){
