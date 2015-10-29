@@ -29,12 +29,13 @@
 
 //include dependencies
 //* needs drivers.js to be loaded beforehand
-requirejs(["support/TweenMax.min","interact","app","camera","gem","effects"],function(){containerData.ready = true});
-//
 var containerData = {};
+requirejs(["support/TweenMax.min","interact","app","camera","gem","effects"],function(){containerData.ready = true;});
+//
 containerData.containerIndex = 0;
 containerData.reffTree = {}; //quick reference tree
 containerData.cameraCtx = 0;
+containerData.root = document.body;
 
 function findContainer(uid){
 	return containerData.reffTree[uid];
@@ -245,7 +246,7 @@ this.container = function(_properties,_parent)
 		}
 		else
 		{
-			document.body.removeChild(this.DOMreference);
+			containerData.root.removeChild(this.DOMreference);
 		}
 
 		//EVENT
@@ -1085,7 +1086,7 @@ this.container = function(_properties,_parent)
 			if( this.parent )
 				this.parent.DOMreference.appendChild(this.DOMreference);
 			else //this is the master object ( root )
-				document.body.appendChild(this.DOMreference);
+				containerData.root.appendChild(this.DOMreference);
 		}
 		else { //add the isolated container
 			this.properties['*isolated'].appendChild(this.DOMreference);

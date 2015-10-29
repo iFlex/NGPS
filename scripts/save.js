@@ -221,10 +221,9 @@ save.toFile = function(filename){
 	if(!filename || filename.length < 1)
 		filename = "AwesomePresentation";
 
-	var serverLocation = "localhost/ngps";
-	var requireJSlocation = "http://requirejs.org/docs/release/2.1.20/minified/require.js";
-	var header  = '<html><head><script src="'+requireJSlocation+'"></script></head><body><script type="text/javascript">var _presentation="';
-	var trailer = '";requirejs(["'+serverLocation+'/scripts/support/main"],function(){_TOTAL_INIT(_presentation));</script></body></html>';
+	var serverLocation = "localhost:8080";
+	var header  = '<html><head><script src="'+serverLocation+'/ngps.js"></script></head><body><script type="text/javascript">var _presentation="';
+	var trailer = '";ngps.loadPresentation(_presentation);</script></body></html>';
 	var data = "";
 	function onAsynchUnit(unit){
 		console.log("chunk");

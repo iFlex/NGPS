@@ -320,7 +320,7 @@ pLOAD.fromHTML = function(data){
 	var end     = data.indexOf('"',start+start_of_data.length);
 	console.log(start+","+end);
 	var b64data = data.substring(start+start_of_data.length,end);
-	_TOTAL_INIT(b64data);
+	ngps.loadPresentation(b64data);
 }
 
 pLOAD.clear();

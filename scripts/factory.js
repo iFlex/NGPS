@@ -14,13 +14,13 @@
 *	Events:
 *		startup
 */
+this.factory = this.factory || {};
 
 //NGPS Factory creates 2 main objects: foot ( dymanic object holder ) overlay ( a static holder that allows headers or interfaces to be independent from the main camera)
 requirejs(["","descriptors/containers","descriptors/links","themes/default","regional/regionalLoader"],function(){
 	factory.ready = true;
 });
 //we still need a container descriptor file that will be the selection of containers available to the user
-this.factory = this.factory || {};
 this.factory.initialised = false;
 this.factory.allInitialised = 0;
 this.factory.UIpermissions = {save:false,edit:false,connect:false,track:false}
