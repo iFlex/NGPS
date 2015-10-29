@@ -14,10 +14,14 @@ ngps.statuses = {
 ngps.initStatus = ngps.statuses["not_initialised"];
 ngps.location = ngps.location || "";
 ngps.root = ngps.root || document.body;
+ngps.mode = "editor";
 
 ngps.init = function(overrideDependencyLoadCallback){
     if(!ngps.root)
       ngps.root = document.body;
+
+    if(ngps.location.legth > 0 && ngps.location[ngps.location.length-1] != "/" )
+        ngps.location += "/";
 
     console.log("Loading NGPS from /"+ngps.location);
     console.log("Initialising NGPS on root element:"+ngps.root);
@@ -32,7 +36,7 @@ ngps.init = function(overrideDependencyLoadCallback){
     function loadDrivers(){
 
       console.log("loading ngps drivers...");
-      requirejs([ngps.location+"/scripts/drivers.js"],function(){
+      requirejs([ngps.location+"scripts/drivers.js"],function(){
         ngps.initStatus = ngps.statuses["drivers_loaded"];
 
         platform.setup(ngps.root);
@@ -40,7 +44,7 @@ ngps.init = function(overrideDependencyLoadCallback){
 
         console.log("loaded ngps drivers");
         requirejs.config({
-            baseUrl: ngps.location+'/scripts',
+            baseUrl: ngps.location+'scripts',
         });
 
         ngps.initStatus = ngps.statuses["platform_setup"];
@@ -56,7 +60,7 @@ ngps.init = function(overrideDependencyLoadCallback){
             } else {
               factory.init('editor');
             }
-          });
+          },ngps.mode);
         }
       });
     }
@@ -65,7 +69,7 @@ ngps.init = function(overrideDependencyLoadCallback){
         console.log("loading dynamic script loader...");
 
         var script = document.createElement('script');
-        script.src = ngps.location+"/scripts/support/require.js";
+        script.src = ngps.location+"scripts/support/require.js";
         script.onload = function () {
           console.log("loaded dynamic script loader - RequireJS");
           ngps.initStatus = ngps.statuses["script_autoloader"];//loaded requireJS
