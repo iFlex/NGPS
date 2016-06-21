@@ -35,34 +35,42 @@
 *		App constructor function will get a object {} with parent: startWorker: and stopWorker properties and other initial required information
 *		startWorker returns the id of the worker or -1 in case the worker was not started
 */
+var ngps = ngps || {};
+ngps.app = {}
+ngps.app.ctl = {}
+ngps.app.mgr = {}
 
-var AppCtl = {};
-var AppMgr = {};
-AppMgr.status = "idle";
-AppMgr.maxAppWorkers = 10;
-AppMgr.running_app_parent = 0;
-AppMgr.workers = {};
-AppMgr.loadedApps = {};
-AppMgr.appHosts = {};
+ngps.app.mgr.status = "idle";
+ngps.app.mgr.maxAppWorkers = 10;
+ngps.app.mgr.running_app_parent = 0;
+ngps.app.mgr.workers = {};
+ngps.app.mgr.loadedApps = {};
+ngps.app.mgr.appHosts = {};
+
 //only one app can be running at one time
 //apps can have backbround tasks running even though they are suspended
 //those processes will be stopped when the app is unloaded
 //TODO make sure the function loadAppCode is available before any app is loaded
-function loadAppCode(name,app)
+ngps.app.load = function(name,app)
 {
-	AppMgr.loadedApps[name] = app;
-	if( AppMgr.checkIfAllLoaded() )
+	ngps.app.mgr.loadedApps[name] = app;
+	if( ngps.app.mgr.checkIfAllLoaded() )
 		GEM.fireEvent({event:"appsLoaded",isGlobal:true});
 }
+//BACKWARD COMPATIBILITY
+var AppCtl = ngps.app.ctl;
+var AppMgr = ngps.app.mgr;
+var loadAppCode = ngps.app.load;
+///////////////////////////////
 
-AppMgr.checkIfAllLoaded = function(){
-		for(i in AppMgr.loadedApps)
-			if(AppMgr.loadedApps[i] == 0)
+ngps.app.mgr.checkIfAllLoaded = function(){
+		for(i in ngps.app.mgr.loadedApps)
+			if(ngps.app.mgr.loadedApps[i] == 0)
 				return false;
 		return true;
 }
 
-AppCtl.ainit = function(app,params)
+ngps.app.ctl.ainit = function(app,params)
 {
 	if(!params)
 		params = {};
@@ -77,8 +85,8 @@ AppCtl.ainit = function(app,params)
 		return;
 	}
 
-	AppMgr.appHosts[this.appName] = AppMgr.appHosts[this.appName] || {};
-	AppMgr.appHosts[this.appName][this.UID] = this;
+	ngps.app.mgr.appHosts[this.appName] = ngps.app.mgr.appHosts[this.appName] || {};
+	ngps.app.mgr.appHosts[this.appName][this.UID] = this;
 	//unique identifiers for workers
 	this.aworkers = 0;
 	//
@@ -150,12 +158,12 @@ AppCtl.ainit = function(app,params)
 	if( this.events['appInitialised'] || ( GEM.events['appInitialised'] && GEM.events['appInitialised']['_global'] ) )
 		GEM.fireEvent({event:"appInitialised",target:this})
 }
-AppCtl.adestroy = function() // completely remove app from container
+ngps.app.ctl.adestroy = function() // completely remove app from container
 {
-	if( AppMgr.running_app_parent == this)
+	if( ngps.app.mgr.running_app_parent == this)
 	{
-		AppMgr.running_app_parent = 0;
-		AppMgr.status = "idle";
+		ngps.app.mgr.running_app_parent = 0;
+		ngps.app.mgr.status = "idle";
 	}
 
 	try{
@@ -166,9 +174,9 @@ AppCtl.adestroy = function() // completely remove app from container
 		console.ward("ERROR: could not shutdown application",e);
 	}
 
-	delete AppMgr.appHosts[this.appName][this.UID];
-	if( Object.keys(AppMgr.appHosts[this.appName]).length == 0 ) //all apps instances destroyed, time to unload the app
-		delete AppMgr.loadedApps[this.appName];
+	delete ngps.app.mgr.appHosts[this.appName][this.UID];
+	if( Object.keys(ngps.app.mgr.appHosts[this.appName]).length == 0 ) //all apps instances destroyed, time to unload the app
+		delete ngps.app.mgr.loadedApps[this.appName];
 
 	delete this.app;
 	this.isApp = false;
@@ -176,7 +184,7 @@ AppCtl.adestroy = function() // completely remove app from container
 	if( this.events['appDestroyed'] || ( GEM.events['appDestroyed'] && GEM.events['appDestroyed']['_global'] ) )
 		GEM.fireEvent({event:"appDestroyed",target:this})
 }
-AppCtl.ashow = function()
+ngps.app.ctl.ashow = function()
 {
 	this.app.show();
 	this.allowMove = false;
@@ -185,7 +193,7 @@ AppCtl.ashow = function()
 	if( this.events['appShowed'] || ( GEM.events['appShowed'] && GEM.events['appShowed']['_global'] ) )
 		GEM.fireEvent({event:"appShowed",target:this})
 }
-AppCtl.ahide = function()
+ngps.app.ctl.ahide = function()
 {
 	this.app.hide();
 	this.allowMove = true;
@@ -194,11 +202,11 @@ AppCtl.ahide = function()
 	if( this.events['appHidden'] || ( GEM.events['appHidden'] && GEM.events['appHidden']['_global'] ) )
 		GEM.fireEvent({event:"appHidden",target:this})
 }
-AppCtl.arun = function(ctx)
+ngps.app.ctl.arun = function(ctx)
 {
 	//suspend previous app
-	if( AppMgr.running_app_parent && AppMgr.running_app_parent != this )
-		AppMgr.running_app_parent.asuspend();
+	if( ngps.app.mgr.running_app_parent && ngps.app.mgr.running_app_parent != this )
+		ngps.app.mgr.running_app_parent.asuspend();
 
 	var host = this;
 	if(ctx)
@@ -219,19 +227,19 @@ AppCtl.arun = function(ctx)
 	host.exit.putAt(pos.x,pos.y,0,1);
 	//app
 	host.app.run();
-	AppMgr.running_app_parent = host;
-	AppMgr.status = "running";
+	ngps.app.mgr.running_app_parent = host;
+	ngps.app.mgr.status = "running";
 
 	//EVENT
 	if( this.events['appRun'] || ( GEM.events['appRun'] && GEM.events['appRun']['_global'] ) )
 		GEM.fireEvent({event:"appRun",target:this})
 }
-AppCtl.asuspend = function(ctx)
+ngps.app.ctl.asuspend = function(ctx)
 {
-	if(	AppMgr.running_app_parent == this )
+	if(	ngps.app.mgr.running_app_parent == this )
 	{
-		AppMgr.running_app_parent = 0;
-		AppMgr.status = "idle";
+		ngps.app.mgr.running_app_parent = 0;
+		ngps.app.mgr.status = "idle";
 	}
 	var host = this;
 	if(ctx)
@@ -250,7 +258,7 @@ AppCtl.asuspend = function(ctx)
 
 //TODO test
 //	   optimize worker requester so that it takes account of CPU usage & mem
-AppCtl.requestWorker = function( worker, interval )
+ngps.app.ctl.requestWorker = function( worker, interval )
 {
 	if(!worker)
 		return -2;//no worker specified
@@ -261,10 +269,10 @@ AppCtl.requestWorker = function( worker, interval )
 		interval = 30;
 	}
 
-	if( !AppMgr.workers[this.UID] )
-		AppMgr.workers[this.UID] = [];
+	if( !ngps.app.mgr.workers[this.UID] )
+		ngps.app.mgr.workers[this.UID] = [];
 
-	var nrWorkers = AppMgr.workers[this.UID].length;
+	var nrWorkers = ngps.app.mgr.workers[this.UID].length;
 
 	var context = this;
 	function tick(){
@@ -275,32 +283,32 @@ AppCtl.requestWorker = function( worker, interval )
 	if( nrWorkers == 0 ) //every app has the right to at least one worker
 	{
 		this.aworkers++;
-		AppMgr.workers[this.UID][nrWorkers] = {id:this.aworkers,ctl:setInterval( tick , interval )};
+		ngps.app.mgr.workers[this.UID][nrWorkers] = {id:this.aworkers,ctl:setInterval( tick , interval )};
 		return this.aworkers;
 	}
 	else
 	{
-		if( nrWorkers < AppMgr.maxAppWorkers )
+		if( nrWorkers < ngps.app.mgr.maxAppWorkers )
 		{
 			this.aworkers++;
-			AppMgr.workers[this.UID][nrWorkers] = {id:this.aworkers,ctl:setInterval( tick , interval )};
+			ngps.app.mgr.workers[this.UID][nrWorkers] = {id:this.aworkers,ctl:setInterval( tick , interval )};
 			return this.aworkers;
 		}
 	}
 	return -1;
 }
 
-AppCtl.stopWorker = function( id )
+ngps.app.ctl.stopWorker = function( id )
 {
 	//console.log("this:"+this+" "+this.UID);
-	if( AppMgr.workers[this.UID] )
+	if( ngps.app.mgr.workers[this.UID] )
 	{
-		var len = AppMgr.workers[this.UID].length;
+		var len = ngps.app.mgr.workers[this.UID].length;
 		for( var i=0; i < len; ++i )
-			if( !id || AppMgr.workers[this.UID][i]['id'] == id )
+			if( !id || ngps.app.mgr.workers[this.UID][i]['id'] == id )
 			{
-				clearInterval( AppMgr.workers[this.UID][i]['ctl'] )
-				AppMgr.workers[this.UID].splice(i,1);
+				clearInterval( ngps.app.mgr.workers[this.UID][i]['ctl'] )
+				ngps.app.mgr.workers[this.UID].splice(i,1);
 				if(id)
 					return true;
 			}

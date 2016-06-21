@@ -1,0 +1,5 @@
+NGPS initialisation process:
+
+1. ngps.js - General Initialisation of Infrastructure
+	- loading dependency scripts
+	

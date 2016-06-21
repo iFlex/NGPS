@@ -2,7 +2,7 @@
 * Author: Milorad Liviu Felix
 * 29 Apr 2015 00:30
 *
-* Host module is an OS abstraction that allows the NGPS system to interacti with OS level functions
+* Host module is an OS abstraction that allows the NGPS system to interact with OS level functions
 * This varies depending on what Host app solution is chosen for running the NGPS system
 * requires a driver object
 */
@@ -29,9 +29,11 @@ var host = new (function(){
         callback();
       },function(){callback();});
   }
+  
   this.getUserName = function(callback){
 
   }
+  
   this.save = function() {
     network.POST("save",data,function(){
       callback({success:false});

@@ -9,16 +9,16 @@
 //Definitions
 /*
 +-------------------------------+
-|	+---------------------+   	  |
-|	|  *Camera Frame      |		    |
-|	|  contains all the   |		    |
-|	|  visible content    |		    |
-|	|                     |		    |
-|	+---------------------+		    |
-|								                |
-|	*Camera Surface	     		      |
-|	all the content that the 	    |
-|   camera contains				      |
+|	+---------------------+   	|
+|	|  *Camera Frame      |		|
+|	|  contains all the   |		|
+|	|  visible content    |		|
+|	|                     |		|
+|	+---------------------+		|
+|								|
+|	*Camera Surface	     		|
+|	all the content that the 	|
+|   camera contains				|
 +-------------------------------+
 */
 //CAMERA OPTIONS:
@@ -42,9 +42,14 @@
 //			LOrotate => 0   	//allows the camera to rotate between 0 and 25 degrees
 
 //NOTE: when camera frame is an automatically positioned object the child display must be the same
-var Camera = {};
+var ngps = ngps || {};
+ngps.camera = {};
 
-Camera.cstart = function()
+//BACKWARDS COMPAT
+var Camera = ngps.camera;
+//////////////////////////
+
+ngps.camera.cstart = function()
 {
 	console.log("Creating camera");
 	//now adding camera specific functions
@@ -114,7 +119,7 @@ Camera.cstart = function()
 	console.log("New Camera("+this.UID+"):"+utils.debug(this.properties," "));
 }
 
-Camera.setCameraRange = function ( w , h, ox, oy )
+ngps.camera.setCameraRange = function ( w , h, ox, oy )
 {
 	if(typeof ox === 'undefined')
 		ox = 0.5;
@@ -128,7 +133,7 @@ Camera.setCameraRange = function ( w , h, ox, oy )
 	var dy = ( this.display.getHeight() - this.getHeight() ) * oy;
 	this.cXYmove( dx > 0 ? -dx : 0 , dy > 0 ? -dy : 0 );
 }
-Camera.setCameraType = function(type)
+ngps.camera.setCameraType = function(type)
 {
 	if(typeof(type) == "string")
 	{
@@ -168,7 +173,7 @@ Camera.setCameraType = function(type)
 	}
 }
 
-Camera.maintainBoundaries = function(data)
+ngps.camera.maintainBoundaries = function(data)
 {
 	var target = data['child'];
 	var pos = target.getPos(0,0);
@@ -218,7 +223,7 @@ Camera.maintainBoundaries = function(data)
 	chainUp(this.parent);
 }
 //GETTERS
-Camera.getViewportXY = function(ox,oy){
+ngps.camera.getViewportXY = function(ox,oy){
 	if(!ox)
 		ox = 0;
 	if(!oy)
@@ -228,7 +233,7 @@ Camera.getViewportXY = function(ox,oy){
 	ret['y'] = -ret['y'] + this.getHeight()*oy*ret.zoomMod;
 	return ret;
 }
-Camera.getSurfaceXY = function(ox,oy,noScale){
+ngps.camera.getSurfaceXY = function(ox,oy,noScale){
 	if(ox == undefined )
 		ox = 0;
 	if(oy == undefined )
@@ -250,7 +255,7 @@ Camera.getSurfaceXY = function(ox,oy,noScale){
 			zoomMod: zoomMod
 	}
 }
-Camera.getSurface = function(ox,oy){
+ngps.camera.getSurface = function(ox,oy){
 	var data = this.getSurfaceXY(ox,oy);
 	data['width'] = this.display.getWidth();
 	data['height'] = this.display.getHeight();
@@ -258,7 +263,7 @@ Camera.getSurface = function(ox,oy){
 	data['targetY'] = this.ctargetY;
 	return data;
 }
-Camera.cgetTransformOrigin = function(ox,oy){
+ngps.camera.cgetTransformOrigin = function(ox,oy){
 	//deprecated, must delete
 	if(typeof(ox) == "undefined")
 		ox = 0.5;
@@ -270,7 +275,7 @@ Camera.cgetTransformOrigin = function(ox,oy){
 	return {ox:ox,oy:oy};
 }
 
-Camera.viewportToSurface = function(x,y){
+ngps.camera.viewportToSurface = function(x,y){
 	var v = this.getSurfaceXY(0,0);
 	v.x = -v.x;
 	v.y = -v.y;
@@ -278,14 +283,14 @@ Camera.viewportToSurface = function(x,y){
 	v.y += y * v.zoomMod;
 	return v;
 }
-Camera.surfaceToViewport = function(x,y){
+ngps.camera.surfaceToViewport = function(x,y){
 	var v = this.getSurfaceXY(0,0);
 	v.x += x;
 	v.y += y;
 	return v;
 }
 //UTILS
-Camera.addChild = function(descriptor,addToFrame) //translate is used to translate the given position ( which is in relation to the screen ) to actual camera position
+ngps.camera.addChild = function(descriptor,addToFrame) //translate is used to translate the given position ( which is in relation to the screen ) to actual camera position
 {
 	var reff = 0;
 	//add to camera display
@@ -313,7 +318,7 @@ Camera.addChild = function(descriptor,addToFrame) //translate is used to transla
 
 
 //Anti cross referencing
-Camera.antiCrossReff = function(funcName,action)
+ngps.camera.antiCrossReff = function(funcName,action)
 {
 	if(this.wasCalled[funcName])
 	{
@@ -329,13 +334,13 @@ Camera.antiCrossReff = function(funcName,action)
 	}
 	return false;;
 }
-Camera.moveContent = function(dx,dy)
+ngps.camera.moveContent = function(dx,dy)
 {
 	//console.log("Camera moving content:"+dx+" "+dy)
 	for( k in this.display.children )
 		this.display.children[k].move(dx,dy,0);
 }
-Camera.pullContent = function(dx,dy) // works
+ngps.camera.pullContent = function(dx,dy) // works
 {
 	console.log("Camera pull content dx:"+dx+" dy:"+dy);
 	//pulls content from camera's edge to make it visible while keeping the camera's position at the same place
@@ -354,7 +359,7 @@ Camera.pullContent = function(dx,dy) // works
 	this.moveContent(-dx,-dy);
 }
 //fires when scroller camera is moved by any of the functions or the user
-Camera.scrollHandler = function(e)
+ngps.camera.scrollHandler = function(e)
 {
 	//console.log("Camera: handling scroll");
 	var parent = this;
@@ -376,7 +381,7 @@ Camera.scrollHandler = function(e)
 //MOVE CODE
 //TO move the camera use ctargetX and ctargetY to store the next position it will be placed at
 // this will be trimmed by the camera boundary enforcer function cmoveBound
-Camera.cmoveBound = function(){
+ngps.camera.cmoveBound = function(){
 	//boundary enforcement
 	var s = this.getSurface();
 	var w = this.getWidth();
@@ -392,7 +397,7 @@ Camera.cmoveBound = function(){
 	if(typeof(this.boundaries['HIy']) != 'undefined' && this.boundaries['HIy']*h > (this.ctargetY + s.height) )
 		this.ctargetY += this.boundaries['HIy']*h - (this.ctargetY + s.height);
 }
-Camera.cXYmove = function(px,py,ox,oy,delay,norel)
+ngps.camera.cXYmove = function(px,py,ox,oy,delay,norel)
 {
 	if(!delay)
 		delay = 0;
@@ -435,7 +440,7 @@ Camera.cXYmove = function(px,py,ox,oy,delay,norel)
 	}
 	return true;
 }
-Camera.cmove = function(dx,dy,delay,norel) //ICR ignore cross refference, make this cummulative
+ngps.camera.cmove = function(dx,dy,delay,norel) //ICR ignore cross refference, make this cummulative
 {
 	if(delay == undefined)
 		delay = 0;
@@ -479,7 +484,7 @@ Camera.cmove = function(dx,dy,delay,norel) //ICR ignore cross refference, make t
 	}
 	return true;
 }
-Camera.c_move = function(dx,dy,norel)
+ngps.camera.c_move = function(dx,dy,norel)
 {
 	//check cross refference
 	if(!norel && this.cameraType != 1 && this.antiCrossReff("c_move",1))
@@ -518,7 +523,7 @@ Camera.c_move = function(dx,dy,norel)
 	return true;
 }
 
-Camera.czoomTo = function(zlevel,ox,oy,delay)
+ngps.camera.czoomTo = function(zlevel,ox,oy,delay)
 {
 	var level  = zlevel / this.czoomLevel;
 
@@ -575,17 +580,17 @@ Camera.czoomTo = function(zlevel,ox,oy,delay)
 	return true;
 }
 //warning: if the step is too precise .xxx the zoom will not be precisely around the center of the viewport
-Camera.czoom = function(level,ox,oy,delay)
+ngps.camera.czoom = function(level,ox,oy,delay)
 {
 	this.czoomTo(this.czoomLevel * level,ox,oy,delay);
 }
 
-Camera.c_zoom = function(level,ox,oy)
+ngps.camera.c_zoom = function(level,ox,oy)
 {
 	this.czoom(level,ox,oy,0);
 }
 //TODO investigate aligning imperfections
-Camera.crotate = function(amount,ox,oy) //SLOW & POSITIONING IMPERFECTIONS
+ngps.camera.crotate = function(amount,ox,oy) //SLOW & POSITIONING IMPERFECTIONS
 {
 	if(!this.callow)
 		return;
@@ -610,7 +615,7 @@ Camera.crotate = function(amount,ox,oy) //SLOW & POSITIONING IMPERFECTIONS
 	this.antiCrossReff("crotate",0);
 }
 //TODO 3D like camera pan
-Camera.cpan = function(panx,pany)
+ngps.camera.cpan = function(panx,pany)
 {
 	if(!this.callow)
 		return;
@@ -619,7 +624,7 @@ Camera.cpan = function(panx,pany)
 
 //TODO perfect focus exit conditin and add parameters for selective exclusion of tweening
 // eg. don't zoom to level, don't turn to level, don't pan camera
-Camera.cfocusOn = function(target,options)
+ngps.camera.cfocusOn = function(target,options)
 {
 	console.log("Camera focusing on:"+target+" "+target.UID);
 	if(!this.callow)
@@ -636,7 +641,7 @@ Camera.cfocusOn = function(target,options)
 
 //Camera relationships
 //TODO: When adding new actuators make sure you include the antiCrossReff system
-Camera.addRelated = function(cam,descriptor)
+ngps.camera.addRelated = function(cam,descriptor)
 {
 	console.log("Adding related camera("+cam.UID+") to camera:"+this.UID);
 	//relations between cameras are established based on position, zoom level and angle of a camera
@@ -656,26 +661,26 @@ Camera.addRelated = function(cam,descriptor)
 	this.crelations[cam.UID]['root'] = cam;
 
 }
-Camera.removeRelated = function(camera)
+ngps.camera.removeRelated = function(camera)
 {
 	if(this.crelations[camera.UID])
 		delete this.crelations[camera.UID];
 }
 
-Camera.setBoundaries = function(boundaries)
+ngps.camera.setBoundaries = function(boundaries)
 {
 	for( k in boundaries )
 		this.boundaries[k] = boundaries[k];
 }
 
-Camera.unsetBoundaries = function(boundaries)
+ngps.camera.unsetBoundaries = function(boundaries)
 {
 	for( k in boundaries )
 		delete this.boundaries[k];
 }
 
 //TODO: remove this function
-Camera.tween = function(data,time)
+ngps.camera.tween = function(data,time)
 {
 	this.ccancel('tween');
 	console.log("prep tween:"+time+" "+this.cinterval);

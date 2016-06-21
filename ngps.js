@@ -1,3 +1,4 @@
+//Infrastructure controller
 var ngps = ngps || {};
 
 ngps.statuses = {
@@ -16,17 +17,17 @@ ngps.location = ngps.location || "";
 ngps.root = ngps.root || document.body;
 ngps.mode = "editor";
 
-ngps.init = function(overrideDependencyLoadCallback){
+ngps.init = function(overrideDependencyLoadCallback) {
     if(!ngps.root)
       ngps.root = document.body;
 
     if(ngps.location.legth > 0 && ngps.location[ngps.location.length-1] != "/" )
         ngps.location += "/";
 
-    console.log("Loading NGPS from /"+ngps.location);
+    console.log("Loading NGPS from /"+ngps.location);?
     console.log("Initialising NGPS on root element:"+ngps.root);
 
-    ngps.initStatus = ngps.statuses["bare_start"]; //TODO - change from magic numbers to
+    ngps.initStatus = ngps.statuses["bare_start"];
     function loadRequiredStyleSheets(){
       var css = ['style/bootstrap/css/bootstrap.min.css','style/general.css'];
         for( i in css )
@@ -41,16 +42,17 @@ ngps.init = function(overrideDependencyLoadCallback){
 
         platform.setup(ngps.root);
         loadRequiredStyleSheets();
-
+        
         console.log("loaded ngps drivers");
         requirejs.config({
             baseUrl: ngps.location+'scripts',
         });
 
         ngps.initStatus = ngps.statuses["platform_setup"];
-        if( typeof overrideDependencyLoadCallback === "function")
+        
+        if (typeof overrideDependencyLoadCallback === "function") {
           overrideDependencyLoadCallback();
-        else {
+        } else {
           ngps.dependencyLoad(function(){
             ngps.initStatus = ngps.statuses["completed"];
             if(window.location.search.indexOf("mode")>-1){
@@ -151,6 +153,11 @@ ngps.loadPresentation = function(presentation_data){
     console.log("*** HOT START ***");
     doLoadPresentation();
   }
+}
+
+//Initialisation function that scans the existing HTML view and initialises it as an NGPS environment
+ngps.synergise = function(){
+    ngps.init();
 }
 
 this.factory = this.factory || {};

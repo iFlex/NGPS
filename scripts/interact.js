@@ -330,7 +330,7 @@ Interactive.touchend = function( e, ctx){
 Interactive.enableMobile = function ( obj )
 {
 	//one finger events
-  obj.ontouchstart = this.touchstart;
+    obj.ontouchstart = this.touchstart;
 	obj.ontouchmove = this.touchmoved;
 	obj.ontouchend = this.touchend;
 	obj.ontouchcancel = this.touchend;
@@ -340,7 +340,7 @@ Interactive.enableMobile = function ( obj )
 Interactive.disableMobile = function (obj)
 {
 	//one finger events
-  obj.ontouchstart = null;
+    obj.ontouchstart = null;
 	obj.ontouchmove = null;
 	obj.ontouchend = null;
 	obj.ontouchcancel = null;
@@ -375,7 +375,7 @@ Interactive.interactive = function( d )
 	  			this.enableMobile ( this.DOMreference );
 	  		else
 	  		{
-					this.DOMreference.addEventListener('mousedown',this._onMouseDown, false);
+				this.DOMreference.addEventListener('mousedown',this._onMouseDown, false);
 	  			this.DOMreference.addEventListener('mousemove',this._onMouseMove, false);
 	  			this.DOMreference.addEventListener('mouseover',this._onMouseMove, false);
 	  			this.DOMreference.addEventListener('mouseup'  ,this._onMouseUp,   false);
@@ -402,6 +402,7 @@ Interactive.interactive = function( d )
 		}
   }
 }
+
 Interactive.pauseInteraction = function( d )
 {
 	//TODO: think over what kind of functionaly this should offer

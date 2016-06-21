@@ -1,5 +1,7 @@
 //TODO: test cover functionality
-var effects = new (function(){
+//TODO: separate effects implementation from effects management functions
+var ngps = ngps || {};
+ngps.effects = new (function(){
   var effectSet = {};
 
   this.addEffects = function(fxset){
@@ -97,7 +99,7 @@ var effects = new (function(){
   this.installTrigger = function(trigger,triggerer){
     triggerer.addEventListener(trigger,function(e){
       try {
-        effects.onTrigger(e.target.effects[trigger]);
+        ngps.effects.onTrigger(e.target.effects[trigger]);
       } catch(e){
         console.error("Could not execute effect trigger:"+trigger,e);
       }
@@ -180,6 +182,7 @@ var effects = new (function(){
       return {error:"Sorry, something went wrong"};
     }
   }
+  
   //default effects
   effectSet.move = {
     name:"move", //display name, fxname is the referencing one
@@ -192,7 +195,7 @@ var effects = new (function(){
         parameters:[],
         initialState:{}
       }
-      return effects.installRecord(trigger,triggerer,fx);
+      return ngps.effects.installRecord(trigger,triggerer,fx);
     },
     configure:function(fx){
       if(!fx.installIndex)
@@ -210,7 +213,7 @@ var effects = new (function(){
       fx.installIndex++;
     },
     uninstall:function(trigger,triggerer,fx){
-      effects.uninstall(trigger,triggerer,fx);
+      ngps.effects.uninstall(trigger,triggerer,fx);
     },
     execute:function(params,onFinished){
       var pos = params[0];
@@ -233,7 +236,7 @@ var effects = new (function(){
         parameters:[],
         initialState:{}
       }
-      return effects.installRecord(trigger,triggerer,fx);
+      return ngps.effects.installRecord(trigger,triggerer,fx);
     },
     configure:function(fx){
       if(!fx.installIndex)
@@ -241,7 +244,7 @@ var effects = new (function(){
       fx.installIndex++;
     },
     uninstall:function(trigger,triggerer,fx){
-      effects.uninstall(trigger,triggerer,fx);
+      ngps.effects.uninstall(trigger,triggerer,fx);
     },
     execute:function(params,onFinished){
       factory.root.cfocusOn(this,{});
@@ -263,7 +266,7 @@ var effects = new (function(){
         initialState:{},
         initAtExecutionOnly:true
       }
-      return effects.installRecord(trigger,triggerer,fx);
+      return ngps.effects.installRecord(trigger,triggerer,fx);
     },
     configure:function(fx){
       if(!fx.installIndex)
@@ -271,7 +274,7 @@ var effects = new (function(){
       fx.installIndex++;
     },
     uninstall:function(trigger,triggerer,fx){
-      effects.uninstall(trigger,triggerer,fx);
+      ngps.effects.uninstall(trigger,triggerer,fx);
     },
     execute:function(params,onFinished){
       $(this.DOMreference).fadeIn(1000,onFinished);
@@ -291,7 +294,7 @@ var effects = new (function(){
         parameters:[],
         initialState:{}
       }
-      return effects.installRecord(trigger,triggerer,fx);
+      return ngps.effects.installRecord(trigger,triggerer,fx);
     },
     configure:function(fx){
       if(!fx.installIndex)
@@ -299,7 +302,7 @@ var effects = new (function(){
       fx.installIndex++;
     },
     uninstall:function(trigger,triggerer,fx){
-      effects.uninstall(trigger,triggerer,fx);
+      ngps.effects.uninstall(trigger,triggerer,fx);
     },
     execute:function(params,onFinished){
       $(this.DOMreference).fadeOut(1000,onFinished);
@@ -312,3 +315,7 @@ var effects = new (function(){
   for( fx in effectSet )
     effectSet[fx].fxname = fx;
 })();
+
+//BACKWARDS COMPATIBILITY
+var effects = ngps.effects;
+///////////////////////////
