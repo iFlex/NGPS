@@ -42,7 +42,7 @@ loadAppCode("edit/components/clipboard",function(data) {
         console.warn("Could not paste element @ "+i,e);
       }
     }
-		pLOAD.proceed(0,props.mountPoint || factory.root);
+		pLOAD.proceed(0,props.mountPoint || ngps.mainCamera);
   }
 
   this.getClipboard = function(){

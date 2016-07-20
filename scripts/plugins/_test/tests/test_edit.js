@@ -19,7 +19,7 @@ function nextSector(){
 function init(){
 	factory.init();
 	editor.init();
-	factory.root.onTrigger = function(){ editor.hide();}
+	ngps.mainCamera.onTrigger = function(){ editor.hide();}
 	for(k in tests)
 		tests[k]();
 }
@@ -78,7 +78,7 @@ tests = {
 			nest(obj);	
 		}
 
-		nest(factory.root);
+		nest(ngps.mainCamera);
 	}
 }
 

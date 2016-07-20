@@ -28,7 +28,7 @@ function test_addNremove()
 		var obj = factory.newContainer( { x : e.clientX, y : e.clientY },"rounded_rect");
 		obj.onTrigger = obj.discard;
 	}
-	factory.root.onTrigger = makeContainer;
+	ngps.mainCamera.onTrigger = makeContainer;
 }
 
 var tests = {

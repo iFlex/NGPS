@@ -13,7 +13,12 @@ loadAppCode("edit/components/addVideo",function(data)
 
   Editor.videos = this;
   var vCTL = 0;
-
+	
+  var mountPoint = 0;
+  var putX = 0;
+  var putY = 0;
+  var _target = 0;
+	
   var correctYoutubeLink = function(link){
     if(link.indexOf("https://www.youtube.com/") == 0 ||
        link.indexOf("http://www.youtube.com/") == 0  ||
@@ -40,11 +45,11 @@ loadAppCode("edit/components/addVideo",function(data)
     console.log("Adding video link:"+link);
     if(!vCTL)
     {
-      vCTL = mountPoint || Editor.onAddContainer();
+      vCTL = mountPoint || Editor._addContainer(putX,putY,_target);
       vCTL.loadApp('interactiveContent',{url:link});
       vCTL.src = link;
       //primitiveCTL = container.addPrimitive({type:'iframe',width:420,height:345,content:{src:link,width:"420",height:"345"}});
-      Editor.sizer.show(Editor.sizer.target);
+      //Editor.sizer.show(Editor.sizer.target);
     }
     else
       if(vCTL.src != link)
@@ -80,16 +85,25 @@ loadAppCode("edit/components/addVideo",function(data)
       if(Editor.videos.container)
         Editor.videos.container.discard();
       Editor.videos.container = 0;
+	  //////////////////////////////
+	  Dialogue.import.hide();
     }
-    this.show = function(target,sp){
-      if(target)
-      {
+	
+    this.show = function(x,y,target){
+	  _target = target;
+	  putX = x;
+	  putY = y;
+		
+      if(target) {
         if(!target.hasChildren())
           mountPoint = target;
       }
       else
-        target = factory.base;
-
+        target = ngps.mainCamera;
+	  
+	  console.log("Mounting video @")
+	  console.log(target);
+		
       Editor.keyBind.deactivate();
       Dialogue.import.show({
         fileHandler:addFromFile,

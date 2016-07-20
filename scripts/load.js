@@ -279,7 +279,7 @@ pLOAD.proceed = function(jsn,mount,operation_mode)
 			var k = Object.keys(LOADcontent)[0];
 			var load_mode = operation_mode || {skip:{0:true,1:true,2:true},iteration:"recursive"};
 			pLOAD.remainingUnits = 1;
-			pLOAD.iterate(LOADcontent[k],factory.root,load_mode);
+			pLOAD.iterate(LOADcontent[k],ngps.mainCamera,load_mode);
 
 			function initialiseLoadedContent(){
 				//now load all the apps

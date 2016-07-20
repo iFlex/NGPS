@@ -23,10 +23,10 @@ loadAppCode("edit/components/selection",function(data)
     }
 
     var pos = container.local2global();
-    pos.x *= factory.root.czoomLevel;
-    pos.y *= factory.root.czoomLevel;
-    pos = factory.root.viewportToSurface(pos.x,pos.y);
-    //selection[container.UID].cover = factory.root.addChild({x:pos.x,y:pos.y,width:container.getPureWidth(),height:container.getPureHeight(),background:"rgba(0,0,0,0.25)"});
+    pos.x *= ngps.mainCamera.czoomLevel;
+    pos.y *= ngps.mainCamera.czoomLevel;
+    pos = ngps.mainCamera.viewportToSurface(pos.x,pos.y);
+    //selection[container.UID].cover = ngps.mainCamera.addChild({x:pos.x,y:pos.y,width:container.getPureWidth(),height:container.getPureHeight(),background:"rgba(0,0,0,0.25)"});
   }
 
   this.remove = function(container){

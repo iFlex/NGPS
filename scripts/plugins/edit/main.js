@@ -4,7 +4,7 @@
 *	28 Jun 2014  18:45 GMT
 *	Requires:
 *		factory.base - attach potin for interface which is overlayed on the main camera
-*		factory.root - main camera
+*		ngps.mainCamera - main camera
 */
 //TODO: Fix weird trigger ( with the start interface listener ) evend firing on factory.base even though it's not listened for.
 this.Editor = this.Editor || {};
@@ -267,11 +267,11 @@ loadAppCode("edit",function(data)
 	}
 
 	this.zoomIn = function(){
-		factory.root.czoom(1.1);
+		ngps.mainCamera.czoom(1.1);
 	}
 	this.zoomOut = function(){
-		//factory.root.czoom(0.6);
-		factory.root.czoom(0.9);
+		//ngps.mainCamera.czoom(0.6);
+		ngps.mainCamera.czoom(0.9);
 	}
 
 	//UTILITY
@@ -281,12 +281,12 @@ loadAppCode("edit",function(data)
     var dparent = Editor.shared.selected;
 		var actpos = {};
 		if( !dparent || Editor.addInterface.x == undefined){
-      dparent = factory.root;
-			actpos.x = factory.root.getWidth()/2;
-			actpos.y = factory.root.getHeight()/2;
+      dparent = ngps.mainCamera;
+			actpos.x = ngps.mainCamera.getWidth()/2;
+			actpos.y = ngps.mainCamera.getHeight()/2;
 		}
 		if(dparent.UID < 3)
-			dparent = factory.root;
+			dparent = ngps.mainCamera;
 
     var d = utils.merge({
     x:0,y:0,
@@ -295,7 +295,7 @@ loadAppCode("edit",function(data)
     permissions:{track:true,connect:true,edit:true}},descriptor,true);
 
     var container = factory.newContainer(d,((tag)?tag:"c000000"),dparent);
-    var pos = container.global2local( (actpos.x || Editor.addInterface.x)*1/factory.root.czoomLevel,(actpos.y || Editor.addInterface.y)*1/factory.root.czoomLevel);
+    var pos = container.global2local( (actpos.x || Editor.addInterface.x)*1/ngps.mainCamera.czoomLevel,(actpos.y || Editor.addInterface.y)*1/ngps.mainCamera.czoomLevel);
     container.putAt(pos.x,pos.y,0.5,0.5);
 
     if(Editor.sizer && !noInterface)
@@ -324,7 +324,7 @@ loadAppCode("edit",function(data)
       permissions:{track:false,connect:true,edit:true}},"c000000",
       Editor.shared.selected,false,true);
 
-      var pos = container.global2local(Editor.addInterface.x*1/factory.root.czoomLevel,Editor.addInterface.y*1/factory.root.czoomLevel);
+      var pos = container.global2local(Editor.addInterface.x*1/ngps.mainCamera.czoomLevel,Editor.addInterface.y*1/ngps.mainCamera.czoomLevel);
       container.putAt(pos.x,pos.y,0.5,0.5);
 
       if(Editor.sizer)
@@ -376,7 +376,7 @@ loadAppCode("edit",function(data)
 	}
 
 	this.paste = function(){
-		where = ((Editor.shared.selected && Editor.shared.selected.UID > 2)?Editor.shared.selected:factory.root);
+		where = ((Editor.shared.selected && Editor.shared.selected.UID > 2)?Editor.shared.selected:ngps.mainCamera);
 		Editor.clipboard.paste({dx:10,dy:10,mountPoint:where});
 		Editor.addInterface.hide();
 	}
@@ -393,7 +393,7 @@ loadAppCode("edit",function(data)
 		setTimeout(function(){
 		Editor.sizer.hide();
 		var pos = Editor.shared.selected.local2global(0.5,0.5);
-		var e = {event:"triggered",nativeEvent:{pageX:pos.x * factory.root.czoomLevel,pageY:pos.y * factory.root.czoomLevel},target:Editor.shared.selected};
+		var e = {event:"triggered",nativeEvent:{pageX:pos.x * ngps.mainCamera.czoomLevel,pageY:pos.y * ngps.mainCamera.czoomLevel},target:Editor.shared.selected};
 		Editor.addInterface.hide();
 		Editor.addInterface.onClick(e);},100);
 	}

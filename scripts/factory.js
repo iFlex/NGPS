@@ -16,10 +16,40 @@
 */
 this.factory = this.factory || {};
 
-//NGPS Factory creates 2 main objects: foot ( dymanic object holder ) overlay ( a static holder that allows headers or interfaces to be independent from the main camera)
+//NGPS Factory creates 2 main objects: root ( dymanic object holder ) overlay ( a static holder that allows headers or interfaces to be independent from the main camera)
 requirejs(["","descriptors/containers","descriptors/links","themes/default","regional/regionalLoader"],function(){
-	factory.ready = true;
+	ngps.status.loaded["factory"] = true;
 });
+
+factory.setup ={
+editor:function(){
+  factory.newGlobalApp('dialogue');
+  factory.newGlobalApp('_edit');
+	//factory.newGlobalApp('edit');
+  factory.newGlobalApp('debug');
+  //ngps.mainCamera.display.DOMreference.style.background = "red";
+  //factory.newGlobalApp('_test');
+  console.log("loaded edit setup");
+},
+view:function(){
+  factory.newGlobalApp('dialogue');
+  factory.newGlobalApp('zoom',{offsetY:0});
+  setTimeout(function(){Dialogue.import.show({
+    title:"Choose presentation to view",
+    fileHandler:function(e){ pLOAD.fromHTML(atob(e.target.result.split(",")[1])); },
+    urlHandler:function(){},
+    target:factory.base
+  });},2000);
+  factory.newGlobalApp('debug');
+  console.log("Loaded view setup");
+},
+webshow:function(){
+  factory.newGlobalApp('dialogue');
+  factory.newGlobalApp('_webshow');
+  factory.newGlobalApp('debug');
+  console.log("loaded webshow setup");
+}};
+
 //we still need a container descriptor file that will be the selection of containers available to the user
 this.factory.initialised = false;
 this.factory.allInitialised = 0;
@@ -57,16 +87,16 @@ factory.init = function(mode,manualSetup) // editor init
 
 	factory.base = new container(Descriptors.containers['base']);
 
-	factory.root = factory.base.addChild(Descriptors.containers['root']);
-	factory.root.extend(Interactive);
-	factory.root.extend(Camera);
-	factory.root.interactive(true);
-	factory.root.cstart(5);
-	containerData.cameraCtx = factory.root;
+	ngps.mainCamera = factory.base.addChild(Descriptors.containers['root']);
+	ngps.mainCamera.extend(Interactive);
+	ngps.mainCamera.extend(Camera);
+	ngps.mainCamera.interactive(true);
+	ngps.mainCamera.cstart(5);
+	containerData.cameraCtx = ngps.mainCamera;
 
 	//center camera
-	var s = factory.root.getSurface();
-	factory.root.c_move(-s['width']/2,-s['height']/2);
+	var s = ngps.mainCamera.getSurface();
+	ngps.mainCamera.c_move(-s['width']/2,-s['height']/2);
 	factory.initialised = true;
 	console.log("setup basics for mode:"+mode);
 	_init();
@@ -78,11 +108,11 @@ factory.defaultDescriptor = { x:0 , y:0 , width:250 , height:250 ,background:"tr
 
 //FACTORY functions
 factory.container = function(){
-	var parent = factory.root;
+	var parent = ngps.mainCamera;
   var w = factory.base.getWidth()/2;
 	var h = factory.base.getHeight()/2;
 	var possize = {x:(w-w/2),y:(h-h/2),width:w,height:h};
-	var actpos = factory.root.display.global2local(possize.x,possize.y);
+	var actpos = ngps.mainCamera.display.global2local(possize.x,possize.y);
 	possize.x = actpos.x;
 	possize.y = actpos.y;
 	return factory.newContainer(possize,"",parent);
@@ -93,7 +123,7 @@ factory.newContainer = function(possize,tag,parent)
 		factory.init();
 
 	if(!parent)
-		parent = factory.root;
+		parent = ngps.mainCamera;
 
 	//fetch descriptor
 	var descriptor = 0;
@@ -122,7 +152,7 @@ factory.createContainer = function(descriptor,parent,noInteraction)
 		factory.init();
 
 	if(!parent)
-		parent = factory.root;
+		parent = ngps.mainCamera;
 
 	if(factory.AMS && factory.AMS.generate)
 		factory.AMS.generate( parent , factory.settings.container, factory.AMS );

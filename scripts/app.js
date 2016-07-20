@@ -171,7 +171,7 @@ ngps.app.ctl.adestroy = function() // completely remove app from container
 		//stop all of the apps workers
 		this.stopWorker();
 	}catch(e){
-		console.ward("ERROR: could not shutdown application",e);
+		console.warn("ERROR: could not shutdown application",e);
 	}
 
 	delete ngps.app.mgr.appHosts[this.appName][this.UID];

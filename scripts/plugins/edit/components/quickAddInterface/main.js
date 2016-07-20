@@ -55,14 +55,14 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     Editor.addCloseCallback(Editor.addInterface.hide);
 
     if(parent.UID < 3)
-      parent = factory.root;
+      parent = ngps.mainCamera;
     console.log("Showing add interface with parent:"+parent.UID);
     Editor.addInterface.x = globalX;
     Editor.addInterface.y = globalY;
     //console.log("Click happened on:"+utils.debug(parent)+" @ "+globalX+"|"+globalY);
     var ctx = Editor.addInterface;
-    var scale = 1/factory.root.czoomLevel;
-    var pos = factory.root.viewportToSurface(globalX,globalY);
+    var scale = 1/ngps.mainCamera.czoomLevel;
+    var pos = ngps.mainCamera.viewportToSurface(globalX,globalY);
     var r = radius;
     var maxPerRadius = Math.floor(2*Math.PI*r/interfaceSize);
     var index = 0;
@@ -96,7 +96,7 @@ loadAppCode("edit/components/quickAddInterface",function(data){
   function makeButton(dsc,x,y){
     console.log("QAinterface making button");
     var descriptor = {x:0,y:0,width:interfaceSize,height:interfaceSize,background:"white",border_radius:[interfaceSize/2+"px"],border_size:0,cssText:"z-index:4;",permissions:data.parent.getPermissions()};
-    var cnt = factory.newContainer(descriptor,"simple_rect",factory.root);
+    var cnt = factory.newContainer(descriptor,"simple_rect",ngps.mainCamera);
     cnt.DOMreference.innerHTML = "<center><span class='"+dsc.icon+"' style='font-size:"+interfaceSize*sizeCoef+"px'></span><i style='font-size:10px'>"//+dsc.name
     +"</i></center>";
     for( e in dsc.callbacks)
@@ -213,21 +213,21 @@ loadAppCode("edit/components/quickAddInterface",function(data){
     icon:"glyphicon glyphicon-stop",
     callbacks:{onTrigger:function(){
       Editor.configureContainer.show(0);
-      factory.root.cfocusOn(Editor.sizer.target,{speed:1});}}
+      ngps.mainCamera.cfocusOn(Editor.sizer.target,{speed:1});}}
   },{
     name:"ch_border",
     description:"Change the border style of the container",
     icon:"glyphicon glyphicon-unchecked",
     callbacks:{onTrigger:function(){
       Editor.configureContainer.show(1);
-      factory.root.cfocusOn(Editor.sizer.target,{speed:1});}}
+      ngps.mainCamera.cfocusOn(Editor.sizer.target,{speed:1});}}
   },{
     name:"ch_colors",
     description:"Change the color of the container",
     icon:"glyphicon glyphicon-pencil",
     callbacks:{onTrigger:function(){
       Editor.configureContainer.show(2);
-      factory.root.cfocusOn(Editor.sizer.target,{speed:1});}}
+      ngps.mainCamera.cfocusOn(Editor.sizer.target,{speed:1});}}
   },{
     name:"Effects",
     description:"Add an effect",

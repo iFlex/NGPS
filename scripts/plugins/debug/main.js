@@ -30,7 +30,7 @@ loadAppCode("debug",function(data)
       for( i in node.children )
         processNode(node.children[i]);
     }
-    //processNode(factory.root);
+    //processNode(ngps.mainCamera);
   }
 
   this.findAllAppInstances = function(){

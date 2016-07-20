@@ -105,7 +105,7 @@ Regional.inspectObject = function(obj,message)
 Regional.translate = function(root,message)
 {
 	if(!root)
-		root = factory.root;
+		root = ngps.mainCamera;
 
 	Regional.includeLanguagePack();
 	if(!Regional.loadedLanguages[Regional.language])

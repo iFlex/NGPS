@@ -33,24 +33,27 @@ loadAppCode("edit/components/link",function(data){
 			temp.hide();
 		linkParent = 0;
 	}
+	
+	this.doLink = function(x,y,target,e){
+		Editor.link.trigger(e);
+	}
+	
 	this.trigger = function(data)
 	{
 		console.log(data);
-		scale = 1/factory.root.czoomLevel;
+		scale = 1/ngps.mainCamera.czoomLevel;
 		var target = data['target'];
 		if(!target.getPermission('connect'))
 			return;
 
-		if( target.UID < startFrom || (linkParent && target.UID == linkParent.UID ) )//clicked on root
-		{
+		if( target.UID < startFrom || (linkParent && target.UID == linkParent.UID ) ) { //clicked on root 
 			temp.hide();
 			return;
 		}
+		
 		var e = data['original_event'];
-		var localPos = target.global2local(e.clientX*scale,e.clientY*scale);
-		console.log("cx:"+e.clientX+" cy:"+e.clientY+" lp:"+localPos.x+"|"+localPos.y);
-		//console.log("Link maker:"+utils.debug(target)+" last:"+linkParent);
-
+		var localPos = {x:e.offsetX,y:e.offsetY}//target.global2local(e.clientX*scale,e.clientY*scale);
+		
 		if(!linkParent)
 		{
 			linkData = {
@@ -72,7 +75,6 @@ loadAppCode("edit/components/link",function(data){
 			temp.show();
 			temp.putAt(localPos.x,localPos.y,0.5,0.5);
 
-			Editor.requestNextClick(Editor.link.trigger);
 		}
 		else
 		{
@@ -99,7 +101,7 @@ loadAppCode("edit/components/link",function(data){
 	{
 		Editor.link = this;
 		console.log(this.parent.appPath+" - initialising...");
-		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true,permissions:data.parent.getPermissions()},'link_dot',factory.root);
+		temp  = factory.newContainer({x:0,y:0,width:32,height:32,ignoreTheme:true,permissions:data.parent.getPermissions()},'link_dot',ngps.mainCamera);
 		console.log("link.init> created pointer:"+utils.debug(temp));
 		var g = temp.addPrimitive({type:"span",content:{class:"glyphicon glyphicon-record"}});//<span class="glyphicon glyphicon-record"></span>
 		g.style.cssText = "font-size:32px";

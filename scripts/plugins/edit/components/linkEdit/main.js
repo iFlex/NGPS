@@ -59,14 +59,14 @@ loadAppCode("edit/components/linkEdit",function(data){
     right.maintainLinks();
   }
   function maintainDelButtons(){
-    var pos1 = link.local2global(0.5,0.5,factory.root.display.UID);
+    var pos1 = link.local2global(0.5,0.5,ngps.mainCamera.display.UID);
     ldel.putAt(pos1.x,pos1.y,0.5,0.5);
   }
   function showInterface(){
     if(!ileft) {
       ileft = makeDot(left);
       iright = makeDot(right);
-      ldel = makeDel(factory.root);
+      ldel = makeDel(ngps.mainCamera);
     } else {
       ileft.show(true);
       iright.show(true);
@@ -130,12 +130,12 @@ loadAppCode("edit/components/linkEdit",function(data){
     console.log(this.parent.appPath+" - initialising...");
 
     GEM.addEventListener("link",0,newlink,this);
-    factory.root.addEventListener("triggered",hide);
+    ngps.mainCamera.addEventListener("triggered",hide);
   }
   this.shutdown = function(){
     console.log(this.parent.appPath+" - shutting down...");
 
     GEM.removeEventListener("link",0,newlink,this);
-    factory.root.removeEventListener("triggered",hide);
+    ngps.mainCamera.removeEventListener("triggered",hide);
   }
 });

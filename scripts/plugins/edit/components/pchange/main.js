@@ -22,15 +22,15 @@ loadAppCode("edit/components/pchange",function(data)
       var o = interfaces[i];
       o.show();
       o.destination = obj;
-      pos = factory.root.viewportToSurface(pos.x * factory.root.czoomLevel,pos.y * factory.root.czoomLevel);
+      pos = ngps.mainCamera.viewportToSurface(pos.x * ngps.mainCamera.czoomLevel,pos.y * ngps.mainCamera.czoomLevel);
       o.child.className = (last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in";
       o.putAt(pos.x,pos.y);
       o.DOMreference.style.zIndex = containerData.containerIndex;
   }
   function makeTrigger(obj,pos,last)
   {
-    pos = factory.root.viewportToSurface(pos.x,pos.y);
-    var c = factory.newContainer({x:pos.x,y:pos.y,width:interfSize,height:interfSize,background:"white",border_radius:["10%"],style:"text-align: center;",permissions:data.parent.getPermissions()},"none",factory.root);//factory.base);
+    pos = ngps.mainCamera.viewportToSurface(pos.x,pos.y);
+    var c = factory.newContainer({x:pos.x,y:pos.y,width:interfSize,height:interfSize,background:"white",border_radius:["10%"],style:"text-align: center;",permissions:data.parent.getPermissions()},"none",ngps.mainCamera);//factory.base);
     var g = c.addPrimitive({type:"span",content:{class:(last == true)?"glyphicon glyphicon-log-out":"glyphicon glyphicon-log-in"}});
     g.style.cssText = "font-size:"+interfSize*0.9+"px";
     c.destination = obj;
@@ -113,7 +113,7 @@ loadAppCode("edit/components/pchange",function(data)
       if(!parent)
         return null;
 
-      if(parent.UID != factory.root.display.UID)
+      if(parent.UID != ngps.mainCamera.display.UID)
       {
         //check parent
         var pt = parent.local2global(0,0);

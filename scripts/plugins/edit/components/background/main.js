@@ -35,8 +35,8 @@ loadAppCode("edit/components/background",function(data){
 
   add = function(e)
   {
-    factory.root.DOMreference.style.backgroundImage="url('"+e.target.result+"')";
-    factory.root.DOMreference.style.backgroundSize = "cover";
+    ngps.mainCamera.DOMreference.style.backgroundImage="url('"+e.target.result+"')";
+    ngps.mainCamera.DOMreference.style.backgroundSize = "cover";
     Dialogue.import.hide();
   }
 

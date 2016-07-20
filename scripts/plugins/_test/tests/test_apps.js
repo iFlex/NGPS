@@ -20,7 +20,7 @@ function init(){
 	factory.init();
 	for(k in tests)
 		tests[k]();
-	factory.root.onTrigger = tests.build;
+	ngps.mainCamera.onTrigger = tests.build;
 }
 
 tests = {

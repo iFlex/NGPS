@@ -11,7 +11,7 @@ loadAppCode("edit/components/sizer",function(data)
   var defaultInterface = "basic";
   var interfaceSize = 23;
   var sizeCoef = 0.75;
-  var mountPoint = factory.root;
+  var mountPoint = ngps.mainCamera;
   Editor.sizer = this;
   this.configure = function(data){
       for(k in Editor.sizer.EditUI)
@@ -59,7 +59,7 @@ loadAppCode("edit/components/sizer",function(data)
     Editor.sizer.show(e.target);
   }
 
-  this.show = function(target)
+  this.show = function(x,y,target)
   {
 
     //console.log("SHOW");
@@ -67,7 +67,6 @@ loadAppCode("edit/components/sizer",function(data)
     if(!target || !target.getPermission('edit') || target.isLink)
       return;
 
-    Editor.addCloseCallback(Editor.sizer.hide);
     Editor.sizer.target = target;
     console.log("Showing interface for:"+utils.debug(target)+" prefered interface:"+target.editInterface);
     //debug
@@ -75,11 +74,11 @@ loadAppCode("edit/components/sizer",function(data)
     {
       if( target.editInterface != currentInterface ) {
         currentInterface = target.editInterface;
-        this.configure(this.interfaces[currentInterface]);
+        Editor.sizer.configure(Editor.sizer.interfaces[currentInterface]);
       }
     } else {
       currentInterface = defaultInterface;
-      this.configure(this.interfaces[currentInterface]);
+      Editor.sizer.configure(Editor.sizer.interfaces[currentInterface]);
     }
     //add event listeners
     target.addEventListener("changeWidth",Editor.sizer.focus);
@@ -88,7 +87,7 @@ loadAppCode("edit/components/sizer",function(data)
     target.addEventListener("changePosition",Editor.sizer.move);
     //target.addEventListener("changeAngle",this.focus);
     //shot interface
-    this.focus();
+    Editor.sizer.focus();
   }
 
   this.hide = function()
@@ -130,14 +129,14 @@ loadAppCode("edit/components/sizer",function(data)
         for(k in Editor.sizer.EditUI)
         {
           var targetPos = target.local2global(Editor.sizer.EditUI[k].descriptor.anchors['px'], Editor.sizer.EditUI[k].descriptor.anchors['py']);
-          targetPos = factory.root.viewportToSurface(targetPos.x * factory.root.czoomLevel,targetPos.y * factory.root.czoomLevel);
+          targetPos = ngps.mainCamera.viewportToSurface(targetPos.x * ngps.mainCamera.czoomLevel,targetPos.y * ngps.mainCamera.czoomLevel);
           Editor.sizer.EditUI[k].object.show();
           Editor.sizer.EditUI[k].object.putAt(targetPos.x,targetPos.y,
             Editor.sizer.EditUI[k].descriptor.anchors['bx'],
             Editor.sizer.EditUI[k].descriptor.anchors['by']);
           Editor.sizer.EditUI[k].object.setAngle(target.angle);
           //TODO: scale around anchor point so that icons don't overlap
-          Editor.sizer.EditUI[k].object.scale(1/factory.root.czoomLevel,0,0,0,true);
+          Editor.sizer.EditUI[k].object.scale(1/ngps.mainCamera.czoomLevel,0,0,0,true);
         }
         Editor.sizer.target.lastEditAngle = undefined;
       }
@@ -157,27 +156,27 @@ loadAppCode("edit/components/sizer",function(data)
   }
   this.onChangeWidthRight = function(dx,dy)
   {
-    Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()+dx*(1/factory.root.czoomLevel));
+    Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()+dx*(1/ngps.mainCamera.czoomLevel));
     Editor.sizer.focus();
     //autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeWidthLeft = function(dx,dy)
   {
-    Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()-dx *(1/factory.root.czoomLevel) );
+    Editor.sizer.target.setWidth(Editor.sizer.target.getWidth()-dx *(1/ngps.mainCamera.czoomLevel) );
     Editor.sizer.target.move(dx,0);
     //autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeHeightBottom = function(dx,dy)
   {
-    Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()+dy*(1/factory.root.czoomLevel));
+    Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()+dy*(1/ngps.mainCamera.czoomLevel));
     //autoScale(Editor.sizer.target);
   }
   //edit interface functions
   this.onChangeHeightTop = function(dx,dy)
   {
-    Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()-dy*(1/factory.root.czoomLevel));
+    Editor.sizer.target.setHeight(Editor.sizer.target.getHeight()-dy*(1/ngps.mainCamera.czoomLevel));
     Editor.sizer.target.move(0,dy);
     //autoScale(Editor.sizer.target);
   }

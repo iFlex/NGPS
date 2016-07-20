@@ -13,77 +13,48 @@ ngps.statuses = {
 }
 //defaults
 ngps.initStatus = ngps.statuses["not_initialised"];
+ngps.status = {loaded:{}};
+
 ngps.location = ngps.location || "";
 ngps.root = ngps.root || document.body;
 ngps.mode = "editor";
+if(window.location.search.indexOf("mode")>-1)
+    ngps.mode = window.location.search.substring(window.location.search.indexOf("=")+1,window.location.search.length);
 
-ngps.init = function(overrideDependencyLoadCallback) {
-    if(!ngps.root)
-      ngps.root = document.body;
-
-    if(ngps.location.legth > 0 && ngps.location[ngps.location.length-1] != "/" )
-        ngps.location += "/";
-
-    console.log("Loading NGPS from /"+ngps.location);?
-    console.log("Initialising NGPS on root element:"+ngps.root);
-
-    ngps.initStatus = ngps.statuses["bare_start"];
-    function loadRequiredStyleSheets(){
-      var css = ['style/bootstrap/css/bootstrap.min.css','style/general.css'];
-        for( i in css )
-          utils.loadStyle(ngps.location+css[i]);
-    }
-
-    function loadDrivers(){
-
-      console.log("loading ngps drivers...");
-      requirejs([ngps.location+"scripts/drivers.js"],function(){
-        ngps.initStatus = ngps.statuses["drivers_loaded"];
-
-        platform.setup(ngps.root);
-        loadRequiredStyleSheets();
-        
-        console.log("loaded ngps drivers");
-        requirejs.config({
-            baseUrl: ngps.location+'scripts',
-        });
-
+ngps.startup_callback = function(){
+        platform.setup();
         ngps.initStatus = ngps.statuses["platform_setup"];
-        
-        if (typeof overrideDependencyLoadCallback === "function") {
-          overrideDependencyLoadCallback();
-        } else {
-          ngps.dependencyLoad(function(){
-            ngps.initStatus = ngps.statuses["completed"];
-            if(window.location.search.indexOf("mode")>-1){
-              var mode = window.location.search.substring(window.location.search.indexOf("=")+1,window.location.search.length);
-              console.log("INITIALISED MODE - "+mode);
-              factory.init(mode);
-            } else {
-              factory.init('editor');
-            }
-          },ngps.mode);
-        }
-      });
-    }
-
-    function loadBootScripts(){
-        console.log("loading dynamic script loader...");
-
-        var script = document.createElement('script');
-        script.src = ngps.location+"scripts/support/require.js";
-        script.onload = function () {
-          console.log("loaded dynamic script loader - RequireJS");
-          ngps.initStatus = ngps.statuses["script_autoloader"];//loaded requireJS
-          loadDrivers();
-        };
-        document.body.appendChild(script);
-    }
-
-    loadBootScripts();
+        ngps.loadDependencies(ignition,ngps.mode);
 }
 
-ngps.dependencyLoad = function(onReady,mode){
+function loadRequiredStyleSheets(){
+    var css = ['style/bootstrap/css/bootstrap.min.css','style/general.css'];
+    for( i in css )
+        ngps.utils.loadStyle(ngps.location+css[i]);
+}
+
+function loadEssentials(onLoaded){
+    console.log("loading dynamic script loader...");
+
+    var script = document.createElement('script');
+    script.src = ngps.location+"scripts/support/require.js";
+    script.onload = function () {
+        console.log("loaded dynamic script loader - RequireJS");
+        requirejs.config({baseUrl: ngps.location+'scripts'});
+        ngps.initStatus = ngps.statuses["script_autoloader"];//loaded requireJS
+        
+        console.log("loading ngps drivers...");
+        requirejs(["drivers"], function() {
+            ngps.initStatus = ngps.statuses["drivers_loaded"];
+            loadRequiredStyleSheets();
+            
+            try { onLoaded(); } catch ( e ){ console.log("BootScriptLoader: Bad callback provided:"+e);}
+        });
+    };
+    document.body.appendChild(script);
+}
+
+ngps.loadDependencies = function(onReady,mode){
   var modules = {
     "essentials":["support/TweenLite.min","support/jquery","support/FileSaver","container","networking","factory","save","load"],
     "os":["support/host"],
@@ -112,14 +83,11 @@ ngps.dependencyLoad = function(onReady,mode){
     console.log(scripts);
 
     function isReady(){
-      if(factory.ready === true && containerData.ready === true) {
+      if(ngps.status.loaded["factory"] === true && ngps.status.loaded["container"] === true) {
         ngps.initStatus = ngps.statuses["mode_initialised"];
-        containerData.root = ngps.root;
         if(typeof onReady === 'function')
           onReady();
-      }
-      else
-        setTimeout(isReady,100);
+      } else { setTimeout(isReady,100); }
     }
 
     requirejs(scripts,isReady);
@@ -128,64 +96,49 @@ ngps.dependencyLoad = function(onReady,mode){
   loadConfig(mode||"editor");
 }
 
+ngps.prezInit = function(){
+	var mode = "view";
+    ngps.loadDependencies(function(){
+      factory.init(mode);
+      doLoadPresentation();
+    },"editor");
+}
+
 ngps.loadPresentation = function(presentation_data){
 
   function doLoadPresentation(){
     pLOAD.proceed(atob(presentation_data));
   }
 
-  function doLoadDependencies(){
-    var mode = "view";
-    ngps.dependencyLoad(function(){
-      factory.init(mode);
-      doLoadPresentation();
-    },"editor");
-  }
-
-  if(ngps.initStatus == ngps.statuses["not_initialised"]){ //no initialisation has been done whatsoever
+  if(ngps.initStatus == ngps.statuses["not_initialised"]){ //no initialisation has been done whatsoever this is a cold start
     console.log("*** COLD START ***");
-    //this is a cold start
-    ngps.init(doLoadDependencies);
+	ngps.startup_callback = ngps.prezInit;
+    ngps.init();
   } else if(ngps.initStatus < ngps.statuses["mode_initialised"] ){//dependencies have not been loaded
     console.log("*** WARM START ***");
-    doLoadDependencies();
+    ngps.prezInit();
   } else { //dependencies have been loaded
     console.log("*** HOT START ***");
     doLoadPresentation();
   }
 }
 
-//Initialisation function that scans the existing HTML view and initialises it as an NGPS environment
-ngps.synergise = function(){
-    ngps.init();
+function ignition(){
+    ngps.initStatus = ngps.statuses["completed"];
+    factory.init(ngps.mode);
 }
 
-this.factory = this.factory || {};
-factory.setup ={
-editor:function(){
-  factory.newGlobalApp('dialogue');
-  factory.newGlobalApp('edit');
-  factory.newGlobalApp('debug');
-  //factory.root.display.DOMreference.style.background = "red";
-  //factory.newGlobalApp('_test');
-  console.log("loaded edit setup");
-},
-view:function(){
-  factory.newGlobalApp('dialogue');
-  factory.newGlobalApp('zoom',{offsetY:0});
-  setTimeout(function(){Dialogue.import.show({
-    title:"Choose presentation to view",
-    fileHandler:function(e){ pLOAD.fromHTML(atob(e.target.result.split(",")[1])); },
-    urlHandler:function(){},
-    target:factory.base
-  });},2000);
-  factory.newGlobalApp('debug');
-  console.log("Loaded view setup");
-},
-webshow:function(){
-  factory.newGlobalApp('dialogue');
-  factory.newGlobalApp('_webshow');
-  factory.newGlobalApp('debug');
-  console.log("loaded webshow setup");
-}};
-console.log(factory);
+ngps.init = function(root){
+    if(ngps.location.legth > 0 && ngps.location[ngps.location.length-1] != "/" )
+        ngps.location += "/";
+    
+    if(typeof root === "object")
+        ngps.root = root;
+    
+    console.log("Loading NGPS from /"+ngps.location);
+    console.log("Initialising NGPS on root element:"+ngps.root);
+
+    ngps.initStatus = ngps.statuses["bare_start"];
+    
+    loadEssentials(ngps.startup_callback);
+}

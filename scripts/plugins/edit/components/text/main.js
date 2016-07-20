@@ -5,7 +5,7 @@
 *	Need:
 *		Need to be able to pup up editor same size regardless of zoom level
 */
-//TODO: Fix weird trigger ( with the start editor listener ) evend firing on factory.root even though it's not listened for.
+//TODO: Fix weird trigger ( with the start editor listener ) evend firing on ngps.mainCamera even though it's not listened for.
 this.keyboard = {};
 keyboard.ops;
 keyboard.editor = 0;
@@ -19,12 +19,15 @@ loadAppCode("edit/components/text",function(data)
 	this.startWorker = data['startWorker'];
 	this.stopWorker = data['stopWorker'];
 	this.rootDir = "plugins/text";
+	
 	Editor.text = this;
+	
 	keyboard.uppercase = 0;
 	keyboard.ops = this;
 	var _target = 0;
 	var monInterval;
 	var ctdiv = 0;
+	
 	function monitor(){
 		if(!_target)
 			return;
@@ -84,11 +87,20 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.editor.hide();
 
 	}
-	this.quickMake = function(){
-		var c = factory.container();
-		this.makeTextContainer(c);
+	
+	this.quickMake = function(x,y,target){
+		keyboard.hide();
+	
+		var c = target.addChild({x:x,y:y,width:100,height:100,background:"rgba(0,0,0,0.5)"});//factory.container();
+		var pos = c.global2local();
+		c.putAt(pos.x,pos.y,0.5,0.5);
+		
+		c.extend(Interactive);
+		c.interactive(true);  
+		Editor.text.makeTextContainer(c);
 		keyboard.focus(c);
 	}
+	
 	this.makeTextContainer = function(container,text){
 		if(!container.textField){
 			if(container._store && container._store.textFieldParentUID)
@@ -136,9 +148,8 @@ loadAppCode("edit/components/text",function(data)
 		adaptHeight({target:target});
 	}
 
-	keyboard.focus = function(target)
-	{
-		Editor.addCloseCallback(keyboard.hide);
+	keyboard.focus = function(target) {
+		//Editor.addCloseCallback(keyboard.hide);
 		if(Editor.keyBind)
 				Editor.keyBind.deactivate();
 
@@ -149,15 +160,14 @@ loadAppCode("edit/components/text",function(data)
 		keyboard.interface.subject = target.textField;
 
 		var pos = target.local2global();
-		keyboard.interface.parent.putAt(pos.x * factory.root.czoomLevel,(pos.y - keyboard.editor.getHeight()) * factory.root.czoomLevel);
+		keyboard.interface.parent.putAt(pos.x * ngps.mainCamera.czoomLevel,(pos.y - keyboard.editor.getHeight()) * ngps.mainCamera.czoomLevel);
 		target.allowUserMove = false;
 
 		if(keyboard.interface.subject.focus)
 			keyboard.interface.subject.focus();
 	}
 
-	keyboard.hide = function()
-	{
+	keyboard.hide = function() {
 		keyboard.interface.parent.hide();
 		if(_target)
 			_target.allowUserMove = true;
@@ -167,4 +177,5 @@ loadAppCode("edit/components/text",function(data)
 		if(Editor.keyBind)
 				Editor.keyBind.activate();
 	}
+	Editor.text.hide = keyboard.hide;
 });

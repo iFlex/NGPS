@@ -247,7 +247,7 @@ ngps.effects = new (function(){
       ngps.effects.uninstall(trigger,triggerer,fx);
     },
     execute:function(params,onFinished){
-      factory.root.cfocusOn(this,{});
+      ngps.mainCamera.cfocusOn(this,{});
     },
     initialise:function(descriptor){
 

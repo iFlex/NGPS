@@ -40,13 +40,13 @@ loadAppCode("zoom",function(data){
 		}
 		this.buttons['zup'].addPrimitive({type:"i",content:{class:"glyphicon glyphicon-zoom-in"}});
 		this.buttons['zup'].onTrigger = function(){
-			factory.root.czoom(zoomAmUp);
+			ngps.mainCamera.czoom(zoomAmUp);
 			zoomLevel *= zoomAmUp;
 		}
 
 		this.buttons['zdn'].addPrimitive({type:"i",content:{class:"glyphicon glyphicon-zoom-out"}});
 		this.buttons['zdn'].onTrigger = function(){
-			factory.root.czoom(zoomAmDn);
+			ngps.mainCamera.czoom(zoomAmDn);
 			zoomLevel *= zoomAmDn;
 		}
 		//

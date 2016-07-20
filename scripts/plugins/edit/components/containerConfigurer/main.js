@@ -29,7 +29,7 @@ loadAppCode("edit/components/containerConfigurer",function(data){
     interf.show();
     _target = target;
     var pos = _target.local2global();
-		interf.putAt(pos.x * factory.root.czoomLevel,pos.y * factory.root.czoomLevel);
+		interf.putAt(pos.x * ngps.mainCamera.czoomLevel,pos.y * ngps.mainCamera.czoomLevel);
   }
   this.hide = function(){
     interf.hide();
@@ -130,14 +130,14 @@ loadAppCode("edit/components/containerConfigurer",function(data){
     parent.fsw.DOMreference.innerHTML = '<i class="icon-user icon-white"></i>Full Screen Width';
     parent.fsw.DOMreference.onclick = function(){
       _target.setWidth(factory.base.getWidth());
-      factory.root.cfocusOn(_target,{});
+      ngps.mainCamera.cfocusOn(_target,{});
     }
 
     parent.fsh = parent.addChild({type:"button",autopos:true,autosize:true,class:"btn btn-default"});
     parent.fsh.DOMreference.innerHTML = '<i class="icon-user icon-white"></i>Full Screen Height';
     parent.fsh.DOMreference.onclick = function(){
       _target.setHeight(factory.base.getHeight());
-      factory.root.cfocusOn(_target,{});
+      ngps.mainCamera.cfocusOn(_target,{});
     }
 
   }

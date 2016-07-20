@@ -44,6 +44,7 @@
 //NOTE: when camera frame is an automatically positioned object the child display must be the same
 var ngps = ngps || {};
 ngps.camera = {};
+ngps.mainCamera = 0;
 
 //BACKWARDS COMPAT
 var Camera = ngps.camera;
@@ -117,6 +118,10 @@ ngps.camera.cstart = function()
 						(this.properties['surfaceHeight']) ? this.properties['surfaceHeight'] : this.getHeight());
 
 	console.log("New Camera("+this.UID+"):"+utils.debug(this.properties," "));
+    
+    //if main camera is not initialised, set it to the first ever camera object
+    if(ngps.mainCamera == 0)
+        ngps.mainCamera = this;
 }
 
 ngps.camera.setCameraRange = function ( w , h, ox, oy )

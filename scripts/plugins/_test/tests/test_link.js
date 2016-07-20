@@ -7,8 +7,8 @@ var a;
 function init()
 {
 	factory.init();
-	factory.root.loadApp("simple_connector");
-	factory.root.onTrigger = function(ctx,e)
+	ngps.mainCamera.loadApp("simple_connector");
+	ngps.mainCamera.onTrigger = function(ctx,e)
 	{
 		var c = factory.newContainer({x:e.clientX,y:e.clientY,width:100,height:100},"rounded_rect");
 		/*var cdsc = Descriptors.containers["rounded_rect"];

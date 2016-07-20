@@ -29,17 +29,16 @@
 var ngps = ngps || {};
 
 ngps.root = 0;
-ngps.camRoot = 0;
+ngps.DOMroot = document.body;
 
 ngps.containerData = {};
 ngps.containerData.containerIndex = 0;
 ngps.containerData.reffTree = {}; //quick reference tree
 ngps.containerData.cameraCtx = 0;
-ngps.containerData.root = document.body;
 
 //include dependencies
 //* needs drivers.js to be loaded beforehand
-requirejs(["support/TweenMax.min","interact","app","camera","gem","effects"],function(){ngps.containerData.ready = true;});
+requirejs(["support/TweenMax.min","interact","app","camera","gem","effects"],function(){ngps.status.loaded["container"] = true;});
 
 
 ngps.findContainer = function(uid){
@@ -251,7 +250,7 @@ ngps.container = function(_properties,_parent)
 		}
 		else
 		{
-			ngps.containerData.root.removeChild(this.DOMreference);
+			ngps.DOMroot.removeChild(this.DOMreference);
 		}
 
 		//EVENT
@@ -458,8 +457,13 @@ ngps.container = function(_properties,_parent)
 	}
 
 	this.global2local = function(x,y){
+		if( x === undefined ) {
+			x = this.getPos().x;
+			y = this.getPos().y;
+		}
+		
 		var origin = this.local2global(0,0);
-		return { x: x - origin.x, y: y - origin.y};
+		return { x: x*2 - origin.x, y: y*2 - origin.y};
 	}
 
 	//TODO: make it work for other browsers than chrome
@@ -775,7 +779,7 @@ ngps.container = function(_properties,_parent)
 			this.unlink(target);
 
 		//create container for link
-		var gcp = factory.root;//this.greatestCommonParent(target);
+		var gcp = ngps.mainCamera;//this.greatestCommonParent(target);
 		descriptor['container'].isLink = true;
 		var leLink = gcp.addChild( descriptor['container'] );
 
@@ -1091,7 +1095,7 @@ ngps.container = function(_properties,_parent)
 			if( this.parent )
 				this.parent.DOMreference.appendChild(this.DOMreference);
 			else //this is the master object ( root )
-				ngps.containerData.root.appendChild(this.DOMreference);
+				ngps.DOMroot.appendChild(this.DOMreference);
 		}
 		else { //add the isolated container
 			this.properties['*isolated'].appendChild(this.DOMreference);

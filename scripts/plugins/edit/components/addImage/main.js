@@ -8,21 +8,17 @@ loadAppCode("edit/components/addImage",function(data)
   
   Editor.images = this;
   var _target = false;
+  var putX = 0;
+  var putY = 0;
   var host = 0;
 
   function resizeToFit(c){
     var parent = 0;
     var dw = 0;
     var dh = 0;
-    if(!_target){
-      dw = c.getWidth()/factory.base.getWidth();
-      dh = c.getHeight()/factory.base.getHeight();
-    }
-    else
-    {
-      dw = c.getWidth()/_target.getWidth();
-      dh = c.getHeight()/_target.getHeight();
-    }
+    
+    dw = c.getWidth()/_target.getWidth();
+    dh = c.getHeight()/_target.getHeight();
 
     if(dw > 1 || dh > 1)
     {
@@ -32,9 +28,9 @@ loadAppCode("edit/components/addImage",function(data)
 
       //now center it
       var cpos = {};
-      if(!_target){
+      if(_target.UID == ngps.mainCamera.UID){
         cpos = factory.base.getPos(0.5,0.5);
-        cpos = factory.root.viewportToSurface(cpos.x,cpos.y);
+        cpos = ngps.mainCamera.viewportToSurface(cpos.x,cpos.y);
       }
       else{
         cpos.x = _target.getWidth()/2;
@@ -50,9 +46,9 @@ loadAppCode("edit/components/addImage",function(data)
   {
     if(!host){
         if(_target){
-        host = _target.addChild({x:0,y:0,width:0,height:0})
-        host.extend(Interactive);
-        host.interactive(true);
+        host = Editor._addContainer(putX,putY,_target); //_target.addChild({x:putX,y:putY,width:0,height:0})
+        host.setWidth(0);
+		host.setHeight(0);
       } else
         host = factory.container();
     } else {
@@ -69,23 +65,23 @@ loadAppCode("edit/components/addImage",function(data)
     addFromURL(e.target.result);
   }
 
-  this.import = function(target){
+  this.import = function(x,y,target){
+	putX = x;
+	putY = y;
     host = 0;
-    if(target)
-      _target = target;
-    else
-    {
-      target = factory.base;
-      _target = 0;
-    }
+	_target = target;
 
     Dialogue.import.show({
       fileHandler:addFromFile,
       urlHandler:addFromURL,
-      target:target
+      target:_target
     })
   }
-
+  
+  this.hide = function(){
+	  Dialogue.import.hide();
+  }
+  
   this.init = function(){
     console.log("edit/components/addImage - initialising...");
   }

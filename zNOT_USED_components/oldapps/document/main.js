@@ -3,7 +3,7 @@
 *	Author: Milorad Liviu Felix
 *	28 Jun 2014  18:45 GMT
 */
-//TODO: Fix weird trigger ( with the start editor listener ) evend firing on factory.root even though it's not listened for.
+//TODO: Fix weird trigger ( with the start editor listener ) evend firing on ngps.mainCamera even though it's not listened for.
 this.keyboard = {};
 keyboard.editor = 0;
 keyboard.cursor = "|";
@@ -31,7 +31,7 @@ loadAppCode("text",function(data)
 	this.init = function() //called only one when bound with container
 	{
 		//include app
-		keyboard.editor = factory.newContainer({x:100,y:100,width:500,height:50,background:"transparent"},"simple_rect",factory.root);
+		keyboard.editor = factory.newContainer({x:100,y:100,width:500,height:50,background:"transparent"},"simple_rect",ngps.mainCamera);
 		var s = document.createElement('script');
 		s.src = this.rootDir+"/operations.js";
 		var rootDir = this.rootDir;

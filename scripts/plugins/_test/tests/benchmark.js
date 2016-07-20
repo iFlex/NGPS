@@ -45,7 +45,7 @@ benchmark.scroll = function(i,am)
 	if(!am)
 		am = -1;
 	function move(){
-		factory.root.cmove(am,0)
+		ngps.mainCamera.cmove(am,0)
 		setTimeout(move,i)
 	}
 	move();
@@ -58,7 +58,7 @@ benchmark.rotate = function(i,am)
 	if(!am)
 		am = 1;
 	function rot(){
-		factory.root.crotate(am*Math.PI/180)
+		ngps.mainCamera.crotate(am*Math.PI/180)
 		setTimeout(rot,i)
 	}
 	rot();
@@ -70,13 +70,13 @@ benchmark.zoom = function(i)
 		i=30;
 	var zc = 0.99;
 	function zm(){
-		factory.root.czoom(zc);
-		if(factory.root.czoomLevel < 0.05)
+		ngps.mainCamera.czoom(zc);
+		if(ngps.mainCamera.czoomLevel < 0.05)
 		{
 			zc = 1.01;
 			cli.showPrompt(" Benchmark zoom changed direction > ");
 		}
-		if(factory.root.czoomLevel > 10)
+		if(ngps.mainCamera.czoomLevel > 10)
 		{
 			zc = 0.99;
 			cli.showPrompt(" Benchmark zoom changed direction <");
@@ -91,7 +91,7 @@ benchmark.focusTest = function()
 	for(var i =0;i<500;++i)
 	{
 		var o = factory.newContainer({x:x*size,y:y*size,width:100,height:100},"rounded_rect")
-		o.onTrigger = function(ctx){ factory.root.cfocusOn(ctx);}
+		o.onTrigger = function(ctx){ ngps.mainCamera.cfocusOn(ctx);}
 		nextSector();
 	}
 }
@@ -103,7 +103,7 @@ benchmark.link = function(nr,verbose){
 		for( k in node.children )
 			getAllElements(node.children[k]);
 	}
-	getAllElements(factory.root);
+	getAllElements(ngps.mainCamera);
 
 	linkData = {
 		left_container_xreff:0.5,
@@ -141,7 +141,7 @@ benchmark.link = function(nr,verbose){
 		if(verbose)
 		{
 			alert("pairing:"+key);
-			factory.root.cfocusOn(childrenList[left]);
+			ngps.mainCamera.cfocusOn(childrenList[left]);
 		}
 		nr--;
 	}

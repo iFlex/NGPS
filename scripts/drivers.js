@@ -237,14 +237,14 @@ ngps.utils.whois = function(elem)
 	return elem.UID;
 }
 
-ngps.platform.setup = function(root){
-	ngps.platform.NGPS_REF_CANVAS = document.createElement("canvas");
-	ngps.platform.NGPS_REF_CANVAS.style.cssText = "position:fixed;width:100%;height:100%;min-height:100%;"
-	root.appendChild(ngps.platform.NGPS_REF_CANVAS);
+ngps.platform.setup = function(){
+	ngps.platform.SIZEREF_OBJECT = document.createElement("canvas");
+    ngps.platform.SIZEREF_OBJECT.style.cssText = "position:fixed;width:100%;height:100%;min-height:100%;min-width:100%;"
+	ngps.root.appendChild(ngps.platform.SIZEREF_OBJECT);
 }
 
 ngps.platform.getScreenSize = function(){
-	return { height:ngps.platform.NGPS_REF_CANVAS.clientHeight, width:ngps.platform.NGPS_REF_CANVAS.clientWidth }
+	return { height:ngps.platform.SIZEREF_OBJECT.clientHeight, width:ngps.platform.SIZEREF_OBJECT.clientWidth }
 }
 
 ngps.platform.detectOS = function(){
