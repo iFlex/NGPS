@@ -104,9 +104,9 @@ loadAppCode("edit/components/appChoice",function(data)
     host.getInstalledUserApps(function(_apps){
         apps = _apps;
         console.log(apps);
-        root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",border_radius:["10px","10px","0px","0px"],background:"#E6E6E6",style:"padding-left:5px;padding-right:5px",permissions:factory.UIpermissions});
-        main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],"overflow-y":"scroll","overflow-x":"hidden",permissions:factory.UIpermissions,style:bkgStyle});
-        active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],permissions:factory.UIpermissions,"overflow-y":"scroll","overflow-x":"hidden",style:activeBkg});
+        root = factory.base.addChild({x:0,y:"100%",width:"100%",height:"50%",background:"#E6E6E6",style:"padding-left:5px;padding-right:5px",permissions:factory.UIpermissions});
+        main = root.addChild({x:0,y:0,width:"100%",height:"100%",border_radius:["0px"],"overflow-y":"scroll","overflow-x":"hidden",permissions:factory.UIpermissions,background:"grey"});
+        active = root.addChild({left:"0%",y:"100%",width:"100%",height:"100%",border_radius:["0px"],permissions:factory.UIpermissions,"overflow-y":"scroll","overflow-x":"hidden",background:"grey"});
         _buildMain();
         _buildActive();
     });
@@ -180,16 +180,4 @@ loadAppCode("edit/components/appChoice",function(data)
     for( k in apps)
       makeAppRecord(apps[k],popular);
   }
-  var bkgStyle = "background-size: 50px 50px;\
-background-color: #cdd1d2;\
-background-image: -webkit-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
-background-image: -moz-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
-background-image: linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
--pie-background: linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent) 0 0 / 50px #0ae;";
-  var activeBkg = "background-size: 50px 50px;\
-background-color: #77ce74;\
-background-image: -webkit-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
-background-image: -moz-linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
-background-image: linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent);\
--pie-background: linear-gradient(rgba(255, 255, 255, .2) 50%, transparent 50%, transparent) 0 0 / 50px #0ae;";
 });

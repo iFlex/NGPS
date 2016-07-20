@@ -22,23 +22,6 @@ loadAppCode("_edit",function(data)
 		selection:[]
 	};
 	var descriptor = {autopos:true,width:"100%",height:"33px",backrgound:"black",style:"margin-top:2px"};
-	function attachTextIcon(ct,text,icon,hook){
-		utils.makeHTML([{
-			i:{
-				class:icon
-			}
-		},{
-			input:{
-				type:"button",
-				class:"form-control",
-				style:"background-color: Transparent;background-repeat:no-repeat;border: none;color: white;",
-				value:text
-			}
-		}],ct.DOMreference);
-		ct.DOMreference.className="inner-addon right-addon";
-		if(hook)
-			ct.DOMreference.onclick = function(e){hook(e);};
-	}
 	
 	function linkTapCallbacks() {
 		Editor.dock.addContainer.EDIT_TAP = Editor.addContainer;
@@ -52,11 +35,13 @@ loadAppCode("_edit",function(data)
 		Editor.dock.addVideo.EDIT_TAP = Editor.videos.show;
 		Editor.dock.addVideo.CLEANUP = Editor.videos.hide;
 		
-		Editor.dock.link.EDIT_TAP = function(x,y,t,e){Editor.disableEdit();Editor.link.doLink(x,y,t,e);}
+		Editor.dock.link.EDIT_TAP = Editor.link.doLink;
 		Editor.dock.link.CLEANUP  = Editor.link.clear;
 		
 		Editor.actionButtons.edit.onTrigger = Editor.toggleEdit;
-		Editor.actionButtons.apps.onTrigger = Editor.apps.toggle;
+		Editor.actionButtons.apps.onTrigger = function(){Editor.apps.toggle();};//Editor.apps.toggle;
+		Editor.actionButtons.save.onTrigger = Editor.save;
+		Editor.actionButtons.load.onTrigger = Editor.load;
 	}
 	
 	function buildInterface(){
@@ -87,23 +72,12 @@ loadAppCode("_edit",function(data)
 		Editor.title.DOMreference.onfocus = function(){if(Editor.keyBind)Editor.keyBind.deactivate();}
 		Editor.title.DOMreference.onblur  = function(){if(Editor.keyBind)Editor.keyBind.activate();}
 		
-		
-		/*
-		attachTextIcon(Editor.dock.zoomOut,"Zoom out","glyphicon glyphicon-zoom-out",Editor.zoomOut);
-		attachTextIcon(Editor.dock.zoomIn,"Zoom in","glyphicon glyphicon-zoom-in",Editor.zoomIn);
-		/////////////////////////////////////////////////////////////////////////////////////////////
-		attachTextIcon(Editor.dock.addContainer,"Shape","glyphicon glyphicon-plus",Editor.menuTap);
-		attachTextIcon(Editor.dock.addText,"Text","glyphicon glyphicon-font",Editor.menuTap);
-		attachTextIcon(Editor.dock.addImage,"Image","glyphicon glyphicon-picture",Editor.menuTap);
-		attachTextIcon(Editor.dock.addVideo,"Video","glyphicon glyphicon-film",Editor.menuTap);
-		/////////////////////////////////////////////////////////////////////////////////////////////
-		attachTextIcon(Editor.dock.save,"Save","glyphicon glyphicon-save",Editor.save);
-		attachTextIcon(Editor.dock.load,"Load","glyphicon glyphicon-open",Editor.load);
-		attachTextIcon(Editor.dock.apps,"Apps","glyphicon glyphicon-th",Editor.toggleAppsMenu);
-		*/
-		
 		for( i in Editor.dock ) {
-			Editor.dock[i].onTrigger = Editor.menuTap;
+			if(i == "link")
+				Editor.dock[i].onTrigger = function(e){Editor.disableEdit();Editor.menuTap(e);};	
+			else
+				Editor.dock[i].onTrigger = Editor.menuTap;
+			
 			Editor.dock[i].extend(Interactive);
 			Editor.dock[i].interactive(true);
 			Editor.dock[i].DOMreference.innerHTML = i;
@@ -114,9 +88,6 @@ loadAppCode("_edit",function(data)
 			Editor.actionButtons[i].interactive(true);
 			Editor.actionButtons[i].DOMreference.innerHTML = i;
 		}
-		
-		Editor.actionButtons.save.onTrigger = Editor.save;
-		Editor.actionButtons.load.onTrigger = Editor.load;
 	}
 
 	this.init = function() //called only one when bound with container
