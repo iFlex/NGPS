@@ -148,6 +148,10 @@ loadAppCode("_edit",function(data)
 		if(Editor.shared.currentCleanupHandler)
 			Editor.shared.currentCleanupHandler();
 		
+		for( i in Editor.dock)
+			Editor.dock[i].DOMreference.style.backgroundColor = "black";
+		e.DOMreference.style.backgroundColor = "blue";
+		
 		console.log("Menu change")
 		console.log(e);
 		
@@ -185,11 +189,14 @@ loadAppCode("_edit",function(data)
 		Editor.sizer.hide();
 		Editor.actionButtons.edit.ENABLED = false;
 	}
-	this.toggleEdit = function(){	
-		if(!Editor.actionButtons.edit.ENABLED)
+	this.toggleEdit = function(e){	
+		if(!Editor.actionButtons.edit.ENABLED){
+			e.DOMreference.style.backgroundColor = "blue";
 			Editor.enableEdit();
-		else
+		} else {
+			e.DOMreference.style.backgroundColor = "black";
 			Editor.disableEdit();
+		}
 	}
 	
 	this.save = function() {
@@ -237,7 +244,7 @@ this._addContainer = function(x,y,parent){ //causes cyclic references in save tr
 	  fx.install("triggered",c,c);
   }
  ///////////////////////
-	utils.loadRawStyle("/* enable absolute positioning */\
+utils.loadRawStyle("/* enable absolute positioning */\
 .inner-addon { \
 	position: relative; \
 }\
