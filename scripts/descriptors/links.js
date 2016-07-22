@@ -8,5 +8,5 @@
 //initialise
 this.Descriptors = this.Descriptors || {}
 Descriptors.links = Descriptors.links || {};
-Descriptors.links['l000000'] = { name:"Simple" , height:10 , cssText : "background: black;" };
+Descriptors.links['l000000'] = { name:"Simple" , height:10 , cssText : "background: black;",border_radius:["5px","5px","5px","5px"] };
 Descriptors.links['l000001'] = { name:"Dashed" , height:10 , cssText : "border-width:5px;border-style:dashed;background: grey;" };

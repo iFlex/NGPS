@@ -41,6 +41,9 @@ loadAppCode("_edit",function(data)
 		Editor.dock.animations.EDIT_TAP = Editor.effects.activate;
 		Editor.dock.animations.CLEANUP  = Editor.effects.hide;
 		
+		Editor.dock.configure.EDIT_TAP = Editor.customizer.activate;
+		Editor.dock.configure.CLEANUP  = Editor.customizer.hide;
+		
 		Editor.actionButtons.edit.onTrigger = Editor.toggleEdit;
 		Editor.actionButtons.apps.onTrigger = function(){Editor.apps.toggle();};//Editor.apps.toggle;
 		Editor.actionButtons.save.onTrigger = Editor.save;
@@ -68,6 +71,8 @@ loadAppCode("_edit",function(data)
 		Editor.dock.select = Editor.interface.addChild({background:"black",autopos:true,width:"99%",height:32,style:"margin-top:5px;margin-left:auto;mergin-right:auto;padding-left:2px;background:rgba(0,0,0,0);text-aling:center"});
 		
 		Editor.dock.animations = Editor.interface.addChild({background:"black",autopos:true,width:"99%",height:32,style:"margin-top:5px;margin-left:auto;mergin-right:auto;padding-left:2px;background:rgba(0,0,0,0);text-aling:center"});
+		
+		Editor.dock.configure = Editor.interface.addChild({background:"black",autopos:true,width:"99%",height:32,style:"margin-top:5px;margin-left:auto;mergin-right:auto;padding-left:2px;background:rgba(0,0,0,0);text-aling:center"});
 		
 		Editor.actionButtons.save = Editor.interface.addChild({background:"black",autopos:true,width:"99%",height:32,style:"margin-top:5px;margin-left:auto;mergin-right:auto;padding-left:2px;background:rgba(0,0,0,0);text-aling:center"});
 		
@@ -183,7 +188,7 @@ loadAppCode("_edit",function(data)
 			Editor.shared.currentTapResponder(e.nativeEvent.clientX,e.nativeEvent.clientY,e.target,e);
 		} else {
 			Editor.sizer.show(e.target);
-			ngps.mainCamera.cfocusOn(e.target,{});
+			//ngps.mainCamera.cfocusOn(e.target,{});
 		}
 		Editor.shared.lastTapped = e.target.UID;
 	}

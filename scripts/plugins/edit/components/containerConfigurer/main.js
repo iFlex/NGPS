@@ -25,6 +25,11 @@ loadAppCode("edit/components/containerConfigurer",function(data){
     borderScroll.discard();
     delete interf;
   }
+  
+  this.activate = function(x,y,t){
+	  Editor.customizer.show(t);
+  }
+  
   this.show = function(target){
     interf.show();
     _target = target;

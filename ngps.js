@@ -15,11 +15,20 @@ ngps.statuses = {
 ngps.initStatus = ngps.statuses["not_initialised"];
 ngps.status = {loaded:{}};
 
+ngps.initParams = (function(){ var items = {}; 
+var query = window.location.search.substring(1).split("&"); 
+for( i in query){
+	var pair = query[i].split("=")
+	items[pair[0]] = pair[1];
+}
+return items;
+})();
+
 ngps.location = ngps.location || "";
 ngps.root = ngps.root || document.body;
 ngps.mode = "editor";
 if(window.location.search.indexOf("mode")>-1)
-    ngps.mode = window.location.search.substring(window.location.search.indexOf("=")+1,window.location.search.length);
+    ngps.mode = ngps.initParams["mode"];//window.location.search.substring(window.location.search.indexOf("=")+1,window.location.search.length);
 
 ngps.startup_callback = function(){
         platform.setup();
@@ -62,7 +71,8 @@ ngps.loadDependencies = function(onReady,mode){
   }
   var configs = {
     editor:["essentials","os","Bootstrap"],
-    view:["essentials","Bootstrap"]
+    view:["essentials","Bootstrap"],
+	webshow:["essentials","os","Bootstrap"]
   }
 
   function loadConfig(name){
