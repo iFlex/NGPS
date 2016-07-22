@@ -107,7 +107,9 @@ loadAppCode("edit/components/effects",function(data){
       cardUI.addChild({"*isolated":mountPoint,autopos:true,width:"100%",height:"2px"});
     }
   }
-
+  this.activate = function(x,y,t){
+	  Editor.effects.show(t);
+  }
   this.show = function(triggerer){
     if(this.showing)
       deleteOld();

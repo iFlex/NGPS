@@ -10,16 +10,11 @@ this.keyboard = {};
 keyboard.ops;
 keyboard.editor = 0;
 
-loadAppCode("edit/components/text",function(data)
+loadAppCode("edit/components/_text",function(data)
 {
 	this.config = {};
 	this.parent = data['parent'];
 	data.parent.setPermissions(factory.UIpermissions);
-
-	this.startWorker = data['startWorker'];
-	this.stopWorker = data['stopWorker'];
-	this.rootDir = "plugins/text";
-	
 	Editor.text = this;
 	
 	keyboard.uppercase = 0;
@@ -99,7 +94,6 @@ loadAppCode("edit/components/text",function(data)
 		c.interactive(true);  
 		Editor.text.makeTextContainer(c);
 		keyboard.focus(c);
-		Editor.text.startMonitoring();
 	}
 	
 	this.makeTextContainer = function(container,text){
@@ -169,7 +163,6 @@ loadAppCode("edit/components/text",function(data)
 	}
 
 	keyboard.hide = function() {
-		Editor.text.stopMonitoring();
 		keyboard.interface.parent.hide();
 		if(_target)
 			_target.allowUserMove = true;

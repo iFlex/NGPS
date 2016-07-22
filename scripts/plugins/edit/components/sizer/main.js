@@ -54,12 +54,14 @@ loadAppCode("edit/components/sizer",function(data)
     this.hide();
     delete Editor.sizer;
   }
-
+  this.activate = function(x,y,t){
+	  Editor.sizer.show(t);
+  }
   this._show = function(e){
     Editor.sizer.show(e.target);
   }
 
-  this.show = function(x,y,target)
+  this.show = function(target)
   {
 
     //console.log("SHOW");
