@@ -36,6 +36,9 @@ loadAppCode("edit/components/text",function(data)
 			longest = text
 		else
 			for( i in lines ) if(lines[i].length > longest.length) longest = lines[i]
+		
+		if(longest.length == 0)
+			longest = "Test text here"
 			
 		return [longest,lines.length+1];
 	}
@@ -104,6 +107,11 @@ loadAppCode("edit/components/text",function(data)
 	}
 	
 	this.quickMake = function(x,y,target){
+		if(target.textField){
+			Editor.sizer.show(target);
+			return;
+		}
+		
 		keyboard.hide();
 	
 		var c = target.addChild({x:x,y:y,width:100,height:100,background:"rgba(0,0,0,0.5)"});//factory.container();
