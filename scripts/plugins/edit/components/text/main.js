@@ -28,22 +28,37 @@ loadAppCode("edit/components/text",function(data)
 	var monInterval;
 	var ctdiv = 0;
 	
+	function processText(text){
+		var lines = (text.split(/\n/g)||[])
+		var longest = ""
+		
+		if(lines.length == 0)
+			longest = text
+		else
+			for( i in lines ) if(lines[i].length > longest.length) longest = lines[i]
+			
+		return [longest,lines.length+1];
+	}
+	
 	function monitor(){
 		if(!_target)
 			return;
-		ctdiv.DOMreference.innerHTML = _target.DOMreference.value;
-		_target.setWidth(ctdiv.DOMreference.scrollWidth+5);
-		_target.setHeight(ctdiv.DOMreference.scrollHeight+5);
-		console.log(ctdiv.DOMreference);
-		console.log("w:"+ctdiv.DOMreference.scrollWidth+" h:"+ctdiv.DOMreference.scrollHeight);
+		ctdiv.DOMreference.style.fontSize = _target.textField.style.fontSize;
+		ctdiv.DOMreference.style.fontStyle = _target.textField.style.fontStyle;
+		ctdiv.DOMreference.style.fontWeight = _target.textField.style.fontWeight;
+		
+		var processed = processText(_target.textField.value)
+		ctdiv.DOMreference.innerHTML = processed[0];
+		_target.setWidth(ctdiv.DOMreference.scrollWidth+20);
+		_target.setHeight(ctdiv.DOMreference.scrollHeight * processed[1]);
 	}
 
 	this.startMonitoring = function(){
-		monInterval = setInterval(monitor,100);
+		monInterval = setInterval(monitor,250);
 
 		if(!ctdiv)
-			ctdiv = factory.base.addChild({x:"100%",y:"100",width:1,height:1,style:"overflow:scroll",permissions:factory.UIpermissions});
-		ctdiv.DOMreference.innerHTML = _target.DOMreference.innerHTML;
+			ctdiv = factory.base.addChild({x:"100%",y:"100",width:1,height:1,style:"overflow:hidden;white-space:nowrap;",permissions:factory.UIpermissions});
+		ctdiv.DOMreference.innerHTML = _target.textField.value;
 	}
 
 	this.stopMonitoring = function(){
@@ -104,40 +119,20 @@ loadAppCode("edit/components/text",function(data)
 	
 	this.makeTextContainer = function(container,text){
 		if(!container.textField){
-			if(container._store && container._store.textFieldParentUID)
-			{
-				container.verticalAligner = findContainer(container._store.textFieldParentUID);
-				container.textField = container.verticalAligner.child;
-			} else {
-				container.ghostTable = container.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table",permissions:{interact:false}});
-				container.verticalAligner = container.ghostTable.addChild({width:"100%",height:"100%",autopos:true,background:"transparent",style:"display: table-cell;text-align: center;vertical-align: middle;",permissions:{interact:false}});
-				container.textField = container.verticalAligner.addPrimitive({type:"textarea",style:"width:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: center;overflow-y:hidden"});
-				container.addEventListener("triggered",function(data){keyboard.focus(data['target']);});
-				//////////////////////////////////////////////////////////////
-				container._store = {textFieldParentUID:container.verticalAligner.UID,"#BIND_editInterface":"text"};
-			}
+			container.DOMreference.style.overflow = "hidden"
+			container.textField = container.addPrimitive({type:"textarea",
+			style:"width:100%;height:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: left;overflow-y:hidden"});
+			container.addEventListener("triggered",function(data){keyboard.focus(data['target']);});
+			
+			container.textField.parent  = container;
+			container.onkeyup           = monitor;
+			container.editInterface     = 'text';
+			container.onTrigger         = focusOnTextField;
 		}
-
-		container.textField.onkeyup = adaptHeight;
-		container.textField.parent = container;
-		container.editInterface    = 'text';
-		container.onTrigger = focusOnTextField;
+		
 		if(text)
 			container.textField.innerHTML += text;
 		keyboard.focus(container);
-	}
-
-	function adaptHeight(e){
-		console.log(e);
-		e.target.style.height = "1px";
-		var newHeight = (25+e.target.scrollHeight);
-		if(newHeight > e.target.parent.getHeight()){
-			newHeight = e.target.parent.getHeight();
-			e.target.style.overflowY = "scroll";
-		} else {
-			e.target.style.overflowY = "hidden";
-		}
-		e.target.style.height = newHeight+"px";
 	}
 
 	function focusOnTextField(target){
@@ -156,28 +151,37 @@ loadAppCode("edit/components/text",function(data)
 
 		keyboard.interface.parent.show();
 		//assigns the editable DOM object
+		console.log("FOCUS")
+		console.log(target);
+		
 		_target = target;
 		keyboard.interface.target = target;
 		keyboard.interface.subject = target.textField;
-
+		target.textField.style.border = "2px solid";
+		
 		var pos = target.local2global();
 		keyboard.interface.parent.putAt(pos.x * ngps.mainCamera.czoomLevel,(pos.y - keyboard.editor.getHeight()) * ngps.mainCamera.czoomLevel);
 		target.allowUserMove = false;
 
 		if(keyboard.interface.subject.focus)
 			keyboard.interface.subject.focus();
+		
 	}
 
 	keyboard.hide = function() {
+		
 		Editor.text.stopMonitoring();
 		keyboard.interface.parent.hide();
-		if(_target)
+		if(_target){
 			_target.allowUserMove = true;
+			_target.textField.style.border = "0px solid";
+		}
 		keyboard.interface.subject = 0;
 		_target = 0;
 
 		if(Editor.keyBind)
 				Editor.keyBind.activate();
+		
 	}
 	Editor.text.hide = keyboard.hide;
 });

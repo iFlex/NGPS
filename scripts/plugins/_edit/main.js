@@ -23,6 +23,15 @@ loadAppCode("_edit",function(data)
 	};
 	var descriptor = {autopos:true,width:"100%",height:"33px",backrgound:"black",style:"margin-top:2px"};
 	
+	//Simplist click handler request system
+	var TapOverride = 0;
+	this.requestNextClick = function(callback){
+		TapOverride = callback;
+	}
+	this.cancelNextClickRequest = function(){
+		TapOverride = 0;
+	}
+	
 	function linkTapCallbacks() {
 		Editor.dock.addContainer.EDIT_TAP = Editor.addContainer;
 		
@@ -182,6 +191,12 @@ loadAppCode("_edit",function(data)
 		
 		if(e.target.UID > ngps.mainCamera.UID && e.target.getPermission("edit") != true)
 			return;
+		
+		Editor.shared.selected = e.target;
+		if(TapOverride) {
+			TapOverride(e);
+			return;
+		}
 		
 		if(Editor.shared.lastTapped == e.target.UID || e.target.UID == ngps.mainCamera.UID || !Editor.actionButtons.edit.ENABLED){
 			console.log(Editor.shared.currentTapResponder);
