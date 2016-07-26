@@ -80,7 +80,7 @@ save.unit = function(node){
 
 	_svd.parent = (node.parent)?node.parent.UID:null;
 	_svd.effects = node.effects; // Presentation effects
-	_svd.properties = utils.merge(node.properties,{});
+	_svd.properties = utils.merge(node.properties,{"lock_aspect":_svd.lockAspect});
 
 	//take out any possize data that is not relevant anymore
 	for( prop in nostore )

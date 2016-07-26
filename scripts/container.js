@@ -109,7 +109,8 @@ ngps.container = function(_properties,_parent)
 	{
 	  if(!this.DOMreference)
 			return;
-
+		
+		//this.lockAspect = false;
 		//override the old properties
 		for( k in data)
 			this.properties[k] = data[k];
@@ -151,6 +152,9 @@ ngps.container = function(_properties,_parent)
 				}
 			}
 		}
+		
+		//preserve aspect ratio when changing size
+		this.lockAspect = data["lock_aspect"] || false;
 	}
 	//EXTENTION Posibilities ( Turn Object into Camera )
 	this.extend = function( extensions )
@@ -531,30 +535,40 @@ ngps.container = function(_properties,_parent)
 		return this.getPos(0.5,0.5);
 	}
 	//setters
-	this.setWidth = function(w)
+	this.setWidth = function(w,skipAspect)
 	{
+		if(!skipAspect && this.lockAspect){
+			var aspect = this.getHeight()/this.getWidth();
+			this.setHeight(aspect*w,true);
+		}
+		
 		TweenMax.to(this.DOMreference,0,{
 			width:w,
 		});
 		if(this.isLeaf == true )
 			this.child.width = w;
 		//this.redraw();
-
+		
 		this.maintainLinks();
 		//EVENT
 		if( this.events['changeWidth'] || ( GEM.events['changeWidth'] && GEM.events['changeWidth']['_global'] ) )
 			GEM.fireEvent({event:"changewidth",target:this})
 	}
 
-	this.setHeight = function(h)
+	this.setHeight = function(h,skipAspect)
 	{
+		if(!skipAspect && this.lockAspect){
+			var aspect = this.getWidth()/this.getHeight()
+			this.setWidth(aspect*h,true);
+		}
+		
 		TweenMax.to(this.DOMreference,0,{
 			height:h,
 		});
 		if(this.isLeaf == true )
 			this.child.height = h;
 		//this.redraw();
-
+		
 		this.maintainLinks();
 		//EVENT
 		if( this.events['changeHeight'] || ( GEM.events['changeHeight'] && GEM.events['changeHeight']['_global'] ) )
@@ -637,6 +651,7 @@ ngps.container = function(_properties,_parent)
 		this.autoX      = pos.x / this.parent.getWidth();
 		this.autoY      = pos.y / this.parent.getHeight();
 	}
+	
 	this.updateAutoSizePos = function(){ //use to impose percentages
 		if(this.parent == undefined)
 			return;
@@ -1003,7 +1018,7 @@ ngps.container = function(_properties,_parent)
 			if( typeof this.properties[key]  == "number" )
 				this.properties[key] += "px";
 		}
-
+		
 		//Custom Styling
 		if(this.properties['class']){ //custom CSS styling ()
 			this.DOMreference.setAttribute('class',this.properties['class']);
@@ -1105,10 +1120,13 @@ ngps.container = function(_properties,_parent)
 				addChild:function(){}
 			};
 		}
-
+		
 		this.properties['width']  = this.getWidth();
 		this.properties['height'] = this.getHeight();
-
+	
+		//preserve aspect ratio when changing size
+		this.lockAspect = this.properties["lock_aspect"] || false;
+	
 		//inherit and set new specific permissions
 		if(this.UID == 0 )
 			this.setPermission('noOverride',true);

@@ -109,12 +109,13 @@ loadAppCode("edit/components/text",function(data)
 	this.quickMake = function(x,y,target){
 		if(target.textField){
 			Editor.sizer.show(target);
+			keyboard.focus(target);
 			return;
 		}
 		
 		keyboard.hide();
 	
-		var c = target.addChild({x:x,y:y,width:100,height:100,background:"rgba(0,0,0,0.5)"});//factory.container();
+		var c = target.addChild({x:x,y:y,width:100,height:100,background:"rgba(0,0,0,0)"});//factory.container();
 		var pos = c.global2local();
 		c.putAt(pos.x,pos.y,0.5,0.5);
 		
@@ -122,7 +123,6 @@ loadAppCode("edit/components/text",function(data)
 		c.interactive(true);  
 		Editor.text.makeTextContainer(c);
 		keyboard.focus(c);
-		Editor.text.startMonitoring();
 	}
 	
 	this.makeTextContainer = function(container,text){
@@ -130,7 +130,7 @@ loadAppCode("edit/components/text",function(data)
 			container.DOMreference.style.overflow = "hidden"
 			container.textField = container.addPrimitive({type:"textarea",
 			style:"width:100%;height:100%;background:transparent;resize: none;outline: none;border: 0px solid;display: block;padding: 0;text-align: left;overflow-y:hidden"});
-			container.addEventListener("triggered",function(data){keyboard.focus(data['target']);});
+			//container.addEventListener("triggered",function(data){keyboard.focus(data['target']);});
 			
 			container.textField.parent  = container;
 			container.onkeyup           = monitor;
@@ -153,10 +153,9 @@ loadAppCode("edit/components/text",function(data)
 	}
 
 	keyboard.focus = function(target) {
-		//Editor.addCloseCallback(keyboard.hide);
 		if(Editor.keyBind)
 				Editor.keyBind.deactivate();
-
+		
 		keyboard.interface.parent.show();
 		//assigns the editable DOM object
 		console.log("FOCUS")
@@ -174,6 +173,7 @@ loadAppCode("edit/components/text",function(data)
 		if(keyboard.interface.subject.focus)
 			keyboard.interface.subject.focus();
 		
+		Editor.text.startMonitoring();
 	}
 
 	keyboard.hide = function() {

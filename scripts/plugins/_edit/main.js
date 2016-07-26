@@ -50,7 +50,10 @@ loadAppCode("_edit",function(data)
 		Editor.dock.animations.EDIT_TAP = Editor.effects.activate;
 		Editor.dock.animations.CLEANUP  = Editor.effects.hide;
 		
-		Editor.dock.configure.EDIT_TAP = Editor.customizer.activate;
+		//Editor.dock.configure.EDIT_TAP = Editor.customizer.activate;
+		//Editor.dock.configure.CLEANUP  = Editor.customizer.hide;
+		
+		Editor.dock.configure.EDIT_TAP = Editor.customizer.focus;
 		Editor.dock.configure.CLEANUP  = Editor.customizer.hide;
 		
 		Editor.actionButtons.edit.onTrigger = Editor.toggleEdit;
@@ -127,12 +130,13 @@ loadAppCode("_edit",function(data)
 		factory.newGlobalApp("edit/components/appChoice");
 		factory.newGlobalApp('edit/components/link',{lastInterfaceContainer:5});
 		factory.newGlobalApp("edit/components/linkEdit");
-		factory.newGlobalApp("edit/components/containerConfigurer");
+		//factory.newGlobalApp("edit/components/containerConfigurer");
 		//factory.newGlobalApp("edit/components/quickAddInterface");
 		factory.newGlobalApp("edit/components/keyBindings");
 		factory.newGlobalApp("edit/components/effects");
 		factory.newGlobalApp("edit/components/selection");
 		factory.newGlobalApp("edit/components/clipboard");
+		factory.newGlobalApp("edit/components/customizer");
 		factory.newGlobalApp("userMsg");
 		
 		pLOAD.doInstallTriggers   = false;
@@ -159,6 +163,7 @@ loadAppCode("_edit",function(data)
 		factory.removeGlobalApp("edit/components/configureContainer");
 		factory.removeGlobalApp("edit/components/quickAddInterface");
 		factory.removeGlobalApp("edit/components/keyBindings");
+		factory.removeGlobalApp("edit/components/customizer");
 		factory.removeGlobalApp("userMsg");
 
 		Editor.interface.discard();
