@@ -1,5 +1,4 @@
 NGPS
 =====
 
-A purely JavaScript presentation platform that leverages the power of the web to build better presentations. 
-Supports plugins to extend the functionality of the platform in the form of apps.
+A pure JavaScript Presentation engine meant to create canvas presentations. It allows creating "containers"(divs) that hold content such as text, images, vides, sgv, etc. En experiment meant to be an alternative to PowerPoint and Prezi. 
